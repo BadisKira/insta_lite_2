@@ -47,4 +47,25 @@ the Authentification service we create to do the do
 
 # Gestion des roles
 1. create Role entity  and role Enum {Admin, user,privilegedUser } and Role repository
-2.
+2. then store them roles in data base (i'll create a sql file that will be laucnhned before the app)
+3. update the User entity to include the role 
+4. update the signup methods (add the role when creating)
+5. update the getAuthorities methdos 
+    ```
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+    SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role.getName().toString());    
+    return List.of(authority);
+    }
+    For role-based authorization, Spring Security adds a default ROLE_ prefix to the value given. This is why we concatenate the role's name with "ROLE_".
+
+    ```
+6. enable the method scurity of spring security (@EnableMethodSecurity) allow to protect the routes with annotations 
+    ```
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<User> authenticatedUser() {
+    	//some bullshit code in here...
+    }
+    
+    ```
