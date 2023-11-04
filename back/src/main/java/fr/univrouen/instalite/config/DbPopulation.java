@@ -46,15 +46,6 @@ public class DbPopulation implements ApplicationListener<ContextRefreshedEvent> 
         });
     }
     private void createAdmin() {
-        System.out.println("***************************************************DB POPULATION");
-        System.out.println("***************************************************DB POPULATION");
-        System.out.println("***************************************************DB POPULATION");
-        System.out.println("***************************************************DB POPULATION");
-        System.out.println("***************************************************DB POPULATION");
-        System.out.println("***************************************************DB POPULATION");
-        System.out.println("***************************************************DB POPULATION");
-        System.out.println("***************************************************DB POPULATION");
-        System.out.println("***************************************************DB POPULATION");
        User admin  = new User();
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.ADMIN);
         if (!optionalRole.isEmpty()) {

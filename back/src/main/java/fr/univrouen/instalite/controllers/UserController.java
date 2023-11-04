@@ -16,17 +16,30 @@ public class UserController {
     public UserController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
+
     @GetMapping("/")
+    public String getMessageForEveryOne(){
+        return "this message could be seen by anyone";
+    }
+
+    @GetMapping("/knownuser")
     @PreAuthorize("isAuthenticated()")
-    public List<User> getAllUser(){
-        return userRepository.findAll();
+    public String getMessageForAuthenticatedUsers(){
+        return "this message could only be seen by authenticated users";
     }
 
 
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
     public String getADMINMessage(){
-        return "U ARE AN ADMIN";
+        return "only admins can see this ";
+    }
+
+    @GetMapping("/admin2")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public String getADMINMessage2(){
+        return "only admins can see this 2";
     }
 
 }
