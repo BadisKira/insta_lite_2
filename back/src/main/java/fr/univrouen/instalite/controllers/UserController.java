@@ -2,6 +2,7 @@ package fr.univrouen.instalite.controllers;
 
 import fr.univrouen.instalite.entities.User;
 import fr.univrouen.instalite.repositories.UserRepository;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,17 +30,19 @@ public class UserController {
         return "this message could only be seen by authenticated users";
     }
 
+    @GetMapping("/userdemerde")
+    @PostAuthorize("hasRole('ROLE_USER')")
+    public String getUserMessage(){
+        return "only someone with role user can see this message ";
+    }
+
 
     @GetMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PostAuthorize("hasRole('ADMIN')")
+    /**oui mettre admin suffit a verifié le role*/
     public String getADMINMessage(){
         return "only admins can see this ";
     }
 
-    @GetMapping("/admin2")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String getADMINMessage2(){
-        return "only admins can see this 2";
-    }
 
 }
