@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -39,10 +41,27 @@ public class PostController {
     }
 
     //Get user's all posts
+    @GetMapping("/user/{id}")
+    public List<PostDto> getAllByUser(@PathVariable("id") Long id) throws IOException {
+        return  postService.getPostsFromOneUser(id) ;
+    }
+
+
+    @GetMapping("/all")
+    public List<PostDto> getAll() throws IOException {
+        return postService.getAllPosts();
+    }
 
     //Get public posts
-
+    @GetMapping("/public")
+    public List<PostDto> getAllPublicPosts() throws  IOException {
+        return postService.getPublicPosts() ;
+     }
     //Get private posts
 
+     @GetMapping("/private")
+        public List<PostDto> getAllPrivatePosts() throws  IOException {
+           return postService.getPrivatePosts() ;
+        }
     //
 }

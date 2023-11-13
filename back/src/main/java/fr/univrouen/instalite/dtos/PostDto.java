@@ -13,6 +13,7 @@ public class PostDto {
     private String id;
     private String title;
     private String description;
+
     private boolean isPublic;
     private Long userId;
 }
