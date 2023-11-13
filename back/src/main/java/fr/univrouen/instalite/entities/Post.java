@@ -3,6 +3,7 @@ package fr.univrouen.instalite.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table (name = "posts")
@@ -11,11 +12,10 @@ import lombok.*;
 @NoArgsConstructor
 public class Post {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    @Column(nullable = false)
-    private String path;
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "uuid2")
+    @Column(length = 36, nullable = false, updatable = false)
+    private String id;
 
     private String title;
 
@@ -23,13 +23,12 @@ public class Post {
 
     private boolean isPublic;
 
-    private POST_TYPE postType;
-
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private enum POST_TYPE{
-        IMAGE
+    public enum POST_TYPE{
+        IMAGE,
+        VIDOE
     }
 }

@@ -42,20 +42,12 @@ public class SecurityConfig {
 
         http
                 .csrf((csrf) -> csrf.disable())
-//                .csrf((csrf) -> csrf
-//                        .csrfTokenRequestHandler(csrfTokenRequestHandler)
-//                        .ignoringRequestMatchers("les pages a ne pas inclure dans la protection csrf")
-//                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-//                        .and().addFilterAfter(new CsrfFilter(), BasicAuthenticationFilter.class)
-//                ) ;
-
+                .cors(corsCustomizer->corsConfigurationSource())
                 .authorizeRequests((requests)->requests
-                        .requestMatchers("/api/login","/api/register").permitAll()
-                        .requestMatchers("/api/**").authenticated()
+//                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers("/api/login","/api/register","/api/posts").permitAll()
                 )
-
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-//                .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthentificationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
