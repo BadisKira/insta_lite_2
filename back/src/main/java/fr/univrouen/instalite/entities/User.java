@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -34,7 +35,8 @@ public class User implements UserDetails {
     @JoinColumn(name="role_id",referencedColumnName = "id" , nullable = false , unique = false)
     private Role role ;
 
-
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts = new ArrayList<Post>();
 
     /**
      * Returns the authorities granted to the user. Cannot return <code>null</code>.
