@@ -16,19 +16,13 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "uuid2")
     @Column(length = 36, nullable = false, updatable = false)
     private String id;
-
     private String title;
-
     private String description;
-
+    private String extension;
+    private String postType;
     private boolean isPublic;
-
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public enum POST_TYPE{
-        IMAGE,
-        VIDOE
-    }
 }
