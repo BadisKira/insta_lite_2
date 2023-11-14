@@ -1,4 +1,4 @@
-package fr.univrouen.instalite.dtos;
+package fr.univrouen.instalite.dtos.user;
 
 
 import lombok.AllArgsConstructor;

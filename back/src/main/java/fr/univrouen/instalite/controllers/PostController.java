@@ -1,8 +1,9 @@
 package fr.univrouen.instalite.controllers;
 
-import fr.univrouen.instalite.dtos.CreatePostDto;
-import fr.univrouen.instalite.dtos.PostCreatedDto;
-import fr.univrouen.instalite.dtos.PostDto;
+import fr.univrouen.instalite.dtos.exception.BadRequestException;
+import fr.univrouen.instalite.dtos.post.CreatePostDto;
+import fr.univrouen.instalite.dtos.post.PostCreatedDto;
+import fr.univrouen.instalite.dtos.post.PostDto;
 import fr.univrouen.instalite.services.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -39,6 +39,24 @@ public class PostController {
         PostDto postDto = postService.getById(id);
         return ResponseEntity.ok().body(postDto);
     }
+
+    //delete post by id
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable("id") String id) {
+        Boolean TOUTCESTBIENPASSE  = postService.deletePost(id);
+        if(TOUTCESTBIENPASSE) {
+            return ResponseEntity.ok().body("Le post " + id + " a été bien supprimé") ;
+        }else {
+            return ResponseEntity.notFound().build() ;
+        }
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<PostDto> update(@PathVariable("id") String id , @RequestBody CreatePostDto createPostDto) throws IOException, BadRequestException {
+        PostDto postDtoUpdated = this.postService.update(id, createPostDto) ;
+        return ResponseEntity.ok().body(postDtoUpdated) ;
+    }
+
 
     //Get user's all posts
     @GetMapping("/user/{id}")

@@ -1,6 +1,6 @@
 package fr.univrouen.instalite.services;
-import fr.univrouen.instalite.dtos.LoginUserDto;
-import fr.univrouen.instalite.dtos.RegisterUserDto;
+import fr.univrouen.instalite.dtos.user.LoginUserDto;
+import fr.univrouen.instalite.dtos.user.RegisterUserDto;
 import fr.univrouen.instalite.dtos.RoleEnum;
 import fr.univrouen.instalite.entities.Role;
 import fr.univrouen.instalite.entities.User;

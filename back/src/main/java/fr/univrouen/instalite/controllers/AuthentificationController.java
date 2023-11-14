@@ -1,7 +1,7 @@
 package fr.univrouen.instalite.controllers;
 
-import fr.univrouen.instalite.dtos.LoginUserDto;
-import fr.univrouen.instalite.dtos.RegisterUserDto;
+import fr.univrouen.instalite.dtos.user.LoginUserDto;
+import fr.univrouen.instalite.dtos.user.RegisterUserDto;
 import fr.univrouen.instalite.entities.User;
 import fr.univrouen.instalite.services.AuthentificationService;
 import fr.univrouen.instalite.services.JWTService;

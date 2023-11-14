@@ -10,6 +10,8 @@ import org.hibernate.annotations.GenericGenerator;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class Post {
     @Id
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
