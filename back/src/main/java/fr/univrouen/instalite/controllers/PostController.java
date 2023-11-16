@@ -27,13 +27,6 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new PostCreatedDto(id));
     }
 
-    /*@GetMapping("/{id}")
-    public ResponseEntity<Resource> get(@PathVariable("id") String id){
-        ResourceDto resourceDto = postService.getById(id);
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + id + "." +resourceDto.getExtension() + "\"").body(resourceDto.getResource());
-    }*/
-
     @GetMapping("/{id}")
     public ResponseEntity<PostDto> get(@PathVariable("id") String id) throws IOException {
         PostDto postDto = postService.getById(id);
@@ -75,8 +68,8 @@ public class PostController {
     public List<PostDto> getAllPublicPosts() throws  IOException {
         return postService.getPublicPosts() ;
      }
-    //Get private posts
 
+    //Get private posts
      @GetMapping("/private")
         public List<PostDto> getAllPrivatePosts() throws  IOException {
            return postService.getPrivatePosts() ;

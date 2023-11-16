@@ -39,17 +39,15 @@ public class PostService {
 
 
     private PostDto postToDto(Post post) throws IOException {
-        byte[] fileData = Files.readAllBytes(Path.of(resourcePath + post.getId() + "." + post.getExtension()));
+        /*byte[] fileData = Files.readAllBytes(Path.of(resourcePath + post.getId() + "." + post.getExtension()));
         String data = new String (Base64.getEncoder().encode(fileData));
         StringBuilder stringBuilder = new StringBuilder("data:");
-
         stringBuilder.append(post.getPostType()).
                 append("/").
                 append(post.getExtension()).
                 append(";base64, ").
-                append(data);
-
-        return new PostDto(stringBuilder.toString(), post.getId() ,post.getTitle(),post.getDescription(),
+                append(data);*/
+        return new PostDto(post.getId() ,post.getTitle(),post.getDescription(),
                 post.isPublic(),post.getUser().getId());
     }
 
@@ -82,29 +80,6 @@ public class PostService {
 
         return post.getId();
     }
-
-    /*public ResourceDto getById(String id){
-        Optional<Post> optPost = postRepository.findById(id);
-        if(optPost.isEmpty()){
-            //ToDo : Error !
-            return null;
-        }
-
-        Post post = optPost.get();
-        File file = new File(resourcePath + id + "." + post.getExtension());
-        Resource resource;
-        try{
-            resource = new UrlResource(file.toURI());
-        }catch (MalformedURLException e){
-            //ToDo : Error !
-            return null;
-        }
-
-        return new ResourceDto(resource, post.getExtension());
-
-        //return new PostDto(resource, id,post.getTitle(),post.getDescription(),
-        //       post.isPublic(),post.getUser().getId());
-    }*/
 
 
     public PostDto getById(String id) throws IOException {
