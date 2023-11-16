@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.io.FileNotFoundException;
+
 @ControllerAdvice
 public class ApplicationControllerAdvice {
 
@@ -32,6 +34,11 @@ public class ApplicationControllerAdvice {
         return new ErrorEntity(exception.getStatus(), exception.getMessage());
     }
 
+    @ExceptionHandler({FileNotFoundException.class})
+    public @ResponseBody ErrorEntity handleFileNotFound(FileNotFoundException exception){
+        return new ErrorEntity(HttpStatus.NOT_FOUND.value(), exception.getMessage());
+    }
+
     /**
      * JE SAIS PAS SI CA SE FAIT DE GERER CA COMME CA
      * */
@@ -39,7 +46,4 @@ public class ApplicationControllerAdvice {
     public @ResponseBody ErrorEntity handleRuntimeException (RuntimeException exception){
         return new ErrorEntity(500 , exception.getMessage());
     }
-
-
-
 }

@@ -4,6 +4,7 @@ import fr.univrouen.instalite.dtos.exception.BadRequestException;
 import fr.univrouen.instalite.dtos.post.CreatePostDto;
 import fr.univrouen.instalite.dtos.post.PostCreatedDto;
 import fr.univrouen.instalite.dtos.post.PostDto;
+import fr.univrouen.instalite.dtos.post.UpdatePostDto;
 import fr.univrouen.instalite.services.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,18 +36,14 @@ public class PostController {
 
     //delete post by id
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable("id") String id) {
-        Boolean TOUTCESTBIENPASSE  = postService.deletePost(id);
-        if(TOUTCESTBIENPASSE) {
-            return ResponseEntity.ok().body("Le post " + id + " a été bien supprimé") ;
-        }else {
-            return ResponseEntity.notFound().build() ;
-        }
+    public ResponseEntity<PostDto> delete(@PathVariable("id") String id) {
+        PostDto post = postService.deletePost(id);
+        return ResponseEntity.ok().body(post);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<PostDto> update(@PathVariable("id") String id , @RequestBody CreatePostDto createPostDto) throws IOException, BadRequestException {
-        PostDto postDtoUpdated = this.postService.update(id, createPostDto) ;
+    @PatchMapping
+    public ResponseEntity<PostDto> update(UpdatePostDto updatePostDto) throws IOException, BadRequestException {
+        PostDto postDtoUpdated = this.postService.update(updatePostDto) ;
         return ResponseEntity.ok().body(postDtoUpdated) ;
     }
 
@@ -59,20 +56,20 @@ public class PostController {
 
 
     @GetMapping("/all")
-    public List<PostDto> getAll() throws IOException {
-        return postService.getAllPosts();
+    public List<PostDto> getAll(@RequestParam(defaultValue = "0") int pageNumber,
+                                @RequestParam(defaultValue = "2") int pageLimit){
+        return postService.getAllPosts(pageNumber,pageLimit);
     }
 
     //Get public posts
     @GetMapping("/public")
-    public List<PostDto> getAllPublicPosts() throws  IOException {
-        return postService.getPublicPosts() ;
-     }
+    public List<PostDto> getAllPublicPosts(){
+        return postService.getPosts(true);
+    }
 
     //Get private posts
-     @GetMapping("/private")
-        public List<PostDto> getAllPrivatePosts() throws  IOException {
-           return postService.getPrivatePosts() ;
-        }
-    //
+    @GetMapping("/private")
+    public List<PostDto> getAllPrivatePosts(){
+       return postService.getPosts(false);
+    }
 }

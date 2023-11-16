@@ -4,6 +4,7 @@ import com.sun.jdi.request.ExceptionRequest;
 import fr.univrouen.instalite.dtos.exception.BadRequestException;
 import fr.univrouen.instalite.dtos.post.CreatePostDto;
 import fr.univrouen.instalite.dtos.post.PostDto;
+import fr.univrouen.instalite.dtos.post.UpdatePostDto;
 import fr.univrouen.instalite.entities.Post;
 import fr.univrouen.instalite.entities.User;
 import fr.univrouen.instalite.repositories.PostRepository;
@@ -11,13 +12,18 @@ import fr.univrouen.instalite.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.print.Pageable;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -121,78 +127,100 @@ public class PostService {
         return postsDtoPublic.toList();
     }
 
-      public List<PostDto> getPrivatePosts() throws IOException {
-              List<Post> postsPrivate =  this.postRepository.findByIsPublicFalse();
-              Stream<PostDto> postsDtoPrivate = postsPrivate.stream().map(x -> {
-                  try {
-                      return postToDto(x);
-                  } catch (IOException e) {
-                      throw new RuntimeException(e);
-                  }
-              });
-              return postsDtoPrivate.toList();
-     }
+    public List<PostDto> getPosts(boolean isPublic){
+        List<Post> postsPrivate = isPublic ? postRepository.findByIsPublicTrue() :
+                                    postRepository.findByIsPublicFalse();
 
-    public List<PostDto> getAllPosts() throws IOException {
-        List<Post> postsAll = (List<Post>) this.postRepository.findAll();
-        Stream<PostDto> postsDtoPrivate = postsAll.stream().map(x -> {
+        Stream<PostDto> postsDtoPrivate = postsPrivate.stream().map(x -> {
             try {
                 return postToDto(x);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
+
         return postsDtoPrivate.toList();
+     }
+
+    public List<PostDto> getAllPosts(int pageNumber, int pageLimit){
+        System.out.println("PageNumber : " + pageNumber + "  PageLimit : " + pageLimit);
+        Page<Post> page = postRepository.findAll(PageRequest.of(pageNumber,pageLimit));
+         return page.get().map(post -> {
+            try {
+               return postToDto(post);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
     }
 
-    public PostDto update(String idPost ,CreatePostDto updatePostDto) throws IOException, BadRequestException {
+    public PostDto update(UpdatePostDto updatePostDto) throws IOException, BadRequestException {
         /**
          * Verify that the post exists retrieve it
          * then update it's data
          * then save
          * */
+        Optional<Post> post = postRepository.findById(updatePostDto.getPostId());
+        if(post.isEmpty())
+            throw new EntityNotFoundException("Le Post que vous voulez modifier n'existe pas");
 
-          Optional<Post> post = postRepository.findById(idPost)  ;
-          if(post.isEmpty())
-              throw new EntityNotFoundException("Le Post que vous voulez modifier n'existe pas") ;
-          String[] contentType = updatePostDto.getData().getContentType().split("/");
-          String type = contentType[0];
-          String extension = contentType[1];
-          if(extension =="zip") {
-              throw new BadRequestException("Le Format de votre fichier n'est pas autorisé");
-          }
-          Optional<User> user = userRepository.findById(updatePostDto.getUserId());
-          if(user.isEmpty()){
-              throw new EntityNotFoundException("L'utilisateur de merde n'existe pas") ;
+        if(updatePostDto.getData() != null){
+            String[] contentType = updatePostDto.getData().getContentType().split("/");
+            String type = contentType[0];
+            String extension = contentType[1];
+            String oldFileName = post.get().getId() + "." + post.get().getExtension();
 
-          }
-          post.get().setDescription(updatePostDto.getDescription());
-          post.get().setUser(user.get());
-          post.get().setPublic(updatePostDto.isPublic());
-          post.get().setTitle(updatePostDto.getTitle());
-          post.get().setPostType(type);
-          postRepository.save(post.get());
-          File file = new File(resourcePath + post.get().getId()+ "." + extension);
-          try (OutputStream os = new FileOutputStream(file)) {
-              os.write(updatePostDto.getData().getBytes());
-          } catch (Exception e){
-              System.out.println("Error ! " + e.getMessage());
-          }
-          return postToDto(post.get());
+            if(extension.equals("zip")) {
+                throw new BadRequestException("Le Format de votre fichier n'est pas autorisé");
+            }
+
+            deleteResource(resourcePath + oldFileName);
+
+            String filePath = resourcePath + post.get().getId() + "." + extension;
+
+            createResource(filePath, updatePostDto.getData());
+
+            post.get().setPostType(type);
+            post.get().setExtension(extension);
+        }
+
+        if(updatePostDto.getDescription() != null){
+            post.get().setDescription(updatePostDto.getDescription());
+        }
+        if(updatePostDto.getTitle() != null){
+            post.get().setTitle(updatePostDto.getTitle());
+        }
+        if(updatePostDto.getIsPublic() != null){
+            post.get().setPublic(updatePostDto.getIsPublic());
+        }
+
+        postRepository.save(post.get());
+
+        return postToDto(post.get());
     }
 
-    public Boolean deletePost(String idPost) {
-        //FAUT AUSSI SUPPRIME LE FICHIER SUR LE DOSSIER POSTS
-      try {
-          Optional<Post> postTodelete = this.postRepository.findById(idPost);
-          if (postTodelete.isEmpty())
-              throw new EntityNotFoundException();
-          this.postRepository.deleteById(idPost);
-          return true;
-      } catch (Exception e) {
-          throw new RuntimeException(e);
-      }
+    public PostDto deletePost(String idPost) {
+        try {
+            Optional<Post> postTodelete = this.postRepository.findById(idPost);
+            if (postTodelete.isEmpty())
+                throw new EntityNotFoundException();
+            this.postRepository.delete(postTodelete.get());
+            String filePath = resourcePath + idPost + "." + postTodelete.get().getExtension();
+            deleteResource(filePath);
+            return postToDto(postTodelete.get());
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
     }
 
+    private void deleteResource(String filePath){
+        File file = new File(filePath);
+        file.delete();
+    }
 
+    private void createResource(String filePath, MultipartFile data) throws IOException {
+        File file = new File(filePath);
+        OutputStream os = new FileOutputStream(file);
+        os.write(data.getBytes());
+    }
 }
