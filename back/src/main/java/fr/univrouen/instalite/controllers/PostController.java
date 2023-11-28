@@ -1,10 +1,10 @@
 package fr.univrouen.instalite.controllers;
 
 import fr.univrouen.instalite.dtos.exception.BadRequestException;
-import fr.univrouen.instalite.dtos.post.CreatePostDto;
-import fr.univrouen.instalite.dtos.post.PostCreatedDto;
-import fr.univrouen.instalite.dtos.post.PostDto;
-import fr.univrouen.instalite.dtos.post.UpdatePostDto;
+import fr.univrouen.instalite.controllers.post.CreatePostDto;
+import fr.univrouen.instalite.controllers.post.PostCreatedDto;
+import fr.univrouen.instalite.controllers.post.PostDto;
+import fr.univrouen.instalite.controllers.post.UpdatePostDto;
 import fr.univrouen.instalite.services.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +56,7 @@ public class PostController {
 
 
     @GetMapping("/all")
+    //@PreAuthorize("hasRole('SUPERUSER')")
     public List<PostDto> getAll(@RequestParam(defaultValue = "0") int pageNumber,
                                 @RequestParam(defaultValue = "2") int pageLimit){
         return postService.getAllPosts(pageNumber,pageLimit);
@@ -72,4 +73,7 @@ public class PostController {
     public List<PostDto> getAllPrivatePosts(){
        return postService.getPosts(false);
     }
+
+
+
 }

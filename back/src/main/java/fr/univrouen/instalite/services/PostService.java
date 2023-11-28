@@ -1,10 +1,9 @@
 package fr.univrouen.instalite.services;
 
-import com.sun.jdi.request.ExceptionRequest;
 import fr.univrouen.instalite.dtos.exception.BadRequestException;
-import fr.univrouen.instalite.dtos.post.CreatePostDto;
-import fr.univrouen.instalite.dtos.post.PostDto;
-import fr.univrouen.instalite.dtos.post.UpdatePostDto;
+import fr.univrouen.instalite.controllers.post.CreatePostDto;
+import fr.univrouen.instalite.controllers.post.PostDto;
+import fr.univrouen.instalite.controllers.post.UpdatePostDto;
 import fr.univrouen.instalite.entities.Post;
 import fr.univrouen.instalite.entities.User;
 import fr.univrouen.instalite.repositories.PostRepository;
@@ -15,15 +14,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.print.Pageable;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Base64;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -54,7 +47,7 @@ public class PostService {
                 append(";base64, ").
                 append(data);*/
         return new PostDto(post.getId() ,post.getTitle(),post.getDescription(),
-                post.isPublic(),post.getUser().getId());
+                post.isPublic(),post.getUser().getId(),post.getUser().getLastName() +" "+ post.getUser().getLastName());
     }
 
 

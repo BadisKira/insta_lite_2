@@ -1,6 +1,7 @@
-package fr.univrouen.instalite.dtos.post;
+package fr.univrouen.instalite.controllers.post;
 
 
+import fr.univrouen.instalite.entities.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,4 +15,5 @@ public class PostDto {
     private String description;
     private boolean isPublic;
     private Long userId;
+    private String userName;
 }
