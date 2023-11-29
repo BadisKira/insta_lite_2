@@ -15,14 +15,14 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class AuthentificationService {
+public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final RoleRepository roleRepository ;
 
     @Autowired
-    public AuthentificationService(
+    public AuthenticationService(
             UserRepository userRepository,
             RoleRepository roleRepository,
             AuthenticationManager authenticationManager,
@@ -34,7 +34,7 @@ public class AuthentificationService {
         this.roleRepository = roleRepository;
     }
 
-    public AuthentificationService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, RoleRepository roleRepository) {
+    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
@@ -49,8 +49,8 @@ public class AuthentificationService {
         }
         User user = new User() ;
         user.setEmail(input.getEmail());
-        user.setLastName(input.getLastName());
-        user.setFirstName(input.getFirstName());
+        user.setLastname(input.getLastname());
+        user.setFirstname(input.getFirstname());
         user.setPassword(passwordEncoder.encode(input.getPassword()));
         user.setRole(optionalRole.get());
 

@@ -20,11 +20,17 @@ import java.util.List;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-@RequiredArgsConstructor
 @Configuration
 @EnableMethodSecurity(jsr250Enabled = true , securedEnabled = true , prePostEnabled = true)
 public class SecurityConfig {
     private final JWTAuthentificationFilter jwtAuthentificationFilter;
+
+    public SecurityConfig(JWTAuthentificationFilter jwtAuthentificationFilter) {
+        this.jwtAuthentificationFilter = jwtAuthentificationFilter;
+    }
+
+    
+
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws  Exception {
         CsrfTokenRequestAttributeHandler csrfTokenRequestHandler = new CsrfTokenRequestAttributeHandler();
@@ -51,10 +57,8 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .addFilterBefore(jwtAuthentificationFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 
 }
-
 

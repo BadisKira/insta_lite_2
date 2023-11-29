@@ -27,8 +27,6 @@ public class DbPopulation implements ApplicationListener<ContextRefreshedEvent> 
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-
-
         this.loadRoles();
         this.createAdmin();
     }
@@ -48,11 +46,11 @@ public class DbPopulation implements ApplicationListener<ContextRefreshedEvent> 
     private void createAdmin() {
        User admin  = new User();
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.ADMIN);
-        if (!optionalRole.isEmpty()) {
+        if (optionalRole.isPresent()) {
             // this means the role table is empty IMPOSSIBLE
             admin.setId(0L);
-            admin.setFirstName("admin");
-            admin.setLastName("admin");
+            admin.setFirstname("admin");
+            admin.setLastname("admin");
             admin.setEmail("admin@gmail.com");
             admin.setPassword(this.passwordEncoder.encode("admin"));
             admin.setRole(optionalRole.get());
