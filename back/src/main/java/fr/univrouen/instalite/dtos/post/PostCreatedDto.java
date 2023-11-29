@@ -1,4 +1,4 @@
-package fr.univrouen.instalite.controllers.post;
+package fr.univrouen.instalite.dtos.post;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

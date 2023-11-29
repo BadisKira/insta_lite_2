@@ -6,6 +6,7 @@ import { IPost } from "../types/post.type";
 import PostSkeleton from "../components/post/post.skeleton";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
+import CreatePost from "../components/post/createPost.component";
 const LIMIT = 2;
 
 const getPostsFn = async (page: number) => {
@@ -73,7 +74,10 @@ const FeedPage = () => {
         alignItems: "center",
         rowGap: 3,
       }}
-    >
+      >
+          <CreatePost />
+
+          <br/>
       {isLoading ? (
         <>
           <PostSkeleton />

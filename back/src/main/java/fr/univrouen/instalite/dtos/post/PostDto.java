@@ -1,10 +1,12 @@
-package fr.univrouen.instalite.controllers.post;
+package fr.univrouen.instalite.dtos.post;
 
 
 import fr.univrouen.instalite.entities.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.sql.Date;
 
 @Data
 @AllArgsConstructor
@@ -14,6 +16,9 @@ public class PostDto {
     private String title;
     private String description;
     private boolean isPublic;
+    private Date createdAt;
     private Long userId;
     private String userName;
+
+
 }

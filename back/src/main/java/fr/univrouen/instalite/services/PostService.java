@@ -1,9 +1,9 @@
 package fr.univrouen.instalite.services;
 
 import fr.univrouen.instalite.dtos.exception.BadRequestException;
-import fr.univrouen.instalite.controllers.post.CreatePostDto;
-import fr.univrouen.instalite.controllers.post.PostDto;
-import fr.univrouen.instalite.controllers.post.UpdatePostDto;
+import fr.univrouen.instalite.dtos.post.CreatePostDto;
+import fr.univrouen.instalite.dtos.post.PostDto;
+import fr.univrouen.instalite.dtos.post.UpdatePostDto;
 import fr.univrouen.instalite.entities.Post;
 import fr.univrouen.instalite.entities.User;
 import fr.univrouen.instalite.repositories.PostRepository;
@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -38,16 +40,15 @@ public class PostService {
 
 
     private PostDto postToDto(Post post) throws IOException {
-        /*byte[] fileData = Files.readAllBytes(Path.of(resourcePath + post.getId() + "." + post.getExtension()));
-        String data = new String (Base64.getEncoder().encode(fileData));
-        StringBuilder stringBuilder = new StringBuilder("data:");
-        stringBuilder.append(post.getPostType()).
-                append("/").
-                append(post.getExtension()).
-                append(";base64, ").
-                append(data);*/
-        return new PostDto(post.getId() ,post.getTitle(),post.getDescription(),
-                post.isPublic(),post.getUser().getId(),post.getUser().getLastName() +" "+ post.getUser().getLastName());
+        return new PostDto(
+                post.getId() ,
+                post.getTitle(),
+                post.getDescription(),
+                post.isPublic(),
+                post.getCreatedAt(),
+                post.getUser().getId(),
+                post.getUser().getLastName() +" "+ post.getUser().getLastName()
+        );
     }
 
 
@@ -67,7 +68,13 @@ public class PostService {
         }
 
 
-        Post post = new Post(null, createPostDto.getTitle(), createPostDto.getDescription(), extension, type ,createPostDto.isPublic(),user.get());
+        Post post = new Post(null, createPostDto.getTitle(),
+                createPostDto.getDescription(),
+                extension, type
+                ,createPostDto.isPublic()
+                ,Date.valueOf(LocalDate.now())
+                ,user.get()
+        );
         postRepository.save(post);
 
         File file = new File(resourcePath + post.getId() + "." + extension);

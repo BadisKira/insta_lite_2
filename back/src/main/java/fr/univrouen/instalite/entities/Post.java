@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.sql.Date;
+import java.time.LocalDate;
+
 @Entity
 @Table (name = "posts")
 @Data
@@ -23,6 +26,8 @@ public class Post {
     private String extension;
     private String postType;
     private boolean isPublic ;
+    @Column(name = "createdAt" , updatable = false )
+    private Date createdAt  ;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

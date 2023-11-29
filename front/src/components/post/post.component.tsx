@@ -18,6 +18,7 @@ const Post: React.FC<IPost> = ({
   description,
   id,
   userName,
+  createdAt
   
 }) => {
   return (
@@ -34,13 +35,13 @@ const Post: React.FC<IPost> = ({
           </IconButton>
         }
         title={title}
-        subheader="September 38, 2023"
+        subheader={createdAt}
       />
 
       <CardMedia
         component="img"
         image={`http://localhost:8080/api/resource/${id}`}
-        alt="Paella dish"
+        alt={title}
       />
 
       <CardContent>

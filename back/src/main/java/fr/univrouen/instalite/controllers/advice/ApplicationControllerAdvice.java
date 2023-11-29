@@ -26,6 +26,7 @@ public class ApplicationControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({HttpClientErrorException.BadRequest.class})
     public @ResponseBody ErrorEntity handleBadRequestEntity(HttpClientErrorException.BadRequest exception){
+        System.out.println(exception) ;
         return new ErrorEntity(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
     }
 

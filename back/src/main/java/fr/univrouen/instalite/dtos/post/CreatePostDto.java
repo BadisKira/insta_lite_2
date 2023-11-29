@@ -1,10 +1,12 @@
-package fr.univrouen.instalite.controllers.post;
+package fr.univrouen.instalite.dtos.post;
 
 import fr.univrouen.instalite.entities.Post;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.sql.Date;
 
 @Data
 @AllArgsConstructor
@@ -15,7 +17,7 @@ public class CreatePostDto {
     private String description;
     private boolean isPublic;
     private Long userId;
-
+    private Date createdAt;
     public void setIsPublic(Boolean isPublic) {
         this.isPublic = isPublic;
     }

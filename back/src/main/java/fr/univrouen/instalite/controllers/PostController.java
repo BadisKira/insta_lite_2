@@ -1,10 +1,10 @@
 package fr.univrouen.instalite.controllers;
 
 import fr.univrouen.instalite.dtos.exception.BadRequestException;
-import fr.univrouen.instalite.controllers.post.CreatePostDto;
-import fr.univrouen.instalite.controllers.post.PostCreatedDto;
-import fr.univrouen.instalite.controllers.post.PostDto;
-import fr.univrouen.instalite.controllers.post.UpdatePostDto;
+import fr.univrouen.instalite.dtos.post.CreatePostDto;
+import fr.univrouen.instalite.dtos.post.PostCreatedDto;
+import fr.univrouen.instalite.dtos.post.PostDto;
+import fr.univrouen.instalite.dtos.post.UpdatePostDto;
 import fr.univrouen.instalite.services.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +24,7 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<PostCreatedDto> create(CreatePostDto createPostDto){
+        System.out.println(createPostDto.getData());
         String id = postService.create(createPostDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new PostCreatedDto(id));
     }
