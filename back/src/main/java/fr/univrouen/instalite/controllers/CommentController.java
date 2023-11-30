@@ -1,26 +1,63 @@
 package fr.univrouen.instalite.controllers;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import fr.univrouen.instalite.dtos.comment.CommentDto;
+import fr.univrouen.instalite.dtos.comment.CreateCommentDto;
+import fr.univrouen.instalite.dtos.exception.BadRequestException;
+import fr.univrouen.instalite.dtos.post.PostCreatedDto;
+import fr.univrouen.instalite.services.CommentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/comments/")
+@RequestMapping("/api/comments")
 public class CommentController {
 
-    /**
-     * ToDo : created a comment for any connected user
-     * -- content , userId , postId , createdAt
-     * */
+
+    private CommentService commentService ;
+
+    public CommentController(CommentService commentService){
+        this.commentService = commentService;
+    }
+
+
+    @PostMapping("/")
+    public ResponseEntity<CommentDto> create(@RequestBody  CreateCommentDto createCommentDto) throws BadRequestException {
+         System.out.println("controller"  + createCommentDto.toString());
+        CommentDto commentDto = commentService.createComment(createCommentDto);
+        return  ResponseEntity.status(HttpStatus.CREATED).body(commentDto);
+
+    }
 
     /**
-     * ToDo : delete a comment for  admin OR the user that created the comment
-     * -- content , userId , postId , createdAt
+     *
+     * @GetMapping("/{postId}")
+     *     public ResponseEntity<List<CommentDto>> get(@PathVariable String postId) {
+     *
+     *         List<CommentDto> commentDtoList = this.commentService.getCommentFromPost(postId);
+     *         return  ResponseEntity.status(HttpStatus.OK).body(commentDtoList);
+     *     }
      * */
 
-    /**
-     * ToDo : update a comment for the user that created it
-     * -- content , userId , postId , createdAt
-     * */
+    @GetMapping("/{postId}")
+    public ResponseEntity<List<CommentDto>> getPaginated(@RequestParam(defaultValue = "0") int pageNumber,
+                                                         @RequestParam(defaultValue = "1") int pageLimit)
+    {
+            return  ResponseEntity.status(HttpStatus.OK).body(this.commentService.getPaginatedCommentFromPost(pageNumber,pageLimit));
+    }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<CommentDto> delete(@PathVariable String id){
+        return ResponseEntity.status(HttpStatus.OK).body(this.commentService.delete(id));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<CommentDto> update(@PathVariable String id , @RequestBody CreateCommentDto createCommentDto) {
+        CommentDto commentDto = this.commentService.update(id,createCommentDto);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(commentDto);
+    }
 
 }

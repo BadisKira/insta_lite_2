@@ -73,7 +73,8 @@ public class PostService {
                 extension, type
                 ,createPostDto.isPublic()
                 ,Date.valueOf(LocalDate.now())
-                ,user.get()
+                ,user.get() ,
+                null
         );
         postRepository.save(post);
 
@@ -143,7 +144,7 @@ public class PostService {
      }
 
     public List<PostDto> getAllPosts(int pageNumber, int pageLimit){
-        System.out.println("PageNumber : " + pageNumber + "  PageLimit : " + pageLimit);
+
         Page<Post> page = postRepository.findAll(PageRequest.of(pageNumber,pageLimit));
          return page.get().map(post -> {
             try {
@@ -152,6 +153,8 @@ public class PostService {
                 throw new RuntimeException(e);
             }
         }).toList();
+
+
     }
 
     public PostDto update(UpdatePostDto updatePostDto) throws IOException, BadRequestException {
