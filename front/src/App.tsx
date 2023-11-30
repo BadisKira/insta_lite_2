@@ -7,10 +7,9 @@ import { useAuthContext } from "./hooks/useAuthContext.hook"
 import EntryPage from "./pages/entry/entry.page"
 import FeedPage from "./pages/FeedPage/Feed.page"
 
-
 const App = () => {
 	const { isLoading, isAuthenticated } = useAuthContext()
-
+	
 	return (
 		<>
 			{!isLoading &&
@@ -36,6 +35,7 @@ const App = () => {
 				</Routes>
 			}
 		</>
+
 	)
 }
 

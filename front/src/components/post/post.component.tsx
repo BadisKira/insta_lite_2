@@ -11,50 +11,147 @@ import Typography from "@mui/material/Typography";
 import { red } from "@mui/material/colors";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { Box, Collapse } from "@mui/material";
+import img1 from "../../assets/coup-moyen-smiley-couple-assis-ensemble.jpg";
+import img2 from "../../assets/57309542.jpg";
+import img3 from "../../assets/couple-ayant-rendez-vous-nuit.jpg";
 
+import CommentIcon from "@mui/icons-material/Comment";
+import ContentDialog from "./content.dialog.component";
+import CommentSection from "../comment/commentSection.component";
 
 const Post: React.FC<IPost> = ({
   title,
   description,
   id,
   userName,
-  createdAt
-  
+  createdAt,
 }) => {
+  const [commentSectionOpen, setCommentSectionOpen] =
+    React.useState<boolean>(false);
+
+  const postRef = React.useRef();
+
+  const openCommentSection = () => {
+    setCommentSectionOpen(true);
+  };
+
+  const [openContentDialog, setOpenContentDialog] =
+    React.useState<boolean>(false);
   return (
-    <Card sx={{ width: 345 }}>
-      <CardHeader
-        avatar={
-          <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-            {userName.charAt(0).toUpperCase()}
-          </Avatar>
-        }
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
+    <Box
+      ref={postRef}
+      sx={{
+        display: "flex",
+        marginX: "auto",
+        marginTop: 2,
+        position: "relative",
+
+        width: commentSectionOpen ? 750 : 450,
+        transitionDuration: "200ms",
+        transition: "ease-in-out",
+      }}
+    >
+      <Card
+        sx={{
+          width: {
+            xs: "90%",
+            sm: 450,
+          },
+          height: {
+            xs: 550,
+          },
+
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <CardHeader
+          avatar={
+            <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
+              {userName.charAt(0).toUpperCase()}
+            </Avatar>
+          }
+          action={
+            <IconButton aria-label="settings">
+              <MoreVertIcon />
+            </IconButton>
+          }
+          title={title}
+          subheader={createdAt}
+        />
+        <CardMedia
+          sx={{
+            width: "100%",
+            height: 350,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            background: "black",
+            cursor: "pointer",
+          }}
+          onClick={() => {
+            setOpenContentDialog(true);
+          }}
+        >
+          <img
+            // src={http://localhost:8080/api/resource/${id}}
+            // alt={title}
+            src={
+              Math.floor(Math.random() * 100) > 50
+                ? img1
+                : Math.floor(Math.random() * 30) > 15
+                ? img3
+                : img2
+            }
+            style={{ height: "100%" }}
+          />
+
+          <ContentDialog
+            alt={title}
+            contentType={"IMAGE"}
+            fullScreen={false}
+            openContentDialog={openContentDialog}
+            setOpenContentDialog={setOpenContentDialog}
+            srcContent={img1}
+          />
+        </CardMedia>
+
+        <CardContent>
+          <Typography variant="body2" color="text.secondary">
+            {description}
+          </Typography>
+        </CardContent>
+        <CardActions disableSpacing>
+          <IconButton aria-label="add to favorites">
+            <FavoriteIcon />
           </IconButton>
-        }
-        title={title}
-        subheader={createdAt}
-      />
+        </CardActions>
+      </Card>
+      <IconButton
+        sx={{
+          position: "absolute",
+          bottom: 1,
+          right: 1,
+          display: !commentSectionOpen ? "block" : "none",
+        }}
+        onClick={openCommentSection}
+      >
+        <CommentIcon sx={{ marginTop: "auto", fontSize: 28 }} />
+      </IconButton>
 
-      <CardMedia
-        component="img"
-        image={`http://localhost:8080/api/resource/${id}`}
-        alt={title}
-      />
-
-      <CardContent>
-        <Typography variant="body2" color="text.secondary">
-          {description}
-        </Typography>
-      </CardContent>
-      <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
-        </IconButton>
-      </CardActions>
-    </Card>
+      <Collapse
+        orientation="horizontal"
+        in={commentSectionOpen}
+        mountOnEnter
+        unmountOnExit
+      >
+        <Box bgcolor={"wheat"} height={"100%"} width={300}>
+          <CommentSection setCommentSectionOpen={setCommentSectionOpen} />
+        </Box>
+      </Collapse>
+    </Box>
   );
 };
 export default Post;
+
