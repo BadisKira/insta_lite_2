@@ -1,4 +1,4 @@
-package fr.univrouen.instalite.entities;
+package fr.univrouen.instalite.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -3,8 +3,8 @@ package fr.univrouen.instalite.controllers;
 
 import fr.univrouen.instalite.dtos.user.LoginUserDto;
 import fr.univrouen.instalite.dtos.user.RegisterUserDto;
-import fr.univrouen.instalite.entities.ResponseLogin;
-import fr.univrouen.instalite.entities.ResponseUser;
+import fr.univrouen.instalite.dtos.ResponseLogin;
+import fr.univrouen.instalite.dtos.ResponseUser;
 import fr.univrouen.instalite.entities.User;
 import fr.univrouen.instalite.services.AuthenticationService;
 import fr.univrouen.instalite.services.JWTService;
