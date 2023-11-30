@@ -1,9 +1,11 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation,  useQueryClient } from "@tanstack/react-query";
 import { ICreatePost } from "../../types/post.type";
 import { Button, Chip, Grid, Paper, Stack, TextField } from "@mui/material";
 import { useState } from "react";
 import axios from "axios";
 import { Done } from "@mui/icons-material";
+
+
 
 const EMPTYPOST:ICreatePost= {
   data: null,
@@ -37,6 +39,7 @@ const createPostFn = async (post: ICreatePost) => {
 
 const CreatePost = () => {
   const [postInfo, setPostInfo] = useState<ICreatePost | undefined>(undefined);
+  const queryPost = useQueryClient();
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -58,13 +61,16 @@ const CreatePost = () => {
     },
     onSuccess: () => {
       // faire un toast
+      queryPost.invalidateQueries({
+        queryKey: ["feedposts"],
+      });
       setPostInfo(EMPTYPOST);
     },
   });
 
   console.log(postInfo?.data);
   return (
-    <Paper elevation={10} sx={{ width: "100%" }}>
+    <Paper elevation={10} sx={{ width: "100%" , marginTop:3  , padding:2}}>
       <form
         onSubmit={async (e) => {
           e.preventDefault();

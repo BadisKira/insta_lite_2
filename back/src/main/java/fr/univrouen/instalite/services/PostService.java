@@ -47,7 +47,7 @@ public class PostService {
                 post.isPublic(),
                 post.getCreatedAt(),
                 post.getUser().getId(),
-                post.getUser().getLastName() +" "+ post.getUser().getLastName()
+                post.getUser().getFirstname() +" "+ post.getUser().getLastname()
         );
     }
 

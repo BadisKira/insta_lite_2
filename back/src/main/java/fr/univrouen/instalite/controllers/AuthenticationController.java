@@ -1,7 +1,8 @@
 package fr.univrouen.instalite.controllers;
 
-import fr.univrouen.instalite.dtos.LoginUserDto;
-import fr.univrouen.instalite.dtos.RegisterUserDto;
+
+import fr.univrouen.instalite.dtos.user.LoginUserDto;
+import fr.univrouen.instalite.dtos.user.RegisterUserDto;
 import fr.univrouen.instalite.entities.ResponseLogin;
 import fr.univrouen.instalite.entities.ResponseUser;
 import fr.univrouen.instalite.entities.User;
@@ -13,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins = "http://127.0.0.1:5173")
 @RequestMapping("/api")
 public class AuthenticationController {
 
