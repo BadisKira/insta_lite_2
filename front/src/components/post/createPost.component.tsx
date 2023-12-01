@@ -1,20 +1,18 @@
-import { useMutation,  useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ICreatePost } from "../../types/post.type";
 import { Button, Chip, Grid, Paper, Stack, TextField } from "@mui/material";
 import { useState } from "react";
 import axios from "axios";
 import { Done } from "@mui/icons-material";
-
-
-
-const EMPTYPOST:ICreatePost= {
+import { instaliteApi } from "../../utils/axios/axiosConnection";
+const EMPTYPOST: ICreatePost = {
   data: null,
   isPublic: true,
   description: "",
   postType: "IMAGE",
   title: "",
-  userId: 0
-}
+  userId: 0,
+};
 
 const createPostFn = async (post: ICreatePost) => {
   const postFormData = new FormData();
@@ -23,14 +21,14 @@ const createPostFn = async (post: ICreatePost) => {
   postFormData.append("description", post.description);
   postFormData.append("isPublic", post.isPublic ? "true" : "false");
 
-  if(post.data ) postFormData.append("data", post.data);
+  if (post.data) postFormData.append("data", post.data);
   postFormData.append("postType", "IMAGE");
-  postFormData.append("userId","1");
+  postFormData.append("userId", "1");
 
   // const token ="12345789feztyfuhebhjav ce fervheh jueiz fveurihvjzbjdsvfv ";
 
-  const response = await axios.postForm(
-    `http://localhost:8080/api/posts`,
+  const response = await instaliteApi.postForm(
+    `posts`,
     postFormData,
     { headers: { "Content-Type": "Application/json" } }
   );
@@ -68,9 +66,8 @@ const CreatePost = () => {
     },
   });
 
-  console.log(postInfo?.data);
   return (
-    <Paper elevation={10} sx={{ width: "100%" , marginTop:3  , padding:2}}>
+    <Paper elevation={10} sx={{ width: "100%", marginTop: 3, padding: 2 }}>
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -103,9 +100,12 @@ const CreatePost = () => {
                 accept={"image/*"}
                 required
                 name="data"
-                onChange={(e:React.ChangeEvent<HTMLInputElement>) => {
-                  if(postInfo)
-                  setPostInfo({...postInfo , data: e.target.files ? e.target.files[0] : null }) ;
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  if (postInfo)
+                    setPostInfo({
+                      ...postInfo,
+                      data: e.target.files ? e.target.files[0] : null,
+                    });
                 }}
               />
             </Grid>

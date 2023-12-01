@@ -12,9 +12,6 @@ import { red } from "@mui/material/colors";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Box, Collapse } from "@mui/material";
-import img1 from "../../assets/coup-moyen-smiley-couple-assis-ensemble.jpg";
-import img2 from "../../assets/57309542.jpg";
-import img3 from "../../assets/couple-ayant-rendez-vous-nuit.jpg";
 
 import CommentIcon from "@mui/icons-material/Comment";
 import ContentDialog from "./content.dialog.component";
@@ -95,15 +92,8 @@ const Post: React.FC<IPost> = ({
           }}
         >
           <img
-            // src={http://localhost:8080/api/resource/${id}}
-            // alt={title}
-            src={
-              Math.floor(Math.random() * 100) > 50
-                ? img1
-                : Math.floor(Math.random() * 30) > 15
-                ? img3
-                : img2
-            }
+            src={`http://localhost:8080/api/resource/${id}`}
+            alt={title}
             style={{ height: "100%" }}
           />
 
@@ -113,7 +103,7 @@ const Post: React.FC<IPost> = ({
             fullScreen={false}
             openContentDialog={openContentDialog}
             setOpenContentDialog={setOpenContentDialog}
-            srcContent={img1}
+            srcContent={`http://localhost:8080/api/resource/${id}`}
           />
         </CardMedia>
 
@@ -146,8 +136,8 @@ const Post: React.FC<IPost> = ({
         mountOnEnter
         unmountOnExit
       >
-        <Box bgcolor={"wheat"} height={"100%"} width={300}>
-          <CommentSection setCommentSectionOpen={setCommentSectionOpen} />
+        <Box  height={"100%"} width={300}>
+          <CommentSection idPost={id} setCommentSectionOpen={setCommentSectionOpen} />
         </Box>
       </Collapse>
     </Box>

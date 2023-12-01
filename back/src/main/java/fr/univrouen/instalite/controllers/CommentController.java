@@ -26,10 +26,9 @@ public class CommentController {
 
     @PostMapping("/")
     public ResponseEntity<CommentDto> create(@RequestBody  CreateCommentDto createCommentDto) throws BadRequestException {
-         System.out.println("controller"  + createCommentDto.toString());
+        System.out.println("Controller comment create  " + createCommentDto.toString());
         CommentDto commentDto = commentService.createComment(createCommentDto);
         return  ResponseEntity.status(HttpStatus.CREATED).body(commentDto);
-
     }
 
     /**

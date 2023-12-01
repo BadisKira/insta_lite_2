@@ -1,5 +1,4 @@
 import { Button, Container } from "@mui/material";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { instaliteApi } from "../../utils/axios/axiosConnection";
 import Post from "../../components/post/post.component";
 import { IPost } from "../../types/post.type";
@@ -7,7 +6,8 @@ import PostSkeleton from "../../components/post/post.skeleton";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
 import CreatePost from "../../components/post/createPost.component";
-const LIMIT = 2;
+import { usePaginatedQuery } from "../../hooks/usePaginatedQuery";
+
 
 const getPostsFn = async (page: number) => {
   
@@ -23,7 +23,7 @@ const getPostsFn = async (page: number) => {
     {
       headers: {
         "Content-Type": "Application/json",
-        "Authorization":"Bearer " + token
+        // "Authorization":"Bearer " + token
       },
     }
   );
@@ -32,27 +32,17 @@ const getPostsFn = async (page: number) => {
 
 const FeedPage = () => {
   const {
-    data: feedposts,
+    data,
     isError,
     isLoading,
     isSuccess,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery({
+  } = usePaginatedQuery({
+    getResourceFn: getPostsFn,
+    limit: 2,
     queryKey: ["feedposts"],
-    queryFn: async ({ pageParam }: { pageParam: number }) =>
-      await getPostsFn(pageParam), // pageParam === pageNumber}
-    // select: (data) => ({
-    //   pages: [...data.pages].reverse(),
-    //   pageParams: [...data.pageParams].reverse(),
-    // }),
-    getNextPageParam: (lastPage: any, allPages: any) => {
-      const nextPage =
-        lastPage.length === LIMIT ? allPages.length + 1 : undefined;
-      return nextPage;
-    },
-    initialPageParam: 1,
   });
 
   /***
@@ -96,10 +86,13 @@ const FeedPage = () => {
           {isError && <>Error</>}
           {isSuccess && (
             <>
-              {feedposts.pages.map((feedPostPage: IPost[]) => {
-                return feedPostPage.map((feedpost) => (
-                  <Post {...feedpost} key={feedpost.id} />
-                ));
+              {data?.pages.map((feedPostPage: IPost[]) => {
+                if (feedPostPage.length > 0) {
+                  return feedPostPage.map((feedpost) => (
+                    <Post {...feedpost} key={feedpost.id} />
+                  ));
+                }
+                
               })}
             </>
           )}
