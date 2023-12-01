@@ -2,7 +2,7 @@ export type IComment = {
     id: string,
     userName: string,
     postId: string,
-    createdAt: Date,
+    createdAt: String,
     content:string,
 };
 

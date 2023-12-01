@@ -20,6 +20,9 @@ public class PostDto {
     private Long userId;
     private String userName;
 
+    private int commentsNumber;
+
+
     public String getId() {
         return id;
     }

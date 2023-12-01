@@ -24,7 +24,7 @@ public class CommentController {
     }
 
 
-    @PostMapping("/")
+    @PostMapping()
     public ResponseEntity<CommentDto> create(@RequestBody  CreateCommentDto createCommentDto) throws BadRequestException {
         System.out.println("Controller comment create  " + createCommentDto.toString());
         CommentDto commentDto = commentService.createComment(createCommentDto);
@@ -42,10 +42,12 @@ public class CommentController {
      * */
 
     @GetMapping("/{postId}")
-    public ResponseEntity<List<CommentDto>> getPaginated(@RequestParam(defaultValue = "0") int pageNumber,
+    public ResponseEntity<List<CommentDto>> getPaginated(
+            @PathVariable String postId,
+            @RequestParam(defaultValue = "0") int pageNumber,
                                                          @RequestParam(defaultValue = "1") int pageLimit)
     {
-            return  ResponseEntity.status(HttpStatus.OK).body(this.commentService.getPaginatedCommentFromPost(pageNumber,pageLimit));
+            return  ResponseEntity.status(HttpStatus.OK).body(this.commentService.getPaginatedCommentFromPost(postId,pageNumber,pageLimit));
     }
 
     @DeleteMapping("/{id}")

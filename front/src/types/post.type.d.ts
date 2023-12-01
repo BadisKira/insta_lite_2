@@ -1,11 +1,12 @@
 export interface IPost {
-    id: string, 
-    title: string,
-    description: string, 
-    userId: number  , 
-    userName:string , 
-    public: boolean, 
-    createdAt: string
+  id: string;
+  title: string;
+  description: string;
+  userId: number;
+  userName: string;
+  public: boolean;
+  createdAt: string;
+  commentsNumber:number
 }
 
 export interface ICreatePost {

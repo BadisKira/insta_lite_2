@@ -86,9 +86,13 @@ public class CommentService {
     }
 
 
-    public List<CommentDto> getPaginatedCommentFromPost(int pageNumber, int pageLimit) {
-                  Page<Comment> page = commentRepository.findAll(PageRequest.of(pageNumber,pageLimit));
-                   return page.get().map(comment -> commentToCommentDto(comment)).toList();
+    public List<CommentDto> getPaginatedCommentFromPost(String postId , int pageNumber, int pageLimit) {
+        Optional<Post> post = postRepository.findById(postId) ;
+        if(post.isEmpty())
+            throw new EntityNotFoundException("le post avec l'identifiant " + postId + " n'existe pas") ;
+
+        Page<Comment> page = commentRepository.findCommentsByPost_Id(postId,PageRequest.of(pageNumber,pageLimit));
+        return page.get().map(comment -> commentToCommentDto(comment)).toList();
     }
 
     public CommentDto delete(String commentId){

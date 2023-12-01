@@ -2,9 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ICreatePost } from "../../types/post.type";
 import { Button, Chip, Grid, Paper, Stack, TextField } from "@mui/material";
 import { useState } from "react";
-import axios from "axios";
 import { Done } from "@mui/icons-material";
 import { instaliteApi } from "../../utils/axios/axiosConnection";
+import Loader from "../Loader";
+
+
 const EMPTYPOST: ICreatePost = {
   data: null,
   isPublic: true,
@@ -27,11 +29,10 @@ const createPostFn = async (post: ICreatePost) => {
 
   // const token ="12345789feztyfuhebhjav ce fervheh jueiz fveurihvjzbjdsvfv ";
 
-  const response = await instaliteApi.postForm(
-    `posts`,
-    postFormData,
-    { headers: { "Content-Type": "Application/json" } }
-  );
+  console.log(post);
+  const response = await instaliteApi.postForm(`posts`, postFormData, {
+    headers: { "Content-Type": "Application/json" },
+  });
   return await response.data;
 };
 
@@ -47,11 +48,7 @@ const CreatePost = () => {
         return { ...prev, [e.target.name]: e.target.value };
     });
   };
-  const {
-    mutateAsync: createPostMutate,
-    isPending,
-    isSuccess,
-  } = useMutation({
+  const { mutateAsync: createPostMutate, isPending } = useMutation({
     mutationKey: ["feedposts"],
     mutationFn: async (post: ICreatePost) => await createPostFn(post),
     onError: () => {
@@ -73,10 +70,6 @@ const CreatePost = () => {
           e.preventDefault();
           console.log(postInfo);
           if (postInfo) await createPostMutate({ ...postInfo, userId: 1 });
-
-          if (isSuccess) {
-            alert("isSucces");
-          }
         }}
       >
         <Grid container gap={1}>
@@ -140,20 +133,18 @@ const CreatePost = () => {
             />
           </Grid>
         </Grid>
-        {isPending ? (
-          "Loading......"
-        ) : (
-          <Button
-            type="submit"
-            variant="outlined"
-            sx={{
-              width: "150px",
-              marginY: "10px",
-            }}
-          >
-            Create{" "}
-          </Button>
-        )}
+
+        <Button
+          type="submit"
+          variant="outlined"
+          sx={{
+            width: "150px",
+            height: "40px",
+            marginY: "10px",
+          }}
+        >
+          {isPending ? <Loader /> : "Create"}
+        </Button>
       </form>
     </Paper>
   );

@@ -13,4 +13,5 @@ public interface PostRepository extends ListCrudRepository<Post,String>, PagingA
     Optional<List<Post>>  getOptionalPostListByUserId(Long id);
     List<Post> findByIsPublicFalse();
     List<Post> findByIsPublicTrue();
+
 }

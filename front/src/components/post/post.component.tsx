@@ -11,11 +11,23 @@ import Typography from "@mui/material/Typography";
 import { red } from "@mui/material/colors";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { Box, Collapse } from "@mui/material";
-
-import CommentIcon from "@mui/icons-material/Comment";
+import { Box, Collapse, useMediaQuery, useTheme } from "@mui/material";
+import NotesIcon from "@mui/icons-material/Notes";
 import ContentDialog from "./content.dialog.component";
 import CommentSection from "../comment/commentSection.component";
+
+const WIDTH_COMPONENT = 500;
+const WIDTH_EXPAND_COMMENT = 850;
+
+const WIDTH_CARD = 500;
+const WIDTH_COMMENT = 350;
+
+const HEIGHT_COMPONENT = 600;
+
+const HEIGHT_CARD = HEIGHT_COMPONENT;
+const HEIGHT_COMMENT_WHEN_EXPAND = 400;
+
+const HEIGHT_COMPONENT_EXPAND = HEIGHT_CARD + HEIGHT_COMMENT_WHEN_EXPAND;
 
 const Post: React.FC<IPost> = ({
   title,
@@ -23,6 +35,7 @@ const Post: React.FC<IPost> = ({
   id,
   userName,
   createdAt,
+  commentsNumber,
 }) => {
   const [commentSectionOpen, setCommentSectionOpen] =
     React.useState<boolean>(false);
@@ -33,31 +46,41 @@ const Post: React.FC<IPost> = ({
     setCommentSectionOpen(true);
   };
 
+  const theme = useTheme();
+  const pageIsSmall = useMediaQuery(theme.breakpoints.down("md"));
   const [openContentDialog, setOpenContentDialog] =
     React.useState<boolean>(false);
+
   return (
     <Box
       ref={postRef}
       sx={{
+        position: "relative",
         display: "flex",
+        flexDirection: pageIsSmall ? "column" : "row",
         marginX: "auto",
         marginTop: 2,
-        position: "relative",
+        width: {
+          xs: "95vw",
+          sm: "80vw",
+          md: commentSectionOpen ? WIDTH_EXPAND_COMMENT : WIDTH_COMPONENT,
+        },
 
-        width: commentSectionOpen ? 750 : 450,
-        transitionDuration: "200ms",
-        transition: "ease-in-out",
+        height: {
+          xs: commentSectionOpen ? HEIGHT_COMPONENT_EXPAND : HEIGHT_COMPONENT,
+          md: HEIGHT_COMPONENT,
+        },
+        // transitionDuration: "200ms",
+        // transition: "ease-in-out",
       }}
     >
       <Card
         sx={{
           width: {
             xs: "90%",
-            sm: 450,
+            md: WIDTH_CARD,
           },
-          height: {
-            xs: 550,
-          },
+          height: HEIGHT_COMPONENT,
 
           display: "flex",
           flexDirection: "column",
@@ -80,7 +103,7 @@ const Post: React.FC<IPost> = ({
         <CardMedia
           sx={{
             width: "100%",
-            height: 350,
+            height: 400,
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -110,38 +133,74 @@ const Post: React.FC<IPost> = ({
         <CardContent>
           <Typography variant="body2" color="text.secondary">
             {description}
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente,
+            excepturi. Maxime et placeat accusamus possimus.
           </Typography>
         </CardContent>
-        <CardActions disableSpacing>
-          <IconButton aria-label="add to favorites">
-            <FavoriteIcon />
+        <CardActions
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            right: {
+              xs: "3%",
+              sm: "5%",
+              md: "-40px",
+            },
+            width: { xs: "15px", md: "20px" },
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <IconButton>
+            <FavoriteIcon sx={{ fontSize: 28 }} />
           </IconButton>
+          <Typography fontSize={10} component={"p"}>
+            1
+          </Typography>
+
+          <IconButton
+            sx={{
+              display: !commentSectionOpen ? "block" : "none",
+            }}
+            onClick={openCommentSection}
+          >
+            <NotesIcon sx={{ fontSize: 28 }} />
+          </IconButton>
+          <Typography
+            fontSize={10}
+            component={"p"}
+            sx={{ display: !commentSectionOpen ? "block" : "none" }}
+          >
+            {commentsNumber}
+          </Typography>
         </CardActions>
       </Card>
-      <IconButton
-        sx={{
-          position: "absolute",
-          bottom: 1,
-          right: 1,
-          display: !commentSectionOpen ? "block" : "none",
-        }}
-        onClick={openCommentSection}
-      >
-        <CommentIcon sx={{ marginTop: "auto", fontSize: 28 }} />
-      </IconButton>
 
       <Collapse
-        orientation="horizontal"
+        orientation={pageIsSmall ? "vertical" : "horizontal"}
         in={commentSectionOpen}
         mountOnEnter
         unmountOnExit
+        onAnimationEnd={() => {
+          console.log("shit");
+        }}
       >
-        <Box  height={"100%"} width={300}>
-          <CommentSection idPost={id} setCommentSectionOpen={setCommentSectionOpen} />
+        <Box
+          height={{
+            xs: HEIGHT_COMMENT_WHEN_EXPAND,
+            md: HEIGHT_COMPONENT,
+          }}
+          width={{ xs: "90%", md: WIDTH_COMMENT }}
+        >
+          <CommentSection
+            idPost={id}
+            commentsNumber={commentsNumber}
+            setCommentSectionOpen={setCommentSectionOpen}
+          />
         </Box>
       </Collapse>
     </Box>
   );
 };
 export default Post;
-

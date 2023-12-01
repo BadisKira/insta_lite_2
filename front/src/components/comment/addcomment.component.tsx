@@ -1,27 +1,29 @@
 import { Send } from "@mui/icons-material";
-import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  InputAdornment,
+  TextField,
+} from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { instaliteApi } from "../../utils/axios/axiosConnection";
 import { ICreateComment, queryKeyComment } from "../../types/comment.type";
+import Loader from "../Loader";
 
 const EMPTYCONTENT = "";
 const addCommentFn = async (comment: ICreateComment) => {
-  const user = localStorage.getItem("authData");
-  let token;
-  if (user) {
-    token = JSON.parse(user).token;
-  }
-  const response = await instaliteApi.post(
-    `comments`,
-    comment,
-    {
-      headers: {
-        "Content-Type": "Application/json",
-        //Authorization: "Bearer " + token,
-      },
-    }
-  );
+  // const user = localStorage.getItem("authData");
+  // let token;
+  // if (user) {
+  //   token = JSON.parse(user).token;
+  // }
+  const response = await instaliteApi.post(`comments`, comment, {
+    headers: {
+      "Content-Type": "Application/json",
+      //Authorization: "Bearer " + token,
+    },
+  });
 
   return response.data;
 };
@@ -60,17 +62,17 @@ const AddComment = ({ postId }: { postId: string }) => {
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
-              {isPending ? (
-                <>loafin...</>
-              ) : (
-                <>
-                  {content.length > 0 && (
-                    <IconButton size="small" onClick={() => addCommentMutate()}>
+              <>
+                {content.length > 0 && (
+                  <IconButton size="small" onClick={() => addCommentMutate()}>
+                    {isPending ? (
+                      <Loader size={8} />
+                    ) : (
                       <Send fontSize="small" />
-                    </IconButton>
-                  )}
-                </>
-              )}
+                    )}
+                  </IconButton>
+                )}
+              </>
             </InputAdornment>
           ),
         }}

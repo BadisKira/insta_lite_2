@@ -11,7 +11,7 @@ const CommentItem: React.FC<IComment> = ({
       sx={{
         display: "flex",
         padding: 1,
-        gap:1
+        gap: 1,
       }}
     >
       <Box
@@ -19,14 +19,23 @@ const CommentItem: React.FC<IComment> = ({
           display: "flex",
           justifyContent: "center",
           alignItems: "start",
-          
         }}
       >
-        <Avatar>{userName.charAt(0)}</Avatar>
+        <Avatar title={userName} sx={{ fontSize: 14, width: 30, height: 30 }}>
+          {userName.charAt(0).toUpperCase()}
+        </Avatar>
       </Box>
-      <Box display={"flex"} flexDirection={"column"} alignItems={"start"} gap={1/2}>
-        <Typography fontSize={14}>{content}{content}{content}</Typography>
-        <Typography fontSize={12}>21/27/2023</Typography>
+      <Box
+        display={"flex"}
+        flexDirection={"column"}
+        alignItems={"start"}
+        gap={1 / 2}
+      >
+        <Typography fontSize={14}>{content}</Typography>
+        <Typography fontSize={10}>
+          {userName} -- 
+          {createdAt}
+        </Typography>
       </Box>
     </Box>
   );

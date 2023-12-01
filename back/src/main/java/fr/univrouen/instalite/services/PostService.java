@@ -6,6 +6,7 @@ import fr.univrouen.instalite.dtos.post.PostDto;
 import fr.univrouen.instalite.dtos.post.UpdatePostDto;
 import fr.univrouen.instalite.entities.Post;
 import fr.univrouen.instalite.entities.User;
+import fr.univrouen.instalite.repositories.CommentRepository;
 import fr.univrouen.instalite.repositories.PostRepository;
 import fr.univrouen.instalite.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -28,14 +29,16 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
+    private final CommentRepository commentRepository;
 
 
     @Value("${RESOURCE_PATH}")
     private String resourcePath;
     @Autowired
-    public PostService(PostRepository postRepository, UserRepository userRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
     }
 
 
@@ -47,7 +50,8 @@ public class PostService {
                 post.isPublic(),
                 post.getCreatedAt(),
                 post.getUser().getId(),
-                post.getUser().getFirstname() +" "+ post.getUser().getLastname()
+                post.getUser().getFirstname() +" "+ post.getUser().getLastname(),
+                commentRepository.countCommentsByPost_Id(post.getId())
         );
     }
 
@@ -66,7 +70,6 @@ public class PostService {
             //ToDo : Error !
             return null;
         }
-
 
         Post post = new Post(null, createPostDto.getTitle(),
                 createPostDto.getDescription(),

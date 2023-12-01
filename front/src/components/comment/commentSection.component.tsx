@@ -3,6 +3,7 @@ import {
   Button,
   IconButton,
   Stack,
+  Typography,
 } from "@mui/material";
 import { usePaginatedQuery } from "../../hooks/usePaginatedQuery";
 import { instaliteApi } from "../../utils/axios/axiosConnection";
@@ -12,12 +13,15 @@ import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
 import AddComment from "./addcomment.component";
 import CommentItem from "./commentItem.component";
+import Loader from "../Loader";
 
 const CommentSection = ({
   idPost,
+  commentsNumber,
   setCommentSectionOpen,
 }: {
   idPost: string;
+  commentsNumber:number;
   setCommentSectionOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const getCommentsByPost = async (page: number) => {
@@ -66,47 +70,76 @@ const CommentSection = ({
     fetchInView().then((res) => res);
   }, [inView]);
   return (
-    <Stack position={"relative"} width={"100%"} height={"100%"} bgcolor={"darkgoldenrod"} >
-      <IconButton
-        sx={{ position: "absolute", top: 0, right: 0}}
-        onClick={() => {
-          setCommentSectionOpen(false);
+    <Stack
+      position={"relative"}
+      width={"100%"}
+      height={"100%"}
+      bgcolor={"white"}
+      boxShadow={2}
+      sx={{
+        borderTopRightRadius: 5,
+        borderBottomRightRadius: 5,
+      }}
+    >
+      <Box
+        width={"100%"}
+        display={"flex"}
+        flexDirection={"row"}
+        alignItems={"center"}
+        justifyContent={"space-between"}
+        boxShadow={1 / 2}
+        paddingLeft={0.5}
+      >
+        <Typography variant="h6">
+          Commentaires
+          <span style={{ marginLeft: 10, fontSize: 16 }}>{commentsNumber}</span>
+        </Typography>
+        <IconButton
+          // sx={{ position: "absolute", top: 0, right: 0 }}
+          onClick={() => {
+            setCommentSectionOpen(false);
+          }}
+        >
+          <Close />
+        </IconButton>
+      </Box>
+
+      <Stack
+        sx={{
+          width: "100%",
+          height: "100%",
+          overflowY: "auto",
+          wordBreak: "break-word",
         }}
       >
-        <Close />
-      </IconButton>
+        {isLoading ? (
+          <>Shit sle</>
+        ) : (
+          <>
+            {isError && <>Error</>}
+            {isSuccess && (
+              <>
+                {data?.pages.map((commentsPage: IComment[]) => {
+                  if (commentsPage.length)
+                    return commentsPage.map((comment) => (
+                      <CommentItem {...comment} key={comment.id} />
+                    ));
+                })}
+              </>
+            )}
+          </>
+        )}
 
-      {isLoading ? (
-        <>Shit sle</>
-      ) : (
-        <>
-          {isError && <>Error</>}
-          {isSuccess && (
-            <>
-              {data?.pages.map((commentsPage: IComment[]) => {
-                if (commentsPage.length)
-                  return commentsPage.map((comment) => (
-                    <CommentItem {...comment} key={comment.id} />
-                  ));
-              })}
-            </>
-          )}
-        </>
-      )}
+        {isFetchingNextPage ? (
+          <Box display={"flex"} justifyContent={"center"} alignItems={"center"}>
+            <Loader color="red" size={30} />
+          </Box>
+        ) : (
+          <>{hasNextPage ? <Button ref={ref}>LoadMore shit</Button> : ""}</>
+        )}
+      </Stack>
 
-      {isFetchingNextPage ? (
-        <h1>Fetching next shit</h1>
-      ) : (
-        <>
-          {hasNextPage ? (
-            <Button ref={ref}>LoadMore shit</Button>
-          ) : (
-            ""
-          )}
-        </>
-      )}
-
-      <Box position={"absolute"} bgcolor="yellowgreen" bottom={0} width={"100%"} > 
+      <Box width={"100%"}>
         <AddComment postId={idPost} key={"ddver8465"} />
       </Box>
     </Stack>
