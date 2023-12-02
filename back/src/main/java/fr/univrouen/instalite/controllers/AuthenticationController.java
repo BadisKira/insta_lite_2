@@ -9,6 +9,7 @@ import fr.univrouen.instalite.services.AuthenticationService;
 import fr.univrouen.instalite.services.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,9 +30,10 @@ public class AuthenticationController {
             User registeredUser = authenticationService.signup(registerUserDto);
             ResponseUser responseUser = new ResponseUser(
                     registeredUser.getId(),
-                    registerUserDto.getFirstname(),
-                    registerUserDto.getLastname(),
-                    registerUserDto.getEmail()
+                    registeredUser.getFirstname(),
+                    registeredUser.getLastname(),
+                    registeredUser.getEmail(),
+                    registeredUser.getRole().getName().name()
             );
 
             return new ResponseEntity<>(responseUser, HttpStatus.OK);
@@ -42,17 +44,34 @@ public class AuthenticationController {
     }
 
 
-    @PostMapping("/login")
+    @PostMapping(
+            path = "/login",
+            consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE}
+    )
     public ResponseEntity<ResponseLogin> login(@RequestBody LoginUserDto loginUserDto){
         try {
             User authenticatedUser = authenticationService.authenticate(loginUserDto);
+
+            System.out.println("*******************\n" + authenticatedUser);
+
+            if (authenticatedUser.getId() == null) {
+                throw new Exception("User does not exist");
+            }
+
             ResponseUser responseUser = new ResponseUser(
                     authenticatedUser.getId(),
                     authenticatedUser.getFirstname(),
                     authenticatedUser.getLastname(),
-                    authenticatedUser.getEmail()
+                    authenticatedUser.getEmail(),
+                    authenticatedUser.getRole().getName().name()
             );
+
+
+            System.out.println("*******************\n" + responseUser);
+
             String jwtToken = jwtService.generateToken(authenticatedUser);
+
             ResponseLogin responseLogin = new ResponseLogin(responseUser, jwtToken);
             return new ResponseEntity<>(responseLogin, HttpStatus.OK);
         } catch (Exception e) {

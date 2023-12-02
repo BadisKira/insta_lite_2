@@ -1,38 +1,42 @@
 import { useState } from "react"
 import { Grid } from "@mui/material"
-import LoginPageSection from "../../pageSections/auth/login.pageSection"
-import SignInPageSection from "../../pageSections/auth/signin.pageSection"
 import { useNavigate } from "react-router-dom"
 import validation from "../../utils/validation.util"
 import { IDisplayedError } from "../../types/validation.type"
 import toast from "react-hot-toast"
-import { IError } from "../../types/error.type"
 import { loginSchema, registerSchema } from "../../validations/auth.validation"
-import { instaliteApi } from "../../utils/axios/axiosConnection"
+import instaliteApi from "../../utils/axios/axiosConnection"
 import { useAuthContext } from "../../hooks/useAuthContext.hook"
-import EntryHeader from "../../components/EntryHeader/EntryHeader"
 import PageContainer from "../../components/PageContainer/PageContainer"
+import AuthFormPageSection from "../../pageSections/auth/authForm.pageSection"
+import PortfolioPageSection from "../../pageSections/auth/portfolio.pageSection"
+import useUserStates from "../../hooks/useUserStates.hook"
+import useUserErrorStates from "../../hooks/userUserErrorStates.hook"
 
 
 const AuthPage = () => {
     const { isAuthenticated, login } = useAuthContext()
     const navigate = useNavigate()
-    
-    const [firstname, setFirstname] = useState("")
-    const [lastname, setLastname] = useState("")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("")
-    const [registerEmail, setRegisterEmail] = useState("")
-    const [registerPassword, setRegisterPassword] = useState("")
 
-    const [errorFirstname, setErrorFirstname] = useState<IError>({ isError: false, message: "" })
-    const [errorLastname, setErrorLastname] = useState<IError>({ isError: false, message: "" })
-    const [errorEmail, setErrorEmail] = useState<IError>({ isError: false, message: "" })
-    const [errorPassword, setErrorPassword] = useState<IError>({ isError: false, message: "" })
-    const [errorConfirmPassword, setErrorConfirmPassword] = useState<IError>({ isError: false, message: "" })
-    const [errorRegisterEmail, setErrorRegisterEmail] = useState<IError>({ isError: false, message: "" })
-    const [errorRegisterPassword, setErrorRegisterPassword] = useState<IError>({ isError: false, message: "" })
+    const {
+        firstname, setFirstname,
+        lastname, setLastname,
+        email, setEmail,
+        password, setPassword,
+        confirmPassword, setConfirmPassword,
+        registerEmail, setRegisterEmail,
+        registerPassword, setRegisterPassword,
+    } = useUserStates()
+
+    const {
+        errorFirstname, setErrorFirstname,
+        errorLastname, setErrorLastname,
+        errorEmail, setErrorEmail,
+        errorPassword, setErrorPassword,
+        errorConfirmPassword, setErrorConfirmPassword,
+        errorRegisterEmail, setErrorRegisterEmail,
+        errorRegisterPassword, setErrorRegisterPassword,
+    } = useUserErrorStates()
 
     const [isOnLoginSection, setIsOnLoginSection] = useState(true)
     
@@ -133,42 +137,25 @@ const AuthPage = () => {
     const changePageSection = () => setIsOnLoginSection(!isOnLoginSection)
 
     return (
-        <PageContainer>
-            <EntryHeader linkPath="/" />
-            <Grid flex={1} container sx={{ py:4}}justifyContent="center" alignItems="center">
-                <Grid
-                    item
-                    sm={10}
-                    md={8}
-                    lg={6} 
-                    style={{
-                        padding:'70px 0px',
-                        borderRadius: 12,
-                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                        backgroundColor: "#FFFFFF"
-                    }}>
-                        {isOnLoginSection ?
-                            <LoginPageSection
-                                email={email}
-                                setEmail={setEmail}
-                                errorEmail={errorEmail}
-                                password={password}
-                                setPassword={setPassword}
-                                errorPassword={errorPassword}
-                                login={handleLogin}
-                                changePageSection={changePageSection}
-                            />
-                            :
-                            <SignInPageSection 
-                                firstname={firstname} setFirstname={setFirstname} errorFirstname={errorFirstname}
-                                lastname={lastname} setLastname={setLastname} errorLastname={errorLastname}
-                                email={registerEmail} setEmail={setRegisterEmail} errorEmail={errorRegisterEmail}
-                                password={registerPassword} setPassword={setRegisterPassword} errorPassword={errorRegisterPassword}
-                                confirmPassword={confirmPassword} setConfirmPassword={setConfirmPassword} errorConfirmPassword={errorConfirmPassword}
-                                register={handleRegister}
-                                changePageSection={changePageSection} 
-                            />
-                        }
+        <PageContainer withHeader={false}>
+            <Grid flex={1} container>
+                <Grid flex={1} container justifyContent="center" alignItems="center" style={{ height: "100vh" }}>
+                    <AuthFormPageSection
+                        firstname={firstname} setFirstname={setFirstname} errorFirstname={errorFirstname}
+                        lastname={lastname} setLastname={setLastname} errorLastname={errorLastname}
+                        registerEmail={registerEmail} setRegisterEmail={setRegisterEmail} errorRegisterEmail={errorRegisterEmail}
+                        registerPassword={registerPassword} setRegisterPassword={setRegisterPassword} errorRegisterPassword={errorRegisterPassword}
+                        confirmPassword={confirmPassword} setConfirmPassword={setConfirmPassword} errorConfirmPassword={errorConfirmPassword}
+                        email={email} setEmail={setEmail} errorEmail={errorEmail}
+                        password={password} setPassword={setPassword} errorPassword={errorPassword}
+                        handleRegister={handleRegister}
+                        handleLogin={handleLogin}
+                        changePageSection={changePageSection}
+                        isOnLoginSection={isOnLoginSection}
+                    />
+                </Grid>
+                <Grid flex={1} container justifyContent="center" alignItems="center" style={{ height: "100vh" }}>
+                    <PortfolioPageSection />
                 </Grid>
             </Grid>
         </PageContainer>

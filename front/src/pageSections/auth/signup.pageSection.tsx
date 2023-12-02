@@ -24,7 +24,7 @@ interface Iprops {
     changePageSection: () => void
 }
 
-const SignInPageSection: FC<Iprops> = ({
+const SignUpPageSection: FC<Iprops> = ({
     firstname,
     setFirstname,
     errorFirstname,
@@ -68,21 +68,18 @@ const SignInPageSection: FC<Iprops> = ({
             direction="column" 
             justifyContent="center" 
             alignContent="center"
-            style={{
-                width: "100%",
-                height: "100%",
-                gap: 50,
-                padding: "0px 10%" ,
-            }}>
+            gap={3}
+            style={{ width: "100%", height: "100%", }}>
                 <Grid 
                     container 
                     direction="column" 
                     justifyContent="center" 
                     alignItems="center" 
                     style={{ 
-                        gap: 25,
+                        gap:2,
                     }}>
-                        <Typography variant='h3'>Créez un compte sur InstaLite</Typography>
+                        <Typography variant='h4'>Créez un compte sur</Typography>
+                        <Typography variant='h4'>Instalite II</Typography>
                 </Grid>
 
                 <Grid 
@@ -222,4 +219,4 @@ const SignInPageSection: FC<Iprops> = ({
     )
 }
 
-export default SignInPageSection
+export default SignUpPageSection
