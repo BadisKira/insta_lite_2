@@ -1,16 +1,14 @@
 package fr.univrouen.instalite.dtos;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class RegisterUserDto {
     private String firstname;
     private String lastname;

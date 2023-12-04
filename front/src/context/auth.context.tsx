@@ -83,6 +83,7 @@ const AuthProvider = ({ children }: IProps) => {
         setIsLoading(true)
 
         try {
+            instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
             const { data } = await instaliteApi.put(`/users/${user?.id}`, userInfos)
             setUser(data as IUser)
             setItem("user", JSON.stringify(user))
@@ -97,6 +98,7 @@ const AuthProvider = ({ children }: IProps) => {
         setIsLoading(true)
 
         try {
+            instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
             await instaliteApi.put(`/users/${user?.id}/reset-password`, { oldPassword, newPassword })
         } catch (error) {
             console.error(error)

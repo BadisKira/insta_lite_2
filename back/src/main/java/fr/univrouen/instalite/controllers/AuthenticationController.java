@@ -53,8 +53,6 @@ public class AuthenticationController {
         try {
             User authenticatedUser = authenticationService.authenticate(loginUserDto);
 
-            System.out.println("*******************\n" + authenticatedUser);
-
             if (authenticatedUser.getId() == null) {
                 throw new Exception("User does not exist");
             }
@@ -67,12 +65,9 @@ public class AuthenticationController {
                     authenticatedUser.getRole().getName().name()
             );
 
-
-            System.out.println("*******************\n" + responseUser);
-
             String jwtToken = jwtService.generateToken(authenticatedUser);
-
             ResponseLogin responseLogin = new ResponseLogin(responseUser, jwtToken);
+
             return new ResponseEntity<>(responseLogin, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();

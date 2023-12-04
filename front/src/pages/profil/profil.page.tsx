@@ -67,6 +67,9 @@ const ProfilPage = () => {
         ] as IDisplayedError[]
 
         if (await validation({ oldPassword, password }, userPasswordSchema, displayedErrors)) {
+            setErrorFirstname({ isError: false, message: "" })
+            setErrorLastname({ isError: false, message: "" })
+            setErrorEmail({ isError: false, message: "" })
             return true
         }
         
@@ -80,13 +83,9 @@ const ProfilPage = () => {
         }
 
         try {
-            console.log({firstname, lastname, email, password: confirmPassword})
             putUserInfos({ firstname, lastname, email, password: confirmPassword, })
 
             toast.success("Votre compte à été bien modifié !")
-            setErrorFirstname({ isError: false, message: "" })
-            setErrorLastname({ isError: false, message: "" })
-            setErrorEmail({ isError: false, message: "" })
         } catch (error) {
             console.error(error)
             toast.error("Une erreur est survenu lors de la modification !")

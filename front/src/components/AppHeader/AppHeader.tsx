@@ -30,10 +30,15 @@ const AppHeader: FC<IProps> = () => {
                         alignItems="center" 
                         width="fit-content"
                         color="white"
-                        style={{ gap: 16 }}>
+                        style={{ gap: 32 }}>
                             <Link to="/home" style={{ textDecoration: "none", color: "white" }}>
                                 <Typography style={{ opacity: "0.7" }}>Accueil</Typography>
                             </Link>
+                            {user?.role === "ADMIN" &&
+                                <Link to="/admin" style={{ textDecoration: "none", color: "white" }}>
+                                    <Typography style={{ opacity: "0.7" }}>Admin</Typography>
+                                </Link>
+                            }
                     </Grid>
 
                     <Grid 
