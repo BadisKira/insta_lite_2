@@ -1,8 +1,8 @@
 package fr.univrouen.instalite.controllers;
 
-import fr.univrouen.instalite.dtos.RegisterUserDto;
+import fr.univrouen.instalite.dtos.ResponseUser;
+import fr.univrouen.instalite.dtos.user.RegisterUserDto;
 import fr.univrouen.instalite.entities.PasswordReset;
-import fr.univrouen.instalite.entities.ResponseUser;
 import fr.univrouen.instalite.entities.User;
 import fr.univrouen.instalite.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

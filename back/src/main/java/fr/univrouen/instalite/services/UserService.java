@@ -1,8 +1,8 @@
 package fr.univrouen.instalite.services;
 
-import fr.univrouen.instalite.dtos.RegisterUserDto;
+import fr.univrouen.instalite.dtos.ResponseUser;
+import fr.univrouen.instalite.dtos.user.RegisterUserDto;
 import fr.univrouen.instalite.entities.PasswordReset;
-import fr.univrouen.instalite.entities.ResponseUser;
 import fr.univrouen.instalite.entities.User;
 import fr.univrouen.instalite.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class UserService {
         userRepository.delete(optionalUser.get());
     }
 
-    public List<ResponseUser> getAllNoneAdminUsers() {
+    public List<fr.univrouen.instalite.dtos.ResponseUser> getAllNoneAdminUsers() {
         List<User> users = userRepository.getAllNoneAdminUsers();
         List<ResponseUser> responseUsers = new ArrayList<>();
 
