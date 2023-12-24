@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { IAuthData, ILoginProps } from '../types/auth.type'
-import { IUser } from '../types/user.type'
-import { instaliteApi } from '../utils/axios/axiosConnection'
+import { ILoginProps } from '../types/auth.type'
+import { IUser, IUserInfos } from '../types/user.type'
+import instaliteApi from '../utils/axios/axiosConnection'
 import toast from 'react-hot-toast'
 import { AuthContext } from '../hooks/useAuthContext.hook'
 import { getItem, removeItem, setItem } from '../utils/localStorage.util'
@@ -23,24 +23,29 @@ const AuthProvider = ({ children }: IProps) => {
     useEffect(() => {
         setIsLoading(true)
 
-        const stringAuthData = getItem("authData")
-
-        if (stringAuthData === null) {
+        const stringUser = getItem("user")
+        
+        if (stringUser === undefined) {
             setIsAuthenticated(false)
             setIsLoading(false)
+            removeItem("user")
+            removeItem("token")
             return
         }
 
-        const authData: IAuthData = JSON.parse(stringAuthData)
+        const user: IUser = JSON.parse(stringUser)
+        const token = getItem("token")
 
-        if (!authData || !authData.user) {
+        if (!user || !token) {
             setIsAuthenticated(false)
             setIsLoading(false)
+            removeItem("user")
+            removeItem("token")
             return
         }
 
-        setUser(authData.user)
-        setToken(authData.token)
+        setUser(user)
+        setToken(token)
         setIsAuthenticated(true)
 
         setIsLoading(false)
@@ -52,32 +57,63 @@ const AuthProvider = ({ children }: IProps) => {
 
         try {
             const { data } = await instaliteApi.post("/login", loginData)
+
             setUser(data.user as IUser)
             setToken(data.token)
             setIsAuthenticated(true)
 
-            setItem("authData", JSON.stringify({ user: data.user, token: data.token }))
+            setItem("user", JSON.stringify(data.user))
+            setItem("token", data.token)
             
             navigate("/home")
             toast.success("Connexion réussi !")
         } catch (error: unknown) {
+            console.log(error)
             toast.error("Une erreur est survenu lors de la connexion !")
             
-            setUser(undefined)
-            setToken(undefined)
+            removeItem("user")
+            removeItem("token")
             setIsAuthenticated(false)
         }
 
+        setIsLoading(false)
+    }
+
+    const putUserInfos = async (userInfos: IUserInfos) => {
+        setIsLoading(true)
+
+        try {
+            instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
+            const { data } = await instaliteApi.put(`/users/${user?.id}`, userInfos)
+            setUser(data as IUser)
+            setItem("user", JSON.stringify(user))
+        } catch (error) {
+            console.error(error)
+        }
         
         setIsLoading(false)
     }
 
-    const logOut = () => {
+    const putUserPassword = async (oldPassword: string, newPassword: string) => {
+        setIsLoading(true)
+
+        try {
+            instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
+            await instaliteApi.put(`/users/${user?.id}/reset-password`, { oldPassword, newPassword })
+        } catch (error) {
+            console.error(error)
+        }
+        
+        setIsLoading(false)
+    }
+
+    const logOut = async () => {
         setUser(undefined)
         setToken(undefined)
         setIsAuthenticated(false)
 
-        removeItem("authData")
+        removeItem("user")
+        removeItem("token")
 
         navigate("/auth")
         toast.success("Vous etes déconnecté !")
@@ -92,6 +128,8 @@ const AuthProvider = ({ children }: IProps) => {
                 isLoading,
                 login,
                 logOut,
+                putUserInfos,
+                putUserPassword,
             }}
         >
             {children}

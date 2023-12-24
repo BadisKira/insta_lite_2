@@ -1,12 +1,18 @@
-export type IRole = "SuperAdmin" | "Admin" | "User"
+export type IRole = "USER" | "SUPERUSER" | "ADMIN"
 
 export interface IAuthUser extends IUser {}
 
 export interface IUser {
-    userId: number
+    id: number
     firstname: string
     lastname: string
     email: string
     role: IRole
-    token: unknown
+}
+
+export interface IUserInfos {
+    firstname: string
+    lastname: string
+    email: string
+    password: string
 }

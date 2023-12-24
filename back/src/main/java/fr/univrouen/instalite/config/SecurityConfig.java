@@ -30,6 +30,18 @@ public class SecurityConfig {
     }
 
     
+    /*@Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedOrigins(Collections.singletonList("http://127.0.0.1:5173"));
+        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
+        corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
+        corsConfiguration.setMaxAge(336600L);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**",corsConfiguration);
+        return source;
+    }*/
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws  Exception {

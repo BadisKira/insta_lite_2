@@ -57,14 +57,20 @@ public class AuthenticationService {
         return userRepository.save(user);
     }
 
-    public User authenticate(LoginUserDto input) {
+    public User authenticate(LoginUserDto input) throws Exception {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        input.getEmail(),
-                        input.getPassword()
-                )
+            new UsernamePasswordAuthenticationToken(
+                input.getEmail(),
+                input.getPassword()
+            )
         );
-        return userRepository.findByEmail(input.getEmail())
-                .orElseThrow();
+
+        Optional<User> optionalUser = userRepository.findByEmail(input.getEmail());
+
+        if (optionalUser.isEmpty()) {
+            throw new Exception("User does not exist");
+        }
+
+        return optionalUser.get();
     }
 }

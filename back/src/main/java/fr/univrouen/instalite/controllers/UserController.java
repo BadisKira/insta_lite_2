@@ -1,44 +1,98 @@
 package fr.univrouen.instalite.controllers;
 
-import fr.univrouen.instalite.repositories.UserRepository;
+import fr.univrouen.instalite.dtos.RegisterUserDto;
+import fr.univrouen.instalite.entities.PasswordReset;
+import fr.univrouen.instalite.entities.ResponseUser;
+import fr.univrouen.instalite.entities.User;
+import fr.univrouen.instalite.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequestMapping("/api/users")
 @RestController
 public class UserController {
-    UserRepository userRepository;
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
+    @Autowired
+    private UserService userService;
 
-    @GetMapping("/")
-    public String getMessageForEveryOne(){
-        return "this message could be seen by anyone";
-    }
-
-    @GetMapping("/knownuser")
+    @DeleteMapping(path = "/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String getMessageForAuthenticatedUsers(){
-        return "this message could only be seen by authenticated users";
-    }
-
-    @GetMapping("/userdemerde")
-    @PostAuthorize("hasRole('ROLE_USER')")
-    public String getUserMessage(){
-        return "only someone with role user can see this message ";
-    }
-
-
-    @GetMapping("/admin")
     @PostAuthorize("hasRole('ADMIN')")
-    /**oui mettre admin suffit a verifié le role*/
-    public String getADMINMessage(){
-        return "only admins can see this ";
+    public ResponseEntity<String> deleteOneUser(@PathVariable(value = "id") Long id) {
+        try {
+            userService.deleteOneUser(id);
+
+            return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("An error occured", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(
+            path = "/",
+            produces = {MediaType.APPLICATION_JSON_VALUE}
+    )
+    @PreAuthorize("isAuthenticated()")
+    @PostAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<ResponseUser>> getAllUsers() {
+        try {
+            List<ResponseUser> users = userService.getAllNoneAdminUsers();
+
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    @PostAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPERUSER')")
+    public ResponseEntity<ResponseUser> putUserInfos(
+            @PathVariable(value = "id") Long id,
+            @RequestBody RegisterUserDto user
+    ) {
+        try {
+            User updatedUser = userService.putUserInfos(id, user);
+
+            ResponseUser responseUser = new ResponseUser(
+                    updatedUser.getId(),
+                    updatedUser.getFirstname(),
+                    updatedUser.getLastname(),
+                    updatedUser.getEmail(),
+                    updatedUser.getRole().getName().name()
+            );
+
+            return new ResponseEntity<>(responseUser, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/{id}/reset-password")
+    @PreAuthorize("isAuthenticated()")
+    @PostAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPERUSER')")
+    public ResponseEntity<String> putUserPassword(
+            @PathVariable(value = "id") Long id,
+            @RequestBody PasswordReset passwordReset
+    ) {
+        try {
+            userService.putUserPassword(id, passwordReset);
+
+            return new ResponseEntity<>("Password reset successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 

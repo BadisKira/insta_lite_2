@@ -4,12 +4,16 @@ import AuthPage from "./pages/auth/auth.page"
 import HomePage from "./pages/home/home.page"
 import NotFoundPage from "./pages/notFound/notFound.page"
 import { useAuthContext } from "./hooks/useAuthContext.hook"
-import EntryPage from "./pages/entry/entry.page"
-import FeedPage from "./pages/FeedPage/Feed.page"
+import FeedPage from "./pages/FeedPage/Feed.page";
+
+	
+import ProfilPage from "./pages/profil/profil.page"
+import AdminPage from "./pages/admin/admin.page"
+
 
 const App = () => {
-	const { isLoading, isAuthenticated } = useAuthContext()
-	
+	const { isLoading, isAuthenticated, user } = useAuthContext()
+
 	return (
 		<>
 			{!isLoading &&
@@ -17,6 +21,8 @@ const App = () => {
 					{isAuthenticated ?
 						<>
 							<Route path="/home" element={ <HomePage /> } />
+							<Route path="/profil" element= { <ProfilPage /> } />
+							{user?.role === "ADMIN" && <Route path="/admin" element= { <AdminPage /> } />}
 
 							{ /** Private routes above this comment */ }
 							<Route path="/" element={ <FeedPage />} />
@@ -25,8 +31,7 @@ const App = () => {
 						</>
 						:
 						<>
-							<Route path="/" element={ <EntryPage /> } />
-							<Route path="/auth" element={ <AuthPage /> } />
+							<Route path="/" element={ <AuthPage /> } />
 
 							{ /** Public routes above this comment */ }
 							<Route path="*" element={ <Navigate to="/" /> } />

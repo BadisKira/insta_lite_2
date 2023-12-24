@@ -1,18 +1,17 @@
-import { IUser } from "./user.type"
+import { IUser, IUserInfos } from "./user.type"
 
 export interface ILoginProps {
     email: string
     password: string
 }
 
-export interface IAuthContext extends IAuthData {
+export interface IAuthContext {
     login: (loginData: ILoginProps) => Promise<void>
     logOut: () => void
+    putUserInfos: (userInfos: IUserInfos) => void
+    putUserPassword: (oldPassword: string, newPassword: string) => void
     isAuthenticated: boolean
     isLoading: boolean
-}
-
-export interface IAuthData {
     user: IUser | undefined
     token: string | undefined
 }

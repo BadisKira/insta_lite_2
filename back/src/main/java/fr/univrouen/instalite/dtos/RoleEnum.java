@@ -8,6 +8,4 @@ public enum RoleEnum {
     SUPERUSER,
     ADMIN;
 
-
-
 }

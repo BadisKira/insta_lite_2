@@ -15,5 +15,6 @@ public class ResponseUser {
     private String firstname;
     private String lastname;
     private String email;
+    private String role;
 
 }

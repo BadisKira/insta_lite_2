@@ -1,17 +1,21 @@
-import { Container, Grid } from '@mui/material'
+import { Grid } from '@mui/material'
 import { useAuthContext } from '../../hooks/useAuthContext.hook'
 import { LoaderIcon } from 'react-hot-toast'
 import { FC } from 'react'
+import AppHeader from '../AppHeader/AppHeader'
 
 
 interface IProps {
+    withHeader: boolean
     children: React.ReactNode
 }
 
 const PageContainer: FC<IProps> = ({
+    withHeader,
     children
 }) => {
     const { isLoading } = useAuthContext()
+    
     return (
         <>
             {isLoading ? 
@@ -25,9 +29,13 @@ const PageContainer: FC<IProps> = ({
                 :
                 <Grid 
                     container
-                    direction="column"
-                    style={{ minHeight: "100vh" , overflowX:"hidden"}}>
-                       {children}
+                    justifyContent="center" 
+                    style={{ overflowX:"hidden" }}>
+                        {withHeader && <AppHeader />}
+
+                        <Grid item flex={1} container xs={10} lg={8}>
+                            {children}
+                        </Grid>
                 </Grid>
             }
         </>
