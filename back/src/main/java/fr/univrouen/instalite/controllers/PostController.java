@@ -35,6 +35,7 @@ public class PostController {
 
     //delete post by id
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostDto> delete(@PathVariable("id") String id) {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
@@ -83,10 +84,9 @@ public class PostController {
 
 
     @PutMapping("/{postId}/like")
-    public ResponseEntity<PostDto> toggleLike( @PathVariable String postId) throws IOException {
-        // get the id from the token
-        Long userId = Long.valueOf(2);
-        return  ResponseEntity.ok().body(this.postService.toggleLike(postId,userId)) ;
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<PostDto> toggleLike(Authentication authentication, @PathVariable String postId) {
+        return  ResponseEntity.ok().body(this.postService.toggleLike(postId,authentication.getName())) ;
     }
 
 }

@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -36,14 +37,14 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
-private final LikeRepository likeRepository ;
+    private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
 
 
     @Value("${RESOURCE_PATH}")
     private String resourcePath;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository, LikeRepository likeRepository, CommentRepository commentRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, LikeRepository likeRepository,ModelMapper modelMapper, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
@@ -52,15 +53,14 @@ private final LikeRepository likeRepository ;
     }
 
     public String create(String email, CreatePostDto createPostDto){
-        if(!new File(resourcePath).exists()){
-            try{
+        if (!new File(resourcePath).exists()) {
+            try {
                 Files.createDirectories(Paths.get(resourcePath));
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new FileCouldNotBeCreatedException();
             }
         }
 
-    public String create(CreatePostDto createPostDto){
         String[] contentType = createPostDto.getData().getContentType().split("/");
 
         String type = contentType[0];
@@ -213,36 +213,26 @@ private final LikeRepository likeRepository ;
                 modelMapper.map(x,PostDto.class)).toList();
     }
 
-    public PostDto toggleLike(String postId, Long userId) throws IOException {
+    public PostDto toggleLike(String postId, String email){
         Optional<Post> postOptional = postRepository.findById(postId);
-        Optional<User> userOptional = userRepository.findById(userId);
-
-
-
-
+        Optional<User> userOptional = userRepository.findByEmailIgnoreCase(email);
         Post post = null;
         if (postOptional.isPresent() && userOptional.isPresent()) {
             post = postOptional.get();
             User user = userOptional.get();
 
-            Optional<Like> isThereALike = likeRepository.findLikeByPost_IdAndUser_Id(postId , userId) ;
+            Optional<Like> isThereALike = likeRepository.findLikeByPost_IdAndUser_Id(postId , user.getId());
 
             if (isThereALike.isEmpty()) {
-                System.out.println("Add the like");
-                Like like = new Like(new LikeKey(userId,postId),user , post)  ;
+                Like like = new Like(new LikeKey(user.getId(),postId),user , post);
                 likeRepository.save(like) ;
                 post.getLikes().add(like) ;
             } else {
-                System.out.println("Delete the like");
                 likeRepository.delete(isThereALike.get());
                 post.getLikes().remove(isThereALike.get()) ;
             }
-
-
         }
-
-
-        return postToDto(post) ;
+        return modelMapper.map(post,PostDto.class);
     }
 
 

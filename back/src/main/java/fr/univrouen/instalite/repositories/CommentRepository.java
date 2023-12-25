@@ -12,6 +12,6 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends ListCrudRepository<Comment,String>, PagingAndSortingRepository<Comment,String>
 {
-  List<Comment> findCommentsByPost_Id(String postId);
   Page<Comment> findCommentsByPost_Id(String postId , PageRequest pageRequest);
+  Integer countCommentsByPost_Id(String postId);
 }

@@ -21,16 +21,14 @@ public class UserController {
     private final UserService userService;
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
-    @PostAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteOneUser(@PathVariable("id") Long id) {
         userService.deleteOneUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping( "/all")
-    @PreAuthorize("isAuthenticated()")
-    @PostAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserDto>> getAllUsers() {
         List<UserDto> users = userService.getAllNoneAdminUsers();
         return ResponseEntity.ok(users);
@@ -38,7 +36,6 @@ public class UserController {
 
     @PutMapping
     @PreAuthorize("isAuthenticated()")
-    @PostAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPERUSER')")
     public ResponseEntity<UserDto> putUserInfos(Authentication authentication, @RequestBody RegisterUserDto user){
         UserDto updatedUser = userService.putUserInfos(authentication.getName(), user);
         return ResponseEntity.ok(updatedUser);
@@ -46,7 +43,6 @@ public class UserController {
 
     @PutMapping("/reset-password")
     @PreAuthorize("isAuthenticated()")
-    @PostAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPERUSER')")
     public ResponseEntity<String> putUserPassword(Authentication authentication,
                                                   @RequestBody PasswordReset passwordReset){
         userService.putUserPassword(authentication.getName(), passwordReset);

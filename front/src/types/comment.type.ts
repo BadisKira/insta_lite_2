@@ -1,8 +1,9 @@
 export type IComment = {
     id: string,
-    userName: string,
+    firstName: string,
+    userLastname: string,
     postId: string,
-    createdAt: String,
+    createdAt: string,
     content:string,
 };
 

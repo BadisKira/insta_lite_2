@@ -12,8 +12,8 @@ import java.util.Date;
 @NoArgsConstructor
 public class CommentDto {
     private String id ;
-    private String firstname;
-    private String lastname;
+    private String userFirstname;
+    private String userLastname;
     private String postId;
     private Date createdAt;
     private String content;

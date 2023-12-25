@@ -22,7 +22,7 @@ public class PostDto {
     private String userFirstname;
     private String userLastname;
     private Integer commentsNumber;
-    private List<Like> likes;
+    private List<Long> likedUserIds;
 
     public String getId() {
         return id;

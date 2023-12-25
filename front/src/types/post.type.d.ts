@@ -1,15 +1,16 @@
-import { IUser } from "./user.type";
+
 
 export interface IPost {
   id: string;
   title: string;
   description: string;
   userId: number;
-  userName: string;
+  userFirstname: string;
+  userLastname: string;
   public: boolean;
   createdAt: string;
   commentsNumber: number;
-  likes: IUser[];
+  likedUserIds: number[];
 }
 
 export interface ICreatePost {

@@ -4,7 +4,8 @@ import { IComment } from "../../types/comment.type";
 const CommentItem: React.FC<IComment> = ({
   content,
   createdAt,
-  userName,
+  userFirstname,
+  userLastname,
 }) => {
   return (
     <Box
@@ -21,9 +22,9 @@ const CommentItem: React.FC<IComment> = ({
           alignItems: "start",
         }}
       >
-        <Avatar title={userName} sx={{ fontSize: 14, width: 30, height: 30 }}>
-          {userName.charAt(0).toUpperCase()}
-        </Avatar>
+        <Avatar title={userFirstname + " " + userLastname} sx={{ fontSize: 14, width: 30, height: 30 }}>
+          {userFirstname.charAt(0).toUpperCase()}
+        </Avatar> 
       </Box>
       <Box
         display={"flex"}
@@ -33,7 +34,7 @@ const CommentItem: React.FC<IComment> = ({
       >
         <Typography fontSize={14}>{content}</Typography>
         <Typography fontSize={10}>
-          {userName} -- 
+          {userFirstname} -- 
           {createdAt}
         </Typography>
       </Box>

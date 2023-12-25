@@ -36,10 +36,11 @@ const Post: React.FC<IPost> = ({
   title,
   description,
   id,
-  userName,
+  userFirstname,
+  userLastname,
   createdAt,
   commentsNumber,
-  likes
+  likedUserIds
 }) => {
   const [commentSectionOpen, setCommentSectionOpen] =
     React.useState<boolean>(false);
@@ -111,7 +112,7 @@ const Post: React.FC<IPost> = ({
         <CardHeader
           avatar={
             <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-              {userName.charAt(0).toUpperCase()}
+              {userFirstname.charAt(0).toUpperCase()}
             </Avatar>
           }
           action={
@@ -175,7 +176,7 @@ const Post: React.FC<IPost> = ({
           }}
         >
           
-            <LikeButton likeMutation={likeMutation} likes={likes} />
+            <LikeButton likeMutation={likeMutation} likes={likedUserIds} />
           
           <IconButton
             sx={{
@@ -221,7 +222,7 @@ const Post: React.FC<IPost> = ({
 };
 export default Post;
 
-const LikeButton = ({ likes ,  likeMutation }: { likes:IUser[],likeMutation: any }) => {
+const LikeButton = ({ likes ,  likeMutation }: { likes:number[],likeMutation: any }) => {
   //  /{postId}/{userId}/like
 
   const {
@@ -240,14 +241,14 @@ const LikeButton = ({ likes ,  likeMutation }: { likes:IUser[],likeMutation: any
   return (
     <>
       <IconButton onClick={async () => await mutateAsync()}>
-        {likes.includes(user) ? (
-          <FavoriteIcon sx={{ background: "red" }} />
+        {likes.includes(user.id) ? (
+          <FavoriteIcon sx={{ color: "red" }} />
         ) : (
           <FavoriteIcon />
         )}
       </IconButton>
       <Typography fontSize={8} component={"p"}>
-        {(data && data.likes && isSuccess )? data.likes.length : likes.length}
+        {(data && data.likedUserIds && isSuccess )? data.likedUserIds.length : likes.length}
         {isLoading && "loading..."}
         {isError && "error..."}
       </Typography>

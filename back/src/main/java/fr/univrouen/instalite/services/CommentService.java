@@ -57,20 +57,6 @@ public class CommentService {
         return modelMapper.map(comment, CommentDto.class);
     }
 
-    public List<CommentDto> getCommentFromPost(String postId) {
-        Optional<Post> post = postRepository.findById(postId);
-
-        if(post.isEmpty())
-            throw new PostNotFoundException();
-
-        Optional<List<Comment>> commentList = Optional.ofNullable(
-                this.commentRepository.findCommentsByPost_Id(postId)
-        );
-        return commentList.get().stream().map(comment ->
-                modelMapper.map(comment, CommentDto.class)).toList();
-    }
-
-
     public List<CommentDto> getPaginatedCommentFromPost(String postId , int pageNumber, int pageLimit) {
         Optional<Post> post = postRepository.findById(postId);
 

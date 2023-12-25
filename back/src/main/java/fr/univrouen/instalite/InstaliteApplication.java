@@ -44,6 +44,8 @@ public class InstaliteApplication {
 				d.setUserFirstname(s.getUser().getFirstname());
 				d.setUserLastname(s.getUser().getLastname());
 				d.setCommentsNumber(s.getCommentList().size());
+				d.setLikedUserIds(s.getLikes().stream().map(
+						l -> l.getUser().getId()).toList());
 				return d;
 			}
 		};
