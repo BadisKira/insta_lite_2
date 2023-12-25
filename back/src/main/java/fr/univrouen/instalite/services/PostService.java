@@ -1,6 +1,6 @@
 package fr.univrouen.instalite.services;
 
-import fr.univrouen.instalite.dtos.exception.BadRequestException;
+import fr.univrouen.instalite.exceptions.*;
 import fr.univrouen.instalite.dtos.post.CreatePostDto;
 import fr.univrouen.instalite.dtos.post.PostDto;
 import fr.univrouen.instalite.dtos.post.UpdatePostDto;
@@ -10,6 +10,7 @@ import fr.univrouen.instalite.repositories.CommentRepository;
 import fr.univrouen.instalite.repositories.PostRepository;
 import fr.univrouen.instalite.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -22,40 +23,23 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-
     private final CommentRepository commentRepository;
-
+    private final ModelMapper modelMapper;
 
     @Value("${RESOURCE_PATH}")
     private String resourcePath;
     @Autowired
-    public PostService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository, ModelMapper modelMapper) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.modelMapper = modelMapper;
     }
-
-
-    private PostDto postToDto(Post post) throws IOException {
-        return new PostDto(
-                post.getId() ,
-                post.getTitle(),
-                post.getDescription(),
-                post.isPublic(),
-                post.getCreatedAt(),
-                post.getUser().getId(),
-                post.getUser().getFirstname() +" "+ post.getUser().getLastname(),
-                commentRepository.countCommentsByPost_Id(post.getId())
-        );
-    }
-
-
 
     public String create(CreatePostDto createPostDto){
         String[] contentType = createPostDto.getData().getContentType().split("/");
@@ -66,10 +50,8 @@ public class PostService {
         //ToDo : block zip
 
         Optional<User> user = userRepository.findById(createPostDto.getUserId());
-        if(user.isEmpty()){
-            //ToDo : Error !
-            return null;
-        }
+        if(user.isEmpty())
+            throw new UserNotFoundException();
 
         Post post = new Post(null, createPostDto.getTitle(),
                 createPostDto.getDescription(),
@@ -85,90 +67,55 @@ public class PostService {
         try (OutputStream os = new FileOutputStream(file)) {
             os.write(createPostDto.getData().getBytes());
         } catch (Exception e){
-            System.out.println("Error ! " + e.getMessage());
+            throw new FileCouldNotBeCreatedException();
         }
 
         return post.getId();
     }
 
 
-    public PostDto getById(String id) throws IOException {
+    public PostDto getById(String id){
         Optional<Post> optPost = postRepository.findById(id);
-        if(optPost.isEmpty()){
-            //ToDo : Error !
-            return null;
-        }
+
+        if(optPost.isEmpty())
+            throw new PostNotFoundException();
 
         Post post = optPost.get();
 
-        return postToDto(post);
-
+        return modelMapper.map(post,PostDto.class);
     }
 
-    public List<PostDto> getPostsFromOneUser(Long idUser) throws IOException {
-        Optional<List<Post>> postsByUser = Optional.ofNullable(this.postRepository.getOptionalPostListByUserId(idUser).orElseThrow(
-                () -> new EntityNotFoundException("Une erreur de merde est survenue")
-        ));
-        Stream<PostDto> postsDtoByUser = postsByUser.get().stream().map(x -> {
-            try {
-                return postToDto(x);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return postsDtoByUser.toList();
+    public List<PostDto> getPostsFromOneUser(Long idUser){
+        Optional<User> user = userRepository.findById(idUser);
+
+        if(user.isEmpty())
+            throw new EntityNotFoundException("User not found");
+
+        return user.get().getPosts().stream().map(x ->modelMapper.map(x,PostDto.class)).toList();
     }
 
     public List<PostDto> getPublicPosts() throws IOException {
-        List<Post> postsPublic = this.postRepository.findByIsPublicTrue();
-        Stream<PostDto> postsDtoPublic = postsPublic.stream().map(x -> {
-            try {
-                return postToDto(x);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return postsDtoPublic.toList();
+        List<Post> postsPublic = postRepository.findByIsPublicTrue();
+        return postsPublic.stream().map(x -> modelMapper.map(x,PostDto.class)).toList();
     }
 
     public List<PostDto> getPosts(boolean isPublic){
-        List<Post> postsPrivate = isPublic ? postRepository.findByIsPublicTrue() :
+        List<Post> posts = isPublic ? postRepository.findByIsPublicTrue() :
                                     postRepository.findByIsPublicFalse();
 
-        Stream<PostDto> postsDtoPrivate = postsPrivate.stream().map(x -> {
-            try {
-                return postToDto(x);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        return postsDtoPrivate.toList();
+        return posts.stream().map(x -> modelMapper.map(x,PostDto.class)).toList();
      }
 
     public List<PostDto> getAllPosts(int pageNumber, int pageLimit){
-
         Page<Post> page = postRepository.findAll(PageRequest.of(pageNumber,pageLimit));
-         return page.get().map(post -> {
-            try {
-               return postToDto(post);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }).toList();
-
-
+        return page.get().map(x -> modelMapper.map(x, PostDto.class)).toList();
     }
 
-    public PostDto update(UpdatePostDto updatePostDto) throws IOException, BadRequestException {
-        /**
-         * Verify that the post exists retrieve it
-         * then update it's data
-         * then save
-         * */
+    public PostDto update(UpdatePostDto updatePostDto) {
+
         Optional<Post> post = postRepository.findById(updatePostDto.getPostId());
         if(post.isEmpty())
-            throw new EntityNotFoundException("Le Post que vous voulez modifier n'existe pas");
+            throw new PostNotFoundException();
 
         if(updatePostDto.getData() != null){
             String[] contentType = updatePostDto.getData().getContentType().split("/");
@@ -176,9 +123,8 @@ public class PostService {
             String extension = contentType[1];
             String oldFileName = post.get().getId() + "." + post.get().getExtension();
 
-            if(extension.equals("zip")) {
-                throw new BadRequestException("Le Format de votre fichier n'est pas autorisé");
-            }
+            if(extension.equals("zip"))
+                throw new UnsupportedFileTypeException();
 
             deleteResource(resourcePath + oldFileName);
 
@@ -202,21 +148,17 @@ public class PostService {
 
         postRepository.save(post.get());
 
-        return postToDto(post.get());
+        return modelMapper.map(post.get(),PostDto.class);
     }
 
-    public PostDto deletePost(String idPost) {
-        try {
-            Optional<Post> postTodelete = this.postRepository.findById(idPost);
-            if (postTodelete.isEmpty())
-                throw new EntityNotFoundException();
-            this.postRepository.delete(postTodelete.get());
-            String filePath = resourcePath + idPost + "." + postTodelete.get().getExtension();
-            deleteResource(filePath);
-            return postToDto(postTodelete.get());
-        }catch (Exception e){
-            throw new RuntimeException(e);
-        }
+    public void deletePost(String idPost) {
+        Optional<Post> postToDelete = postRepository.findById(idPost);
+        if (postToDelete.isEmpty())
+            throw new PostNotFoundException();
+
+        postRepository.delete(postToDelete.get());
+        String filePath = resourcePath + idPost + "." + postToDelete.get().getExtension();
+        deleteResource(filePath);
     }
 
     private void deleteResource(String filePath){
@@ -224,9 +166,13 @@ public class PostService {
         file.delete();
     }
 
-    private void createResource(String filePath, MultipartFile data) throws IOException {
+    private void createResource(String filePath, MultipartFile data) {
         File file = new File(filePath);
-        OutputStream os = new FileOutputStream(file);
-        os.write(data.getBytes());
+        try{
+            OutputStream os = new FileOutputStream(file);
+            os.write(data.getBytes());
+        }catch (Exception e){
+            throw new FileCouldNotBeCreatedException();
+        }
     }
 }

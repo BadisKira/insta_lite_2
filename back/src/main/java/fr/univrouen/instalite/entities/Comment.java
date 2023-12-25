@@ -23,19 +23,12 @@ public class Comment  {
     private String id;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user ;
+    private User user;
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
     @Column(name = "content" , nullable = false , length = 255)
     private String content;
     @Column(name = "createdAt" , nullable = false )
-    private Date createdAt ;
-
-    public Comment(User user, Post post, String content, Date createdAt) {
-        this.user = user;
-        this.post = post;
-        this.content = content;
-        this.createdAt = createdAt;
-    }
+    private Date createdAt;
 }

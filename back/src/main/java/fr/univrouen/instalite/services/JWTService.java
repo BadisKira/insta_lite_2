@@ -1,6 +1,6 @@
 package fr.univrouen.instalite.services;
 
-import fr.univrouen.instalite.entities.User;
+import fr.univrouen.instalite.dtos.user.UserDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -31,11 +31,11 @@ public class JWTService {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
-    public String generateToken(User userDetails) {
+    public String generateToken(UserDto user) {
         return Jwts
                 .builder()
                 .setClaims(new HashMap<>())
-                .setSubject(userDetails.getEmail())
+                .setSubject(user.getEmail())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + getExpirationTime()))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)

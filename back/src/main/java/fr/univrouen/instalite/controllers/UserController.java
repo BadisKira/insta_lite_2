@@ -1,13 +1,11 @@
 package fr.univrouen.instalite.controllers;
 
-import fr.univrouen.instalite.dtos.ResponseUser;
 import fr.univrouen.instalite.dtos.user.RegisterUserDto;
+import fr.univrouen.instalite.dtos.user.UserDto;
 import fr.univrouen.instalite.entities.PasswordReset;
-import fr.univrouen.instalite.entities.User;
 import fr.univrouen.instalite.services.UserService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,82 +15,42 @@ import java.util.List;
 
 @RequestMapping("/api/users")
 @RestController
+@AllArgsConstructor
 public class UserController {
+    private final UserService userService;
 
-    @Autowired
-    private UserService userService;
-
-    @DeleteMapping(path = "/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     @PostAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> deleteOneUser(@PathVariable(value = "id") Long id) {
-        try {
-            userService.deleteOneUser(id);
-
-            return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("An error occured", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<String> deleteOneUser(@PathVariable("id") Long id) {
+        userService.deleteOneUser(id);
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping(
-            path = "/",
-            produces = {MediaType.APPLICATION_JSON_VALUE}
-    )
+    @GetMapping( "/")
     @PreAuthorize("isAuthenticated()")
     @PostAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<ResponseUser>> getAllUsers() {
-        try {
-            List<ResponseUser> users = userService.getAllNoneAdminUsers();
-
-            return new ResponseEntity<>(users, HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<UserDto> users = userService.getAllNoneAdminUsers();
+        return ResponseEntity.ok(users);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     @PostAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPERUSER')")
-    public ResponseEntity<ResponseUser> putUserInfos(
-            @PathVariable(value = "id") Long id,
-            @RequestBody RegisterUserDto user
-    ) {
-        try {
-            User updatedUser = userService.putUserInfos(id, user);
-
-            ResponseUser responseUser = new ResponseUser(
-                    updatedUser.getId(),
-                    updatedUser.getFirstname(),
-                    updatedUser.getLastname(),
-                    updatedUser.getEmail(),
-                    updatedUser.getRole().getName().name()
-            );
-
-            return new ResponseEntity<>(responseUser, HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<UserDto> putUserInfos(@PathVariable("id") Long id,
+                                                @RequestBody RegisterUserDto user){
+        UserDto updatedUser = userService.putUserInfos(id, user);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @PutMapping("/{id}/reset-password")
     @PreAuthorize("isAuthenticated()")
     @PostAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPERUSER')")
-    public ResponseEntity<String> putUserPassword(
-            @PathVariable(value = "id") Long id,
-            @RequestBody PasswordReset passwordReset
-    ) {
-        try {
-            userService.putUserPassword(id, passwordReset);
-
-            return new ResponseEntity<>("Password reset successfully", HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<String> putUserPassword(@PathVariable(value = "id") Long id,
+                                                  @RequestBody PasswordReset passwordReset){
+        userService.putUserPassword(id, passwordReset);
+        return ResponseEntity.ok("Password reset successfully");
     }
 
 

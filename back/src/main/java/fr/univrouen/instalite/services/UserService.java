@@ -1,17 +1,18 @@
 package fr.univrouen.instalite.services;
 
-import fr.univrouen.instalite.dtos.ResponseUser;
 import fr.univrouen.instalite.dtos.user.RegisterUserDto;
+import fr.univrouen.instalite.dtos.user.UserDto;
 import fr.univrouen.instalite.entities.PasswordReset;
 import fr.univrouen.instalite.entities.User;
+import fr.univrouen.instalite.exceptions.PasswordDoesNotMatchException;
+import fr.univrouen.instalite.exceptions.UserNotFoundException;
 import fr.univrouen.instalite.repositories.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,70 +23,53 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private ModelMapper modelMapper;
 
-    public void deleteOneUser(Long userId) throws Exception {
+    public void deleteOneUser(Long userId){
         Optional<User> optionalUser = userRepository.findById(userId);
 
-        if (optionalUser.isEmpty()) {
-            throw new Exception("This user does not exist in our database");
-        }
+        if(optionalUser.isEmpty())
+            throw new UserNotFoundException();
 
         userRepository.delete(optionalUser.get());
     }
 
-    public List<ResponseUser> getAllNoneAdminUsers() {
+    public List<UserDto> getAllNoneAdminUsers() {
         List<User> users = userRepository.getAllNoneAdminUsers();
-        List<ResponseUser> responseUsers = new ArrayList<>();
-
-        users.forEach(user -> {
-            ResponseUser responseUser = new ResponseUser(
-                    user.getId(),
-                    user.getFirstname(),
-                    user.getLastname(),
-                    user.getEmail(),
-                    user.getRole().getName().name()
-            );
-
-            responseUsers.add(responseUser);
-        });
-
-        return responseUsers;
+        return users.stream().map(x -> modelMapper.map(x, UserDto.class)).toList();
     }
 
     @Transactional
-    public User putUserInfos(Long id, RegisterUserDto userDto) throws Exception {
+    public UserDto putUserInfos(Long id, RegisterUserDto userDto){
         Optional<User> optionalUser = userRepository.findById(id);
 
-        if (optionalUser.isEmpty()) {
-            throw new Exception("This user is does not exist in our database");
-        }
+        if(optionalUser.isEmpty())
+            throw new UserNotFoundException();
 
         User user = optionalUser.get();
 
-        if (!passwordEncoder.matches(userDto.getPassword(), user.getPassword())) {
-            throw new Exception("Password do not match");
-        }
-        
+        if(!passwordEncoder.matches(userDto.getPassword(), user.getPassword()))
+            throw new PasswordDoesNotMatchException();
+
         user.setFirstname(userDto.getFirstname());
         user.setLastname(userDto.getLastname());
         user.setEmail(user.getEmail());
 
-        return user;
+        return modelMapper.map(user, UserDto.class);
     }
 
     @Transactional
-    public void putUserPassword(Long id, PasswordReset passwordReset) throws Exception {
+    public void putUserPassword(Long id, PasswordReset passwordReset){
         Optional<User> optionalUser = userRepository.findById(id);
 
-        if (optionalUser.isEmpty()) {
-            throw new Exception("This user is does not exist in our database");
-        }
+        if(optionalUser.isEmpty())
+          throw new UserNotFoundException();
 
         User user = optionalUser.get();
 
-        if (!passwordEncoder.matches(passwordReset.getOldPassword(), user.getPassword())) {
-            throw new Exception("Password do not match");
-        }
+        if(!passwordEncoder.matches(passwordReset.getOldPassword(), user.getPassword()))
+            throw new PasswordDoesNotMatchException();
 
         String newEncodedPassword = passwordEncoder.encode(passwordReset.getNewPassword());
 

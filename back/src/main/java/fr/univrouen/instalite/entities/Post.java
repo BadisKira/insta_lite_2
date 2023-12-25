@@ -34,6 +34,5 @@ public class Post {
     private User user;
 
     @OneToMany(mappedBy = "post")
-    private List<Comment> commentList  ;
-
+    private List<Comment> commentList;
 }

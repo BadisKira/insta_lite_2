@@ -2,6 +2,9 @@ package fr.univrouen.instalite.services;
 
 import fr.univrouen.instalite.dtos.ResourceDto;
 import fr.univrouen.instalite.entities.Post;
+import fr.univrouen.instalite.exceptions.FileCouldNotBeCreatedException;
+import fr.univrouen.instalite.exceptions.ResourceCouldNotBeCreatedException;
+import fr.univrouen.instalite.exceptions.ResourceNotFoundException;
 import fr.univrouen.instalite.repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -23,17 +26,19 @@ public class ResourceService {
         this.postRepository = postRepository;
     }
 
-    public ResourceDto getById(String id) throws MalformedURLException {
+    public ResourceDto getById(String id) {
         Optional<Post> optPost = postRepository.findById(id);
-        if(optPost.isEmpty()){
-            //ToDo : Error !
-            return null;
-        }
+        if(optPost.isEmpty())
+            throw new ResourceNotFoundException();
 
         Post post = optPost.get();
         File file = new File(resourcePath + id + "." + post.getExtension());
         Resource resource;
-        resource = new UrlResource(file.toURI());
+        try {
+            resource = new UrlResource(file.toURI());
+        }catch (Exception e){
+            throw new ResourceCouldNotBeCreatedException();
+        }
 
         return new ResourceDto(resource, post.getExtension());
     }

@@ -1,5 +1,6 @@
 package fr.univrouen.instalite.dtos;
 
+import fr.univrouen.instalite.dtos.user.UserDto;
 import lombok.*;
 
 @Getter
@@ -8,6 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class ResponseLogin {
-    private ResponseUser user;
+    private UserDto user;
     private String token;
 }

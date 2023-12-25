@@ -2,6 +2,7 @@ package fr.univrouen.instalite.controllers;
 
 import fr.univrouen.instalite.dtos.ResourceDto;
 import fr.univrouen.instalite.services.ResourceService;
+import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -14,16 +15,15 @@ import java.net.MalformedURLException;
 
 @RestController
 @RequestMapping("/api/resource")
+@AllArgsConstructor
 public class ResourceController {
     private final ResourceService resourceService;
-    public ResourceController(ResourceService resourceService){
-        this.resourceService = resourceService;
-    }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Resource> get(@PathVariable("id") String id) throws MalformedURLException {
+    public ResponseEntity<Resource> get(@PathVariable("id") String id) {
         ResourceDto resourceDto = resourceService.getById(id);
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + id + "." +resourceDto.getExtension() + "\"").body(resourceDto.getResource());
+                "attachment; filename=\"" + id + "." +resourceDto.getExtension() + "\"")
+                .body(resourceDto.getResource());
     }
 }

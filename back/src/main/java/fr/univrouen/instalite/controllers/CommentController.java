@@ -2,10 +2,8 @@ package fr.univrouen.instalite.controllers;
 
 import fr.univrouen.instalite.dtos.comment.CommentDto;
 import fr.univrouen.instalite.dtos.comment.CreateCommentDto;
-import fr.univrouen.instalite.dtos.exception.BadRequestException;
-import fr.univrouen.instalite.dtos.post.PostCreatedDto;
 import fr.univrouen.instalite.services.CommentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,19 +12,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/comments")
+@AllArgsConstructor
 public class CommentController {
-
-
-    private CommentService commentService ;
-
-    public CommentController(CommentService commentService){
-        this.commentService = commentService;
-    }
-
+    private final CommentService commentService ;
 
     @PostMapping()
-    public ResponseEntity<CommentDto> create(@RequestBody  CreateCommentDto createCommentDto) throws BadRequestException {
-        System.out.println("Controller comment create  " + createCommentDto.toString());
+    public ResponseEntity<CommentDto> create(@RequestBody  CreateCommentDto createCommentDto) {
         CommentDto commentDto = commentService.createComment(createCommentDto);
         return  ResponseEntity.status(HttpStatus.CREATED).body(commentDto);
     }
@@ -45,20 +36,22 @@ public class CommentController {
     public ResponseEntity<List<CommentDto>> getPaginated(
             @PathVariable String postId,
             @RequestParam(defaultValue = "0") int pageNumber,
-                                                         @RequestParam(defaultValue = "1") int pageLimit)
-    {
-            return  ResponseEntity.status(HttpStatus.OK).body(this.commentService.getPaginatedCommentFromPost(postId,pageNumber,pageLimit));
+            @RequestParam(defaultValue = "1") int pageLimit){
+            return ResponseEntity.ok(commentService.getPaginatedCommentFromPost(
+                    postId,pageNumber,pageLimit));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<CommentDto> delete(@PathVariable String id){
-        return ResponseEntity.status(HttpStatus.OK).body(this.commentService.delete(id));
+        commentService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<CommentDto> update(@PathVariable String id , @RequestBody CreateCommentDto createCommentDto) {
+    public ResponseEntity<CommentDto> update(@PathVariable String id ,
+                                             @RequestBody CreateCommentDto createCommentDto) {
         CommentDto commentDto = this.commentService.update(id,createCommentDto);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(commentDto);
+        return ResponseEntity.accepted().body(commentDto);
     }
 
 }

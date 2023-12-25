@@ -1,20 +1,16 @@
-package fr.univrouen.instalite.dtos;
+package fr.univrouen.instalite.dtos.user;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseUser {
-
+public class UserDto {
     private Long id;
     private String firstname;
     private String lastname;
     private String email;
     private String role;
-
 }
