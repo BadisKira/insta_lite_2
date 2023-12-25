@@ -45,8 +45,9 @@ public class DbPopulation implements ApplicationListener<ContextRefreshedEvent> 
     }
     private void createAdmin() {
        User admin  = new User();
-        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.ADMIN);
-        if (optionalRole.isPresent()) {
+       Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.ADMIN);
+       Optional<User> optional = userRepository.findByEmail("admin@gmail.com");
+        if (optionalRole.isPresent() && optional.isEmpty()) {
             // this means the role table is empty IMPOSSIBLE
             admin.setId(0L);
             admin.setFirstname("admin");

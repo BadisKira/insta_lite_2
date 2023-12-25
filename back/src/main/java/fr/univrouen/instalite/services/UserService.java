@@ -33,7 +33,7 @@ public class UserService {
         userRepository.delete(optionalUser.get());
     }
 
-    public List<fr.univrouen.instalite.dtos.ResponseUser> getAllNoneAdminUsers() {
+    public List<ResponseUser> getAllNoneAdminUsers() {
         List<User> users = userRepository.getAllNoneAdminUsers();
         List<ResponseUser> responseUsers = new ArrayList<>();
 

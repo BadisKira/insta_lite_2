@@ -58,6 +58,7 @@ public class AuthenticationService {
     }
 
     public User authenticate(LoginUserDto input) throws Exception {
+
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 input.getEmail(),

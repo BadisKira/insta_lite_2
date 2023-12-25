@@ -51,6 +51,7 @@ public class AuthenticationController {
     )
     public ResponseEntity<ResponseLogin> login(@RequestBody LoginUserDto loginUserDto){
         try {
+
             User authenticatedUser = authenticationService.authenticate(loginUserDto);
 
             if (authenticatedUser.getId() == null) {
