@@ -8,6 +8,8 @@ import fr.univrouen.instalite.services.PostService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +21,9 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<PostCreatedDto> create(CreatePostDto createPostDto) {
-        String id = postService.create(createPostDto);
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<PostCreatedDto> create(Authentication authentication, CreatePostDto createPostDto) {
+        String id = postService.create(authentication.getName(), createPostDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new PostCreatedDto(id));
     }
 
@@ -37,9 +40,12 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping
-    public ResponseEntity<PostDto> update(UpdatePostDto updatePostDto) {
-        PostDto postDtoUpdated = this.postService.update(updatePostDto);
+    @PatchMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<PostDto> update(Authentication authentication,
+                                          @PathVariable("id") String id,
+                                          UpdatePostDto updatePostDto) {
+        PostDto postDtoUpdated = this.postService.update(authentication ,id, updatePostDto);
         return ResponseEntity.ok(postDtoUpdated);
     }
 
@@ -50,6 +56,11 @@ public class PostController {
         return postService.getPostsFromOneUser(id);
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public List<PostDto> getUsersPost(Authentication authentication){
+        return postService.getUsersPosts(authentication.getName());
+    }
 
     @GetMapping("/all")
     //@PreAuthorize("hasRole('SUPERUSER')")

@@ -9,7 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdatePostDto {
-    private String postId;
     private String title;
     private String description;
     private Boolean isPublic;

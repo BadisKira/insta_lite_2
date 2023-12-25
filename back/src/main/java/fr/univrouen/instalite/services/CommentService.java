@@ -29,8 +29,8 @@ public class CommentService {
     private CommentRepository commentRepository;
     private ModelMapper modelMapper;
 
-    public CommentDto createComment(CreateCommentDto createCommentDto){
-        Optional<User> user = userRepository.findById(createCommentDto.getUserId());
+    public CommentDto createComment(String email, CreateCommentDto createCommentDto){
+        Optional<User> user = userRepository.findByEmailIgnoreCase(email);
 
         if(user.isEmpty())
             throw new UserNotFoundException();
@@ -87,6 +87,7 @@ public class CommentService {
             throw new CommentNotFoundException();
 
         commentRepository.deleteById(commentId);
+
     }
 
 

@@ -16,13 +16,5 @@ public class CreatePostDto {
     private String title;
     private String description;
     private boolean isPublic;
-    private Long userId;
     private Date createdAt;
-
-    public void setIsPublic(Boolean isPublic) {
-        this.isPublic = isPublic;
-    }
-    public Boolean isPublic(){
-        return  this.isPublic;
-    }
 }

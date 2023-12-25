@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping( "/")
+    @GetMapping( "/all")
     @PreAuthorize("isAuthenticated()")
     @PostAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserDto>> getAllUsers() {
@@ -35,23 +36,20 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     @PreAuthorize("isAuthenticated()")
     @PostAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPERUSER')")
-    public ResponseEntity<UserDto> putUserInfos(@PathVariable("id") Long id,
-                                                @RequestBody RegisterUserDto user){
-        UserDto updatedUser = userService.putUserInfos(id, user);
+    public ResponseEntity<UserDto> putUserInfos(Authentication authentication, @RequestBody RegisterUserDto user){
+        UserDto updatedUser = userService.putUserInfos(authentication.getName(), user);
         return ResponseEntity.ok(updatedUser);
     }
 
-    @PutMapping("/{id}/reset-password")
+    @PutMapping("/reset-password")
     @PreAuthorize("isAuthenticated()")
     @PostAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPERUSER')")
-    public ResponseEntity<String> putUserPassword(@PathVariable(value = "id") Long id,
+    public ResponseEntity<String> putUserPassword(Authentication authentication,
                                                   @RequestBody PasswordReset passwordReset){
-        userService.putUserPassword(id, passwordReset);
+        userService.putUserPassword(authentication.getName(), passwordReset);
         return ResponseEntity.ok("Password reset successfully");
     }
-
-
 }

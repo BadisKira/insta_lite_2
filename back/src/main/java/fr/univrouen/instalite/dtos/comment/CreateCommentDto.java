@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreateCommentDto {
     private String postId;
-    private Long userId ;
     private String content;
 }

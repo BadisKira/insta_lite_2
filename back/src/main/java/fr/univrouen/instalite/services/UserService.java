@@ -41,8 +41,8 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto putUserInfos(Long id, RegisterUserDto userDto){
-        Optional<User> optionalUser = userRepository.findById(id);
+    public UserDto putUserInfos(String email, RegisterUserDto userDto){
+        Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email);
 
         if(optionalUser.isEmpty())
             throw new UserNotFoundException();
@@ -54,14 +54,14 @@ public class UserService {
 
         user.setFirstname(userDto.getFirstname());
         user.setLastname(userDto.getLastname());
-        user.setEmail(user.getEmail());
+        user.setEmail(userDto.getEmail());
 
         return modelMapper.map(user, UserDto.class);
     }
 
     @Transactional
-    public void putUserPassword(Long id, PasswordReset passwordReset){
-        Optional<User> optionalUser = userRepository.findById(id);
+    public void putUserPassword(String email, PasswordReset passwordReset){
+        Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email);
 
         if(optionalUser.isEmpty())
           throw new UserNotFoundException();

@@ -7,9 +7,14 @@ import fr.univrouen.instalite.dtos.ResponseLogin;
 import fr.univrouen.instalite.dtos.user.UserDto;
 import fr.univrouen.instalite.services.AuthenticationService;
 import fr.univrouen.instalite.services.JWTService;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,4 +38,9 @@ public class AuthenticationController {
         return new ResponseEntity<>(responseLogin, HttpStatus.OK);
     }
 
+    @PostMapping("/refresh-token")
+    public String refreshToken(HttpServletRequest request, HttpServletResponse response){
+        //authenticationService.refreshToken(request,response);
+        return "";
+    }
 }

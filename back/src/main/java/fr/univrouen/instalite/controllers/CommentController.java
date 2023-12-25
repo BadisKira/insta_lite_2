@@ -6,6 +6,8 @@ import fr.univrouen.instalite.services.CommentService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,9 +18,10 @@ import java.util.List;
 public class CommentController {
     private final CommentService commentService ;
 
-    @PostMapping()
-    public ResponseEntity<CommentDto> create(@RequestBody  CreateCommentDto createCommentDto) {
-        CommentDto commentDto = commentService.createComment(createCommentDto);
+    @PostMapping
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<CommentDto> create(Authentication authentication, @RequestBody  CreateCommentDto createCommentDto) {
+        CommentDto commentDto = commentService.createComment(authentication.getName(), createCommentDto);
         return  ResponseEntity.status(HttpStatus.CREATED).body(commentDto);
     }
 
