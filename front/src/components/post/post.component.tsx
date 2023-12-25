@@ -15,6 +15,9 @@ import { Box, Collapse, useMediaQuery, useTheme } from "@mui/material";
 import NotesIcon from "@mui/icons-material/Notes";
 import ContentDialog from "./content.dialog.component";
 import CommentSection from "../comment/commentSection.component";
+import { useMutation } from "@tanstack/react-query";
+import instaliteApi from "../../utils/axios/axiosConnection";
+import { IUser } from "../../types/user.type";
 
 const WIDTH_COMPONENT = 500;
 const WIDTH_EXPAND_COMMENT = 850;
@@ -36,6 +39,7 @@ const Post: React.FC<IPost> = ({
   userName,
   createdAt,
   commentsNumber,
+  likes
 }) => {
   const [commentSectionOpen, setCommentSectionOpen] =
     React.useState<boolean>(false);
@@ -50,6 +54,24 @@ const Post: React.FC<IPost> = ({
   const pageIsSmall = useMediaQuery(theme.breakpoints.down("md"));
   const [openContentDialog, setOpenContentDialog] =
     React.useState<boolean>(false);
+
+
+
+
+  const likeMutation = useMutation({
+    mutationKey: ['like', id],
+    mutationFn: async () => {
+      const token = localStorage.getItem("token"); 
+      if (!token) return;
+      const response =  await instaliteApi.put(`/posts/${id}/like`, {}, {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      });
+      return response.data;   
+    }
+    
+  })
 
   return (
     <Box
@@ -152,13 +174,9 @@ const Post: React.FC<IPost> = ({
             alignItems: "center",
           }}
         >
-          <IconButton>
-            <FavoriteIcon sx={{ fontSize: 28 }} />
-          </IconButton>
-          <Typography fontSize={10} component={"p"}>
-            1
-          </Typography>
-
+          
+            <LikeButton likeMutation={likeMutation} likes={likes} />
+          
           <IconButton
             sx={{
               display: !commentSectionOpen ? "block" : "none",
@@ -183,7 +201,6 @@ const Post: React.FC<IPost> = ({
         mountOnEnter
         unmountOnExit
         onAnimationEnd={() => {
-          console.log("shit");
         }}
       >
         <Box
@@ -203,3 +220,37 @@ const Post: React.FC<IPost> = ({
   );
 };
 export default Post;
+
+const LikeButton = ({ likes ,  likeMutation }: { likes:IUser[],likeMutation: any }) => {
+  //  /{postId}/{userId}/like
+
+  const {
+    mutateAsync,
+    data,
+    isLoading,
+    isError,
+    isSuccess,
+  } = likeMutation;
+
+  const userString = localStorage.getItem("user");
+  if (!userString) return;
+
+  const user = JSON.parse(userString) as IUser;
+
+  return (
+    <>
+      <IconButton onClick={async () => await mutateAsync()}>
+        {likes.includes(user) ? (
+          <FavoriteIcon sx={{ background: "red" }} />
+        ) : (
+          <FavoriteIcon />
+        )}
+      </IconButton>
+      <Typography fontSize={8} component={"p"}>
+        {(data && data.likes && isSuccess )? data.likes.length : likes.length}
+        {isLoading && "loading..."}
+        {isError && "error..."}
+      </Typography>
+    </>
+  );
+};

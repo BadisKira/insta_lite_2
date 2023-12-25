@@ -4,9 +4,11 @@ import fr.univrouen.instalite.dtos.exception.BadRequestException;
 import fr.univrouen.instalite.dtos.post.CreatePostDto;
 import fr.univrouen.instalite.dtos.post.PostDto;
 import fr.univrouen.instalite.dtos.post.UpdatePostDto;
-import fr.univrouen.instalite.entities.Post;
-import fr.univrouen.instalite.entities.User;
+import fr.univrouen.instalite.entities.*;
+import fr.univrouen.instalite.entities.like.Like;
+import fr.univrouen.instalite.entities.like.LikeKey;
 import fr.univrouen.instalite.repositories.CommentRepository;
+import fr.univrouen.instalite.repositories.LikeRepository;
 import fr.univrouen.instalite.repositories.PostRepository;
 import fr.univrouen.instalite.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -27,16 +30,17 @@ import java.util.stream.Stream;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-
+private final LikeRepository likeRepository ;
     private final CommentRepository commentRepository;
 
 
     @Value("${RESOURCE_PATH}")
     private String resourcePath;
     
-    public PostService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, LikeRepository likeRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.likeRepository = likeRepository;
         this.commentRepository = commentRepository;
     }
 
@@ -50,7 +54,9 @@ public class PostService {
                 post.getCreatedAt(),
                 post.getUser().getId(),
                 post.getUser().getFirstname() +" "+ post.getUser().getLastname(),
-                commentRepository.countCommentsByPost_Id(post.getId())
+                commentRepository.countCommentsByPost_Id(post.getId()),
+                likeRepository.findLikesByPost_Id(post.getId())
+
         );
     }
 
@@ -76,7 +82,8 @@ public class PostService {
                 ,createPostDto.isPublic()
                 ,Date.valueOf(LocalDate.now())
                 ,user.get() ,
-                null
+                new ArrayList<Comment>(),
+                new ArrayList<Like>()
         );
         postRepository.save(post);
 
@@ -230,4 +237,38 @@ public class PostService {
 
         os.close();
     }
+
+    public PostDto toggleLike(String postId, Long userId) throws IOException {
+        Optional<Post> postOptional = postRepository.findById(postId);
+        Optional<User> userOptional = userRepository.findById(userId);
+
+
+
+
+        Post post = null;
+        if (postOptional.isPresent() && userOptional.isPresent()) {
+            post = postOptional.get();
+            User user = userOptional.get();
+
+            Optional<Like> isThereALike = likeRepository.findLikeByPost_IdAndUser_Id(postId , userId) ;
+
+            if (isThereALike.isEmpty()) {
+                System.out.println("Add the like");
+                Like like = new Like(new LikeKey(userId,postId),user , post)  ;
+                likeRepository.save(like) ;
+                post.getLikes().add(like) ;
+            } else {
+                System.out.println("Delete the like");
+                likeRepository.delete(isThereALike.get());
+                post.getLikes().remove(isThereALike.get()) ;
+            }
+
+
+        }
+
+
+        return postToDto(post) ;
+    }
+
+
 }

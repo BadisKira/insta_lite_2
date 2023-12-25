@@ -1,12 +1,13 @@
 package fr.univrouen.instalite.entities;
 
 
+import fr.univrouen.instalite.entities.like.Like;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Date;
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,6 +15,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
+
 public class Post {
     @Id
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
@@ -35,5 +38,13 @@ public class Post {
 
     @OneToMany(mappedBy = "post")
     private List<Comment> commentList  ;
+
+
+    @OneToMany(mappedBy = "post")
+    private List<Like> likes = new ArrayList<>();
+
+
+
+
 
 }
