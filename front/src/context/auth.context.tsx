@@ -58,6 +58,8 @@ const AuthProvider = ({ children }: IProps) => {
         try {
             const { data } = await instaliteApi.post("/login", loginData)
 
+            console.log(data);
+            
             setUser(data.user as IUser)
             setToken(data.token)
             setIsAuthenticated(true)

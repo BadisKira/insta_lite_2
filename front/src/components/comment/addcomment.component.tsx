@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { instaliteApi } from "../../utils/axios/axiosConnection";
+import  instaliteApi  from "../../utils/axios/axiosConnection";
 import { ICreateComment, queryKeyComment } from "../../types/comment.type";
 import Loader from "../Loader";
 

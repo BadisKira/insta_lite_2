@@ -1,5 +1,5 @@
 import { Button, Container } from "@mui/material";
-import { instaliteApi } from "../../utils/axios/axiosConnection";
+import  instaliteApi  from "../../utils/axios/axiosConnection";
 import Post from "../../components/post/post.component";
 import { IPost } from "../../types/post.type";
 import PostSkeleton from "../../components/post/post.skeleton";

@@ -6,7 +6,7 @@ import {
   Typography,
 } from "@mui/material";
 import { usePaginatedQuery } from "../../hooks/usePaginatedQuery";
-import { instaliteApi } from "../../utils/axios/axiosConnection";
+import  instaliteApi  from "../../utils/axios/axiosConnection";
 import { IComment, queryKeyComment } from "../../types/comment.type";
 import { Close } from "@mui/icons-material";
 import { useInView } from "react-intersection-observer";

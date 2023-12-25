@@ -3,7 +3,7 @@ import { ICreatePost } from "../../types/post.type";
 import { Button, Chip, Grid, Paper, Stack, TextField } from "@mui/material";
 import { useState } from "react";
 import { Done } from "@mui/icons-material";
-import { instaliteApi } from "../../utils/axios/axiosConnection";
+import  instaliteApi  from "../../utils/axios/axiosConnection";
 import Loader from "../Loader";
 
 

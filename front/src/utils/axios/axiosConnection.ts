@@ -8,7 +8,9 @@ const config = {
     timeout: 1000,
 }
 
-const instaliteApi = axios.create(config)
+const instaliteApi = axios.create(config);
+
+console.log(token);
 
 if (token !== undefined) {
     instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
