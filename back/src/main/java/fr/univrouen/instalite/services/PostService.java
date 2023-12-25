@@ -5,8 +5,11 @@ import fr.univrouen.instalite.exceptions.*;
 import fr.univrouen.instalite.dtos.post.CreatePostDto;
 import fr.univrouen.instalite.dtos.post.PostDto;
 import fr.univrouen.instalite.dtos.post.UpdatePostDto;
-import fr.univrouen.instalite.entities.Post;
-import fr.univrouen.instalite.entities.User;
+import fr.univrouen.instalite.entities.*;
+import fr.univrouen.instalite.entities.like.Like;
+import fr.univrouen.instalite.entities.like.LikeKey;
+import fr.univrouen.instalite.repositories.CommentRepository;
+import fr.univrouen.instalite.repositories.LikeRepository;
 import fr.univrouen.instalite.repositories.PostRepository;
 import fr.univrouen.instalite.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,20 +29,26 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+private final LikeRepository likeRepository ;
+    private final CommentRepository commentRepository;
+
 
     @Value("${RESOURCE_PATH}")
     private String resourcePath;
-    @Autowired
-    public PostService(PostRepository postRepository, UserRepository userRepository, ModelMapper modelMapper) {
+
+    public PostService(PostRepository postRepository, UserRepository userRepository, LikeRepository likeRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.likeRepository = likeRepository;
+        this.commentRepository = commentRepository;
     }
 
     public String create(String email, CreatePostDto createPostDto){
@@ -51,6 +60,7 @@ public class PostService {
             }
         }
 
+    public String create(CreatePostDto createPostDto){
         String[] contentType = createPostDto.getData().getContentType().split("/");
 
         String type = contentType[0];
@@ -69,7 +79,8 @@ public class PostService {
                 ,createPostDto.isPublic()
                 ,Date.valueOf(LocalDate.now())
                 ,user.get(),
-                null
+                new ArrayList<Comment>(),
+                new ArrayList<Like>()
         );
         postRepository.save(post);
 
@@ -201,4 +212,38 @@ public class PostService {
         return user.get().getPosts().stream().map(x ->
                 modelMapper.map(x,PostDto.class)).toList();
     }
+
+    public PostDto toggleLike(String postId, Long userId) throws IOException {
+        Optional<Post> postOptional = postRepository.findById(postId);
+        Optional<User> userOptional = userRepository.findById(userId);
+
+
+
+
+        Post post = null;
+        if (postOptional.isPresent() && userOptional.isPresent()) {
+            post = postOptional.get();
+            User user = userOptional.get();
+
+            Optional<Like> isThereALike = likeRepository.findLikeByPost_IdAndUser_Id(postId , userId) ;
+
+            if (isThereALike.isEmpty()) {
+                System.out.println("Add the like");
+                Like like = new Like(new LikeKey(userId,postId),user , post)  ;
+                likeRepository.save(like) ;
+                post.getLikes().add(like) ;
+            } else {
+                System.out.println("Delete the like");
+                likeRepository.delete(isThereALike.get());
+                post.getLikes().remove(isThereALike.get()) ;
+            }
+
+
+        }
+
+
+        return postToDto(post) ;
+    }
+
+
 }

@@ -14,4 +14,6 @@ public interface PostRepository extends ListCrudRepository<Post,String>, PagingA
     List<Post> findByIsPublicFalse();
     List<Post> findByIsPublicTrue();
 
+
+
 }

@@ -28,7 +28,13 @@ const addCommentFn = async (comment: ICreateComment) => {
   return response.data;
 };
 
-const AddComment = ({ postId }: { postId: string }) => {
+const AddComment = ({
+  postId,
+  refetchCount,
+}: {
+  postId: string;
+  refetchCount: () => void;
+}) => {
   const [content, setContent] = useState<string>("");
   const userId = 1;
   const queryClient = useQueryClient();
@@ -41,6 +47,7 @@ const AddComment = ({ postId }: { postId: string }) => {
     mutationFn: async () => await addCommentFn({ content, postId, userId }),
     onSuccess: () => {
       setContent(EMPTYCONTENT);
+      refetchCount();
       queryClient.invalidateQueries({ queryKey: [queryKeyComment, postId] });
     },
   });

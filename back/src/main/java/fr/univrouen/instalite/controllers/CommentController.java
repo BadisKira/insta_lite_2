@@ -1,5 +1,6 @@
 package fr.univrouen.instalite.controllers;
 
+import fr.univrouen.instalite.dtos.comment.CommentCountDto;
 import fr.univrouen.instalite.dtos.comment.CommentDto;
 import fr.univrouen.instalite.dtos.comment.CreateCommentDto;
 import fr.univrouen.instalite.services.CommentService;
@@ -55,6 +56,12 @@ public class CommentController {
                                              @RequestBody CreateCommentDto createCommentDto) {
         CommentDto commentDto = this.commentService.update(id,createCommentDto);
         return ResponseEntity.accepted().body(commentDto);
+    }
+
+    @GetMapping("/count/{postId}")
+     public ResponseEntity<CommentCountDto> getCount(@PathVariable String postId)
+    {
+            return  ResponseEntity.status(HttpStatus.OK).body(this.commentService.getCount(postId));
     }
 
 }

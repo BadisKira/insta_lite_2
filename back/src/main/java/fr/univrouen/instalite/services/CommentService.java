@@ -1,5 +1,6 @@
 package fr.univrouen.instalite.services;
 
+import fr.univrouen.instalite.dtos.comment.CommentCountDto;
 import fr.univrouen.instalite.dtos.comment.CommentDto;
 import fr.univrouen.instalite.dtos.comment.CreateCommentDto;
 import fr.univrouen.instalite.exceptions.*;
@@ -99,5 +100,9 @@ public class CommentService {
         comment.get().setContent(createCommentDto.getContent());
         commentRepository.save(comment.get());
         return  modelMapper.map(comment, CommentDto.class);
+    }
+
+    public CommentCountDto getCount(String postId) {
+        return new CommentCountDto(commentRepository.countCommentsByPost_Id(postId));
     }
 }

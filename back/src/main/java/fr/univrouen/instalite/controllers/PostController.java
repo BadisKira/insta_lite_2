@@ -80,4 +80,13 @@ public class PostController {
     public List<PostDto> getAllPrivatePosts() {
        return postService.getPosts(false);
     }
+
+
+    @PutMapping("/{postId}/like")
+    public ResponseEntity<PostDto> toggleLike( @PathVariable String postId) throws IOException {
+        // get the id from the token
+        Long userId = Long.valueOf(2);
+        return  ResponseEntity.ok().body(this.postService.toggleLike(postId,userId)) ;
+    }
+
 }
