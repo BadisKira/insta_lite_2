@@ -1,11 +1,10 @@
 package fr.univrouen.instalite.controllers;
 
+import fr.univrouen.instalite.dtos.comment.CommentCountDto;
 import fr.univrouen.instalite.dtos.comment.CommentDto;
 import fr.univrouen.instalite.dtos.comment.CreateCommentDto;
 import fr.univrouen.instalite.dtos.exception.BadRequestException;
-import fr.univrouen.instalite.dtos.post.PostCreatedDto;
 import fr.univrouen.instalite.services.CommentService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -56,9 +55,15 @@ public class CommentController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<CommentDto> update(@PathVariable String id , @RequestBody CreateCommentDto createCommentDto) {
-        CommentDto commentDto = this.commentService.update(id,createCommentDto);
+    public ResponseEntity<CommentDto> update(@PathVariable String id, @RequestBody CreateCommentDto createCommentDto) {
+        CommentDto commentDto = this.commentService.update(id, createCommentDto);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(commentDto);
+    }
+
+    @GetMapping("/count/{postId}")
+     public ResponseEntity<CommentCountDto> getCount(@PathVariable String postId)
+    {
+            return  ResponseEntity.status(HttpStatus.OK).body(this.commentService.getCount(postId));
     }
 
 }

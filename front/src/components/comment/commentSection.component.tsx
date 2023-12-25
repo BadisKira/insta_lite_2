@@ -1,12 +1,6 @@
-import {
-  Box,
-  Button,
-  IconButton,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Button, IconButton, Stack, Typography } from "@mui/material";
 import { usePaginatedQuery } from "../../hooks/usePaginatedQuery";
-import  instaliteApi  from "../../utils/axios/axiosConnection";
+import instaliteApi from "../../utils/axios/axiosConnection";
 import { IComment, queryKeyComment } from "../../types/comment.type";
 import { Close } from "@mui/icons-material";
 import { useInView } from "react-intersection-observer";
@@ -14,26 +8,19 @@ import { useEffect } from "react";
 import AddComment from "./addcomment.component";
 import CommentItem from "./commentItem.component";
 import Loader from "../Loader";
+import { useQuery } from "@tanstack/react-query";
 
 const CommentSection = ({
-  idPost,
-  commentsNumber,
+  postId,
   setCommentSectionOpen,
 }: {
-  idPost: string;
-  commentsNumber:number;
+  postId: string;
   setCommentSectionOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const getCommentsByPost = async (page: number) => {
-    const user = localStorage.getItem("authData");
-    let token;
-    if (user) {
-      token = JSON.parse(user).token;
-    }
-    console.log(token);
-
+    let token =localStorage.getItem("token");
     const response = await instaliteApi.get<IComment[]>(
-      `comments/${idPost}?pageNumber=${page - 1}&pageLimit=2`,
+      `comments/${postId}?pageNumber=${page - 1}&pageLimit=2`,
       {
         headers: {
           "Content-Type": "Application/json",
@@ -43,6 +30,20 @@ const CommentSection = ({
     );
     return response.data;
   };
+
+  const {
+    data: commentsCount,
+    isSuccess: isCountSuccess,
+    isLoading: isCountLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["countComments", postId],
+    queryFn: async () => {
+      console.log("count comments");
+      const response = await instaliteApi.get(`comments/count/${postId}`);
+      return response.data;
+    },
+  });
 
   const {
     data,
@@ -55,7 +56,7 @@ const CommentSection = ({
   } = usePaginatedQuery({
     getResourceFn: getCommentsByPost,
     limit: 2,
-    queryKey: [queryKeyComment, idPost],
+    queryKey: [queryKeyComment, postId],
   });
 
   const { ref, inView } = useInView({
@@ -68,6 +69,7 @@ const CommentSection = ({
       if (!isFetchingNextPage && inView) await fetchNextPage();
     };
     fetchInView().then((res) => res);
+    refetch();
   }, [inView]);
   return (
     <Stack
@@ -92,7 +94,10 @@ const CommentSection = ({
       >
         <Typography variant="h6">
           Commentaires
-          <span style={{ marginLeft: 10, fontSize: 16 }}>{commentsNumber}</span>
+          <span style={{ marginLeft: 10, fontSize: 16 }}>
+            {isCountLoading && <Loader size={6} />}
+            {isCountSuccess && commentsCount.commentsCount}
+          </span>
         </Typography>
         <IconButton
           // sx={{ position: "absolute", top: 0, right: 0 }}
@@ -135,16 +140,15 @@ const CommentSection = ({
             <Loader color="red" size={30} />
           </Box>
         ) : (
-          <>{hasNextPage ? <Button ref={ref}>LoadMore shit</Button> : ""}</>
+            <>{hasNextPage ? <Button variant="text" size="small" ref={ref}>load more</Button> : <Typography fontSize={10} color={"darkgray"} textAlign={"center"}>aucun nouveau commentaire </Typography>}</>
         )}
       </Stack>
 
       <Box width={"100%"}>
-        <AddComment postId={idPost} key={"ddver8465"} />
+        <AddComment postId={postId} key={"ddver8465"} refetchCount={refetch} />
       </Box>
     </Stack>
   );
 };
-
 
 export default CommentSection;

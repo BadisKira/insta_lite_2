@@ -1,5 +1,6 @@
 package fr.univrouen.instalite.services;
 
+import fr.univrouen.instalite.dtos.comment.CommentCountDto;
 import fr.univrouen.instalite.dtos.comment.CommentDto;
 import fr.univrouen.instalite.dtos.comment.CreateCommentDto;
 import fr.univrouen.instalite.dtos.exception.BadRequestException;
@@ -12,7 +13,6 @@ import fr.univrouen.instalite.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -106,15 +106,19 @@ public class CommentService {
     }
 
 
-    public CommentDto update (String commentId ,CreateCommentDto createCommentDto) {
+    public CommentDto update(String commentId, CreateCommentDto createCommentDto) {
 
         Optional<Comment> originalComment = this.commentRepository.findById(commentId);
-        if(originalComment.isEmpty())
-            throw new IllegalArgumentException("Comment id is wrong") ;
+        if (originalComment.isEmpty())
+            throw new IllegalArgumentException("Comment id is wrong");
 
         originalComment.get().setContent(createCommentDto.getContent());
 
         this.commentRepository.save(originalComment.get());
-        return  commentToCommentDto(originalComment.get()) ;
+        return commentToCommentDto(originalComment.get());
+    }
+    
+    public CommentCountDto getCount(String postId) {
+        return new CommentCountDto(commentRepository.countCommentsByPost_Id(postId));
     }
 }

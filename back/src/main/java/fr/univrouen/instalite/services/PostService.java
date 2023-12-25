@@ -10,7 +10,6 @@ import fr.univrouen.instalite.repositories.CommentRepository;
 import fr.univrouen.instalite.repositories.PostRepository;
 import fr.univrouen.instalite.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,7 +33,7 @@ public class PostService {
 
     @Value("${RESOURCE_PATH}")
     private String resourcePath;
-    @Autowired
+    
     public PostService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
@@ -228,5 +227,7 @@ public class PostService {
         File file = new File(filePath);
         OutputStream os = new FileOutputStream(file);
         os.write(data.getBytes());
+
+        os.close();
     }
 }

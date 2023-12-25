@@ -194,8 +194,7 @@ const Post: React.FC<IPost> = ({
           width={{ xs: "90%", md: WIDTH_COMMENT }}
         >
           <CommentSection
-            idPost={id}
-            commentsNumber={commentsNumber}
+            postId={id}
             setCommentSectionOpen={setCommentSectionOpen}
           />
         </Box>
