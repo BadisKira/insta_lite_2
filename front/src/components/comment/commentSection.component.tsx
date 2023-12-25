@@ -18,7 +18,7 @@ const CommentSection = ({
   setCommentSectionOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const getCommentsByPost = async (page: number) => {
-    let token =localStorage.getItem("token");
+    // let token =localStorage.getItem("token");
     const response = await instaliteApi.get<IComment[]>(
       `comments/${postId}?pageNumber=${page - 1}&pageLimit=2`,
       {
