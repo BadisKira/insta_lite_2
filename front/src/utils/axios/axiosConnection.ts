@@ -5,12 +5,11 @@ const token = getItem("token")
 
 const config = {
     baseURL: "http://localhost:8080/api/",
-    timeout: 1000,
+    timeout: 5000,
 }
 
 const instaliteApi = axios.create(config);
 
-console.log(token);
 
 if (token !== undefined) {
     instaliteApi.defaults.headers.common.Authorization = "Bearer " + token

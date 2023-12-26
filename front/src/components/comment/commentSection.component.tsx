@@ -9,6 +9,7 @@ import AddComment from "./addcomment.component";
 import CommentItem from "./commentItem.component";
 import Loader from "../Loader";
 import { useQuery } from "@tanstack/react-query";
+import { ProtectedComponent } from "../../router/ProtectedComponent";
 
 const CommentSection = ({
   postId,
@@ -140,12 +141,28 @@ const CommentSection = ({
             <Loader color="red" size={30} />
           </Box>
         ) : (
-            <>{hasNextPage ? <Button variant="text" size="small" ref={ref}>load more</Button> : <Typography fontSize={10} color={"darkgray"} textAlign={"center"}>aucun nouveau commentaire </Typography>}</>
+          <>
+            {hasNextPage ? (
+              <Button variant="text" size="small" ref={ref}>
+                load more
+              </Button>
+            ) : (
+              <Typography fontSize={10} color={"darkgray"} textAlign={"center"}>
+                aucun nouveau commentaire{" "}
+              </Typography>
+            )}
+          </>
         )}
       </Stack>
 
       <Box width={"100%"}>
-        <AddComment postId={postId} key={"ddver8465"} refetchCount={refetch} />
+        <ProtectedComponent allowedRoles={[]}>
+          <AddComment
+            postId={postId}
+            key={"ddver8465"}
+            refetchCount={refetch}
+          />
+        </ProtectedComponent>
       </Box>
     </Stack>
   );

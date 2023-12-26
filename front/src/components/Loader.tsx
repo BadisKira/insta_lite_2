@@ -1,5 +1,5 @@
-import { ClipLoader, PulseLoader } from "react-spinners";
-
+import {  PacmanLoader } from "react-spinners";
+import { Box } from "@mui/material";
 type LoaderProps = {
   color?: "red" | "green" | "blue";
   loading?: boolean;
@@ -8,7 +8,7 @@ type LoaderProps = {
 
 const Loader: React.FC<LoaderProps> = ({ color="blue", loading = true, size = 10 }) => {
   return (
-    <PulseLoader
+    <PacmanLoader
       color={color}
       loading={loading}
       size={size}
@@ -16,5 +16,25 @@ const Loader: React.FC<LoaderProps> = ({ color="blue", loading = true, size = 10
     />
   );
 };
+
+
+
+export const LoaderFullScreen = () => {
+  return (
+    <Box
+      sx={{
+        width: "100vw",
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <PacmanLoader size={120} color="#7845bc" speedMultiplier={2.8} loading={true} />
+    </Box>
+  );
+};
+
+
 
 export default Loader;

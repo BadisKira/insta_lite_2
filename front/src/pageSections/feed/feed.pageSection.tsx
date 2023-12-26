@@ -1,5 +1,5 @@
-import { Button, Container } from "@mui/material";
-import  instaliteApi  from "../../utils/axios/axiosConnection";
+import { Button, Container, Typography } from "@mui/material";
+import instaliteApi from "../../utils/axios/axiosConnection";
 import Post from "../../components/post/post.component";
 import { IPost } from "../../types/post.type";
 import PostSkeleton from "../../components/post/post.skeleton";
@@ -7,17 +7,16 @@ import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
 import CreatePost from "../../components/post/createPost.component";
 import { usePaginatedQuery } from "../../hooks/usePaginatedQuery";
-
+import { useAuthContext } from "../../hooks/useAuthContext.hook";
 
 const getPostsFn = async (page: number) => {
-  
-  const user = localStorage.getItem("authData");
+  const user = localStorage.getItem("user");
   let token;
   if (user) {
     token = JSON.parse(user).token;
   }
-  console.log(token)
-  
+  console.log(token);
+
   const response = await instaliteApi.get<IPost[]>(
     `posts/all?pageNumber=${page - 1}&pageLimit=2`,
     {
@@ -30,7 +29,7 @@ const getPostsFn = async (page: number) => {
   return response.data;
 };
 
-const FeedPage = () => {
+const FeedPageSection = () => {
   const {
     data,
     isError,
@@ -53,7 +52,7 @@ const FeedPage = () => {
    *
    */
   const { ref, inView } = useInView({
-    threshold: 1/2,
+    threshold: 1 / 2,
   });
 
   useEffect(() => {
@@ -63,6 +62,10 @@ const FeedPage = () => {
     };
     fetchInView().then((res) => res);
   }, [inView]);
+
+  /**User authentification */
+  const { user } = useAuthContext();
+
   return (
     <Container
       sx={{
@@ -70,10 +73,10 @@ const FeedPage = () => {
         flexDirection: "column",
         justifyItems: "start",
         alignItems: "center",
-        rowGap: 3,
+        rowGap: 1,
       }}
     >
-      <CreatePost />
+      {user && user.role === "ADMIN" && <CreatePost />}
 
       <br />
       {isLoading ? (
@@ -86,13 +89,17 @@ const FeedPage = () => {
           {isError && <>Error</>}
           {isSuccess && (
             <>
-              {data?.pages.map((feedPostPage: IPost[]) => {
+              {data?.pages.map((feedPostPage: IPost[] , pageNumber) => {
                 if (feedPostPage.length > 0) {
-                  return feedPostPage.map((feedpost) => (
-                    <Post {...feedpost} key={feedpost.id} />
+                  return feedPostPage.map((feedpost, index) => (
+                    <Post
+                      {...feedpost}
+                      key={feedpost.id}
+                      indexInPage={index}
+                      page={pageNumber}
+                    />
                   ));
                 }
-                
               })}
             </>
           )}
@@ -104,9 +111,9 @@ const FeedPage = () => {
       ) : (
         <>
           {hasNextPage ? (
-            <Button ref={ref}>LoadMore shit</Button>
+            <Button ref={ref}>Charger plus </Button>
           ) : (
-            "arrete de scroller et va travailler"
+            <Typography variant="caption">Aucun nouveau post à voir</Typography>
           )}
         </>
       )}
@@ -114,4 +121,4 @@ const FeedPage = () => {
   );
 };
 
-export default FeedPage;
+export default FeedPageSection;

@@ -67,7 +67,7 @@ const AuthProvider = ({ children }: IProps) => {
             setItem("user", JSON.stringify(data.user))
             setItem("token", data.token)
             
-            navigate("/home")
+            navigate("/")
             toast.success("Connexion réussi !")
         } catch (error: unknown) {
             console.log(error)
@@ -89,8 +89,10 @@ const AuthProvider = ({ children }: IProps) => {
             const { data } = await instaliteApi.put(`/users/${user?.id}`, userInfos)
             setUser(data as IUser)
             setItem("user", JSON.stringify(user))
+            toast.success("Modification du compte effectué avec succes");
         } catch (error) {
             console.error(error)
+            toast.error("Erreur lors de la modification du compte");
         }
         
         setIsLoading(false)
@@ -102,7 +104,9 @@ const AuthProvider = ({ children }: IProps) => {
         try {
             instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
             await instaliteApi.put(`/users/${user?.id}/reset-password`, { oldPassword, newPassword })
+            toast.success("Mot de passe changé avec succes");
         } catch (error) {
+            toast.error("Erreur lors de la modification du mot de passe");
             console.error(error)
         }
         
@@ -117,7 +121,7 @@ const AuthProvider = ({ children }: IProps) => {
         removeItem("user")
         removeItem("token")
 
-        navigate("/auth")
+        navigate("/")
         toast.success("Vous etes déconnecté !")
     }
 

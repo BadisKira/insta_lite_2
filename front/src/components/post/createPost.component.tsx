@@ -64,7 +64,10 @@ const CreatePost = () => {
   });
 
   return (
-    <Paper elevation={10} sx={{ width: "100%", marginTop: 3, padding: 2 }}>
+    <Paper
+      elevation={2}
+      sx={{ width: "95%", padding: 2,  marginTop: 3 }}
+    >
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -74,7 +77,7 @@ const CreatePost = () => {
       >
         <Grid container gap={1}>
           <Grid item container spacing={1}>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -87,7 +90,7 @@ const CreatePost = () => {
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={6} sm={4}>
               <input
                 type="file"
                 accept={"image/*"}
@@ -102,6 +105,24 @@ const CreatePost = () => {
                 }}
               />
             </Grid>
+
+            <Grid
+              item
+              xs={6}
+              sm={4}
+              sx={{
+                display: "flex",
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <CustomCheckBoxChip
+                value={postInfo?.isPublic}
+                setValue={setPostInfo}
+                name="isPublic"
+              />
+            </Grid>
           </Grid>
 
           <Grid item xs={12}>
@@ -113,23 +134,8 @@ const CreatePost = () => {
               name="description"
               multiline
               fullWidth
-              rows={2}
+              rows={1}
               onChange={handleChange}
-            />
-          </Grid>
-          <Grid
-            item
-            sx={{
-              display: "flex",
-              width: "100%",
-              justifyContent: "start",
-              alignItems: "center",
-            }}
-          >
-            <CustomCheckBoxChip
-              value={postInfo?.isPublic}
-              setValue={setPostInfo}
-              name="isPublic"
             />
           </Grid>
         </Grid>

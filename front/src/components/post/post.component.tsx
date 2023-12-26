@@ -10,7 +10,6 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { red } from "@mui/material/colors";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Box, Collapse, useMediaQuery, useTheme } from "@mui/material";
 import NotesIcon from "@mui/icons-material/Notes";
 import ContentDialog from "./content.dialog.component";
@@ -18,6 +17,7 @@ import CommentSection from "../comment/commentSection.component";
 import { useMutation } from "@tanstack/react-query";
 import instaliteApi from "../../utils/axios/axiosConnection";
 import { IUser } from "../../types/user.type";
+import PostUpdateComponent from "./post.update.component";
 
 const WIDTH_COMPONENT = 500;
 const WIDTH_EXPAND_COMMENT = 850;
@@ -26,21 +26,30 @@ const WIDTH_CARD = 500;
 const WIDTH_COMMENT = 350;
 
 const HEIGHT_COMPONENT = 600;
-
 const HEIGHT_CARD = HEIGHT_COMPONENT;
 const HEIGHT_COMMENT_WHEN_EXPAND = 400;
 
 const HEIGHT_COMPONENT_EXPAND = HEIGHT_CARD + HEIGHT_COMMENT_WHEN_EXPAND;
 
-const Post: React.FC<IPost> = ({
+interface IPostComponent extends IPost {
+  page?: number;
+  indexInPage?: number;
+}
+
+const Post: React.FC<IPostComponent> = ({
   title,
   description,
   id,
   userFirstname,
-  userLastname,
   createdAt,
+  likedUserIds,
+  public: isPublic,
+  userId,
+  userLastname,
   commentsNumber,
-  likedUserIds
+
+  page,
+  indexInPage,
 }) => {
   const [commentSectionOpen, setCommentSectionOpen] =
     React.useState<boolean>(false);
@@ -56,23 +65,36 @@ const Post: React.FC<IPost> = ({
   const [openContentDialog, setOpenContentDialog] =
     React.useState<boolean>(false);
 
-
-
-
   const likeMutation = useMutation({
-    mutationKey: ['like', id],
+    mutationKey: ["like", id],
     mutationFn: async () => {
-      const token = localStorage.getItem("token"); 
+      const token = localStorage.getItem("token");
       if (!token) return;
-      const response =  await instaliteApi.put(`/posts/${id}/like`, {}, {
-        headers: {
-          "Authorization": "Bearer " + token
+      const response = await instaliteApi.put(
+        `/posts/${id}/like`,
+        {},
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
         }
-      });
-      return response.data;   
-    }
-    
-  })
+      );
+      return response.data;
+    },
+  });
+
+  /***Gérer l'update */
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    console.log(event.currentTarget);
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  /** *****/
 
   return (
     <Box
@@ -82,9 +104,9 @@ const Post: React.FC<IPost> = ({
         display: "flex",
         flexDirection: pageIsSmall ? "column" : "row",
         marginX: "auto",
-        marginTop: 2,
+        marginTop: 1 / 2,
         width: {
-          xs: "95vw",
+          xs: "90vw",
           sm: "80vw",
           md: commentSectionOpen ? WIDTH_EXPAND_COMMENT : WIDTH_COMPONENT,
         },
@@ -116,9 +138,26 @@ const Post: React.FC<IPost> = ({
             </Avatar>
           }
           action={
-            <IconButton aria-label="settings">
-              <MoreVertIcon />
-            </IconButton>
+            <PostUpdateComponent
+              anchorEl={anchorEl}
+              handleClick={handleClick}
+              handleClose={handleClose}
+              open={open}
+              page={page ? page : 0}
+              indexInPage={indexInPage ? indexInPage : 0}
+              post={{
+                title,
+                description,
+                id,
+                userFirstname,
+                createdAt,
+                likedUserIds,
+                public: isPublic,
+                userId,
+                userLastname,
+                commentsNumber,
+              }}
+            />
           }
           title={title}
           subheader={createdAt}
@@ -126,7 +165,7 @@ const Post: React.FC<IPost> = ({
         <CardMedia
           sx={{
             width: "100%",
-            height: 400,
+            height: 425,
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -155,9 +194,7 @@ const Post: React.FC<IPost> = ({
 
         <CardContent>
           <Typography variant="body2" color="text.secondary">
-            {description}
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente,
-            excepturi. Maxime et placeat accusamus possimus.
+            {description} {isPublic ? "public" : 'private'}
           </Typography>
         </CardContent>
         <CardActions
@@ -175,9 +212,8 @@ const Post: React.FC<IPost> = ({
             alignItems: "center",
           }}
         >
-          
-            <LikeButton likeMutation={likeMutation} likes={likedUserIds} />
-          
+          <LikeButton likeMutation={likeMutation} likes={likedUserIds} />
+
           <IconButton
             sx={{
               display: !commentSectionOpen ? "block" : "none",
@@ -186,13 +222,6 @@ const Post: React.FC<IPost> = ({
           >
             <NotesIcon sx={{ fontSize: 28 }} />
           </IconButton>
-          <Typography
-            fontSize={10}
-            component={"p"}
-            sx={{ display: !commentSectionOpen ? "block" : "none" }}
-          >
-            {commentsNumber}
-          </Typography>
         </CardActions>
       </Card>
 
@@ -201,8 +230,7 @@ const Post: React.FC<IPost> = ({
         in={commentSectionOpen}
         mountOnEnter
         unmountOnExit
-        onAnimationEnd={() => {
-        }}
+        onAnimationEnd={() => {}}
       >
         <Box
           height={{
@@ -222,33 +250,41 @@ const Post: React.FC<IPost> = ({
 };
 export default Post;
 
-const LikeButton = ({ likes ,  likeMutation }: { likes:number[],likeMutation: any }) => {
-  //  /{postId}/{userId}/like
-
-  const {
-    mutateAsync,
-    data,
-    isLoading,
-    isError,
-    isSuccess,
-  } = likeMutation;
+const LikeButton = ({
+  likes,
+  likeMutation,
+}: {
+  likes: number[];
+  likeMutation: any;
+}) => {
+  const { mutateAsync, data, isLoading, isError, isSuccess } = likeMutation;
 
   const userString = localStorage.getItem("user");
   if (!userString) return;
 
   const user = JSON.parse(userString) as IUser;
 
+  const isThePostLiked = () => {
+    if (data && data.likedUserIds) {
+      return data.likedUserIds.includes(user.id);
+    } else {
+      return likes.includes(user.id);
+    }
+  };
+
   return (
     <>
       <IconButton onClick={async () => await mutateAsync()}>
-        {likes.includes(user.id) ? (
+        {isThePostLiked() ? (
           <FavoriteIcon sx={{ color: "red" }} />
         ) : (
           <FavoriteIcon />
         )}
       </IconButton>
       <Typography fontSize={8} component={"p"}>
-        {(data && data.likedUserIds && isSuccess )? data.likedUserIds.length : likes.length}
+        {data && data.likedUserIds && isSuccess
+          ? data.likedUserIds.length
+          : likes.length}
         {isLoading && "loading..."}
         {isError && "error..."}
       </Typography>
