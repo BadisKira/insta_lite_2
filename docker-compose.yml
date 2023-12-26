@@ -1,17 +1,45 @@
 version: "3.9"
 services:
-  postgres:
-    container_name: postgres_jee
+  backend-db:
+    container_name: backend-db
     image: "postgres:15"
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "root" ]
       timeout: 45s
       interval: 10s
       retries: 10
+    volumes:
+      - backend_db_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: qsdqsd
-      POSTGRES_DB: insta_db_lite
+      POSTGRES_USER: instaliteadmin
+      POSTGRES_PASSWORD: instAl1t€.!
+      POSTGRES_DB: insta_lite_db
+    networks:
+      - instalite
     ports:
       - "5432:5432"
 
+  backend:
+    container_name: backend
+    depends_on:
+      - backend-db
+    build:
+      context: ./back/.
+    volumes:
+      - ./data:/app/data
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://backend-db/insta_lite_db
+      - SPRING_DATASOURCE_USERNAME=instaliteadmin
+      - SPRING_DATASOURCE_PASSWORD=instAl1t€.!
+      - RESOURCE_PATH=/app/data
+    networks:
+      - instalite
+    ports:
+      - "8080:8080"
+
+networks:
+  instalite:
+    driver: bridge
+
+volumes:
+  backend_db_data:

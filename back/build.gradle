@@ -12,6 +12,10 @@ java {
 	sourceCompatibility = '17'
 }
 
+bootWar{
+	mainClass = 'fr.univrouen.instalite.InstaliteApplication.class'
+}
+
 bootRun {
 	sourceResources sourceSets.main
 }
