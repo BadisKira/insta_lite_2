@@ -4,6 +4,7 @@ import fr.univrouen.instalite.dtos.post.PostDto;
 import fr.univrouen.instalite.entities.Comment;
 import fr.univrouen.instalite.entities.Post;
 import fr.univrouen.instalite.entities.Role;
+import fr.univrouen.instalite.entities.User;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.spi.MappingContext;
@@ -44,8 +45,8 @@ public class InstaliteApplication {
 				d.setUserFirstname(s.getUser().getFirstname());
 				d.setUserLastname(s.getUser().getLastname());
 				d.setCommentsNumber(s.getCommentList().size());
-				d.setLikedUserIds(s.getLikes().stream().map(
-						l -> l.getUser().getId()).toList());
+				d.setLikedUserIds(s.getLikedUsers().stream()
+						.map(User::getId).toList());
 				return d;
 			}
 		};

@@ -1,6 +1,5 @@
 package fr.univrouen.instalite.entities;
 
-import fr.univrouen.instalite.entities.like.Like;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -41,8 +40,8 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Post> posts = new ArrayList<Post>();
 
-    @OneToMany(mappedBy = "user")
-    private List<Like> likes = new ArrayList<>();
+    @ManyToMany(mappedBy = "likedUsers")
+    private List<Post> likedPosts = new ArrayList<>();
 
     /**
      * Returns the authorities granted to the user. Cannot return <code>null</code>.

@@ -1,7 +1,5 @@
 package fr.univrouen.instalite.entities;
 
-
-import fr.univrouen.instalite.entities.like.Like;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -39,12 +37,12 @@ public class Post {
     @OneToMany(mappedBy = "post")
     private List<Comment> commentList  ;
 
-
-    @OneToMany(mappedBy = "post")
-    private List<Like> likes = new ArrayList<>();
-
-
-
-
+    @ManyToMany
+    @JoinTable(
+            name = "post_like",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> likedUsers = new ArrayList<>();
 
 }

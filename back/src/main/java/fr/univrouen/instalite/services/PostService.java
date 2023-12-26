@@ -6,15 +6,10 @@ import fr.univrouen.instalite.dtos.post.CreatePostDto;
 import fr.univrouen.instalite.dtos.post.PostDto;
 import fr.univrouen.instalite.dtos.post.UpdatePostDto;
 import fr.univrouen.instalite.entities.*;
-import fr.univrouen.instalite.entities.like.Like;
-import fr.univrouen.instalite.entities.like.LikeKey;
-import fr.univrouen.instalite.repositories.CommentRepository;
-import fr.univrouen.instalite.repositories.LikeRepository;
 import fr.univrouen.instalite.repositories.PostRepository;
 import fr.univrouen.instalite.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,26 +25,21 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
-    private final LikeRepository likeRepository;
-    private final CommentRepository commentRepository;
 
 
     @Value("${RESOURCE_PATH}")
     private String resourcePath;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository, LikeRepository likeRepository,ModelMapper modelMapper, CommentRepository commentRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, ModelMapper modelMapper) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
-        this.likeRepository = likeRepository;
-        this.commentRepository = commentRepository;
     }
 
     public String create(String email, CreatePostDto createPostDto){
@@ -80,7 +70,7 @@ public class PostService {
                 ,Date.valueOf(LocalDate.now())
                 ,user.get(),
                 new ArrayList<Comment>(),
-                new ArrayList<Like>()
+                new ArrayList<>()
         );
         postRepository.save(post);
 
@@ -213,27 +203,25 @@ public class PostService {
                 modelMapper.map(x,PostDto.class)).toList();
     }
 
-    public PostDto toggleLike(String postId, String email){
-        Optional<Post> postOptional = postRepository.findById(postId);
-        Optional<User> userOptional = userRepository.findByEmailIgnoreCase(email);
-        Post post = null;
-        if (postOptional.isPresent() && userOptional.isPresent()) {
-            post = postOptional.get();
-            User user = userOptional.get();
+    public PostDto like(String postId, String email){
+        Optional<Post> post = postRepository.findById(postId);
+        if(post.isEmpty())
+            throw new PostNotFoundException();
 
-            Optional<Like> isThereALike = likeRepository.findLikeByPost_IdAndUser_Id(postId , user.getId());
+        Optional<User> user = userRepository.findByEmailIgnoreCase(email);
+        if(user.isEmpty())
+            throw new UserNotFoundException();
 
-            if (isThereALike.isEmpty()) {
-                Like like = new Like(new LikeKey(user.getId(),postId),user , post);
-                likeRepository.save(like) ;
-                post.getLikes().add(like) ;
-            } else {
-                likeRepository.delete(isThereALike.get());
-                post.getLikes().remove(isThereALike.get()) ;
-            }
+        if(!post.get().getLikedUsers().contains(user.get())){
+            post.get().getLikedUsers().add(user.get());
+            postRepository.save(post.get());
         }
-        return modelMapper.map(post,PostDto.class);
-    }
+        else{
+            post.get().getLikedUsers().remove(user.get());
+            postRepository.save(post.get());
+        }
 
+        return modelMapper.map(post.get(),PostDto.class);
+    }
 
 }

@@ -26,16 +26,6 @@ public class CommentController {
         return  ResponseEntity.status(HttpStatus.CREATED).body(commentDto);
     }
 
-    /**
-     *
-     * @GetMapping("/{postId}")
-     *     public ResponseEntity<List<CommentDto>> get(@PathVariable String postId) {
-     *
-     *         List<CommentDto> commentDtoList = this.commentService.getCommentFromPost(postId);
-     *         return  ResponseEntity.status(HttpStatus.OK).body(commentDtoList);
-     *     }
-     * */
-
     @GetMapping("/{postId}")
     public ResponseEntity<List<CommentDto>> getPaginated(
             @PathVariable String postId,
@@ -54,14 +44,13 @@ public class CommentController {
     @PatchMapping("/{id}")
     public ResponseEntity<CommentDto> update(@PathVariable String id ,
                                              @RequestBody CreateCommentDto createCommentDto) {
-        CommentDto commentDto = this.commentService.update(id,createCommentDto);
+        CommentDto commentDto = commentService.update(id,createCommentDto);
         return ResponseEntity.accepted().body(commentDto);
     }
 
     @GetMapping("/count/{postId}")
-     public ResponseEntity<CommentCountDto> getCount(@PathVariable String postId)
-    {
-            return  ResponseEntity.status(HttpStatus.OK).body(this.commentService.getCount(postId));
+     public ResponseEntity<CommentCountDto> getCount(@PathVariable String postId) {
+        return ResponseEntity.ok(commentService.getCount(postId));
     }
 
 }

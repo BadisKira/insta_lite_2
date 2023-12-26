@@ -86,7 +86,7 @@ public class PostController {
     @PutMapping("/{postId}/like")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostDto> toggleLike(Authentication authentication, @PathVariable String postId) {
-        return  ResponseEntity.ok().body(this.postService.toggleLike(postId,authentication.getName())) ;
+        return ResponseEntity.ok(postService.like(postId, authentication.getName()));
     }
 
 }

@@ -1,7 +1,5 @@
 package fr.univrouen.instalite.dtos.post;
 
-
-import fr.univrouen.instalite.entities.like.Like;
 import lombok.*;
 
 import java.sql.Date;
@@ -23,14 +21,5 @@ public class PostDto {
     private String userLastname;
     private Integer commentsNumber;
     private List<Long> likedUserIds;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
 }
 
