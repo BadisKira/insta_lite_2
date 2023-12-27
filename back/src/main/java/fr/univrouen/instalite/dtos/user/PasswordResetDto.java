@@ -1,4 +1,4 @@
-package fr.univrouen.instalite.entities;
+package fr.univrouen.instalite.dtos.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PasswordReset {
+public class PasswordResetDto {
     private String oldPassword;
     private String newPassword;
 }

@@ -2,7 +2,7 @@ package fr.univrouen.instalite.services;
 
 import fr.univrouen.instalite.dtos.user.RegisterUserDto;
 import fr.univrouen.instalite.dtos.user.UserDto;
-import fr.univrouen.instalite.entities.PasswordReset;
+import fr.univrouen.instalite.dtos.user.PasswordResetDto;
 import fr.univrouen.instalite.entities.User;
 import fr.univrouen.instalite.exceptions.PasswordDoesNotMatchException;
 import fr.univrouen.instalite.exceptions.UserNotFoundException;
@@ -60,7 +60,7 @@ public class UserService {
     }
 
     @Transactional
-    public void putUserPassword(String email, PasswordReset passwordReset){
+    public void putUserPassword(String email, PasswordResetDto passwordReset){
         Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email);
 
         if(optionalUser.isEmpty())
