@@ -23,9 +23,14 @@ type IProps = {
   anchorEl: any;
   handleClick: (event: React.MouseEvent<HTMLElement>) => void;
   post: IPost;
-  indexInPage: number;
-  page: number;
+  // indexInPage: number;
+  // page: number;
 };
+
+
+interface IPagesArray{
+   pageParams:number[] ,pages:Array<[IPost[],any]>
+}
 /***
  * export interface IPost {
   id: string;
@@ -57,17 +62,17 @@ export interface ITogglePost {
 
 const ToggleVisibility = ({ postId, public: isPublic }: ITogglePost) => {
   // create mutation
-  const { mutateAsync, data, isPending, isSuccess } = useMutation({
+  const { mutateAsync,isPending } = useMutation({
     mutationFn: async () => {
       const response = await instaliteApi.patch(`posts/${postId}`, {
-        public: !isPublic,
+        isPublic: !isPublic,
       });
       return response;
     },
     onSuccess: () => {
-      const oldPagesArray = queryClient.getQueryData(["feedposts"]);
-      console.log(oldPagesArray);
-
+      const oldPagesArray = queryClient.getQueryData([
+        "feedposts",
+      ]) as IPagesArray;
       const newPagesArray =
         oldPagesArray?.pages.map((page:IPost[]) =>
           page.map((p:IPost) => {
@@ -111,17 +116,31 @@ const DeletePost = ({
 }) => {
   const [isToDelete, setIsToDelete] = useState<boolean>(false);
 
-  const { mutateAsync, data, isPending, isSuccess } = useMutation({
+  const { mutateAsync} = useMutation({
     mutationFn: async () => {
       const response = await instaliteApi.delete(`posts/${postId}`);
       return response;
     },
-    onSuccess: (response) => {
-      console.log(response);
+    onSuccess: () => {
+      const oldPagesArray = queryClient.getQueryData([
+        "feedposts",
+      ]) as IPagesArray;
+      const newPagesArray =
+        oldPagesArray?.pages.map((page) =>
+          page.filter((val) => val.id !== postId)
+        ) ?? [];
+
+      queryClient.setQueryData(["feedposts"], (data: any) => ({
+        pages: newPagesArray,
+        pageParams: data.pageParams,
+      }));
+      return;
     },
     onError: (response: any) => {
+      console.log(response);
       const data = response.response.data;
       toast.error(data.message);
+      return;
     },
   });
 
@@ -166,8 +185,8 @@ const PostUpdateComponent = ({
   open,
   handleClose,
   anchorEl,
-  indexInPage,
-  page,
+  // indexInPage,
+  // page,
   handleClick,
 }: IProps) => {
   return (
@@ -202,8 +221,8 @@ const PostUpdateComponent = ({
           <UpdatePost
             post={post}
             onClose={handleClose}
-            indexInPage={indexInPage}
-            page={page}
+            // indexInPage={indexInPage}
+            // page={page}
           />
         </MenuItem>
         <MenuItem>
@@ -218,16 +237,15 @@ export default PostUpdateComponent;
 
 interface IPostUpdateProps {
   post: IPost;
-  indexInPage: number;
-  page: number;
+  indexInPage?: number;
+  page?: number;
   onClose: () => void;
 }
 
 const UpdatePost: React.FC<IPostUpdateProps> = ({
   post,
   onClose,
-  indexInPage,
-  page,
+
 }) => {
   const [updatedPost, setUpdatedPost] = useState<IPost>({ ...post });
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
@@ -242,18 +260,17 @@ const UpdatePost: React.FC<IPostUpdateProps> = ({
     }));
   };
 
-  const { mutateAsync, data, isPending, isSuccess } = useMutation({
+  const { mutateAsync,  isPending } = useMutation({
     mutationFn: async () => {
       const response = await instaliteApi.patch(`posts/${post.id}`, {
         ...updatedPost,
       });
       return response;
     },
-    onSuccess: (response) => {
-      const { data } = response;
-
-      const oldPagesArray = queryClient.getQueryData(["feedposts"]);
-      console.log(oldPagesArray);
+    onSuccess: () => {
+      const oldPagesArray = queryClient.getQueryData([
+        "feedposts",
+      ]) as IPagesArray;;
 
       const newPagesArray =
         oldPagesArray?.pages.map((page: IPost[]) =>

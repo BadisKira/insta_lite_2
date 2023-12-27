@@ -53,7 +53,7 @@ public class DbPopulation implements ApplicationListener<ContextRefreshedEvent> 
             admin.setFirstname("admin");
             admin.setLastname("admin");
             admin.setEmail("admin@gmail.com");
-            admin.setPassword(this.passwordEncoder.encode("adminadmin"));
+            admin.setPassword(this.passwordEncoder.encode("Admin123456@"));
             admin.setRole(optionalRole.get());
             userRepository.save(admin);
         }

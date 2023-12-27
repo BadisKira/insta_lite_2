@@ -10,21 +10,8 @@ import { usePaginatedQuery } from "../../hooks/usePaginatedQuery";
 import { useAuthContext } from "../../hooks/useAuthContext.hook";
 
 const getPostsFn = async (page: number) => {
-  const user = localStorage.getItem("user");
-  let token;
-  if (user) {
-    token = JSON.parse(user).token;
-  }
-  console.log(token);
-
   const response = await instaliteApi.get<IPost[]>(
-    `posts/all?pageNumber=${page - 1}&pageLimit=2`,
-    {
-      headers: {
-        "Content-Type": "Application/json",
-        // "Authorization":"Bearer " + token
-      },
-    }
+    `posts/all?pageNumber=${page - 1}&pageLimit=2`
   );
   return response.data;
 };
@@ -89,14 +76,14 @@ const FeedPageSection = () => {
           {isError && <>Error</>}
           {isSuccess && (
             <>
-              {data?.pages.map((feedPostPage: IPost[] , pageNumber) => {
+              {data?.pages.map((feedPostPage: IPost[]) => {
                 if (feedPostPage.length > 0) {
-                  return feedPostPage.map((feedpost, index) => (
+                  return feedPostPage.map((feedpost) => (
                     <Post
                       {...feedpost}
                       key={feedpost.id}
-                      indexInPage={index}
-                      page={pageNumber}
+                      // indexInPage={index}
+                      // page={pageNumber}
                     />
                   ));
                 }

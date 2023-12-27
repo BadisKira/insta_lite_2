@@ -31,12 +31,8 @@ const HEIGHT_COMMENT_WHEN_EXPAND = 400;
 
 const HEIGHT_COMPONENT_EXPAND = HEIGHT_CARD + HEIGHT_COMMENT_WHEN_EXPAND;
 
-interface IPostComponent extends IPost {
-  page?: number;
-  indexInPage?: number;
-}
 
-const Post: React.FC<IPostComponent> = ({
+const Post: React.FC<IPost> = ({
   title,
   description,
   id,
@@ -47,9 +43,6 @@ const Post: React.FC<IPostComponent> = ({
   userId,
   userLastname,
   commentsNumber,
-
-  page,
-  indexInPage,
 }) => {
   const [commentSectionOpen, setCommentSectionOpen] =
     React.useState<boolean>(false);
@@ -143,8 +136,8 @@ const Post: React.FC<IPostComponent> = ({
               handleClick={handleClick}
               handleClose={handleClose}
               open={open}
-              page={page ? page : 0}
-              indexInPage={indexInPage ? indexInPage : 0}
+              // page={page ? page : 0}
+              // indexInPage={indexInPage ? indexInPage : 0}
               post={{
                 title,
                 description,

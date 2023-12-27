@@ -14,4 +14,5 @@ public interface CommentRepository extends ListCrudRepository<Comment,String>, P
 {
   Page<Comment> findCommentsByPost_Id(String postId , PageRequest pageRequest);
   Integer countCommentsByPost_Id(String postId);
+  void deleteCommentsByPost_Id(String postId) ;
 }

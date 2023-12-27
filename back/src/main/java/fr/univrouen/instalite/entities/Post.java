@@ -1,6 +1,7 @@
 package fr.univrouen.instalite.entities;
 
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -34,15 +35,22 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post" , cascade = CascadeType.REMOVE)
     private List<Comment> commentList  ;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "post_like",
             joinColumns = @JoinColumn(name = "post_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
+
     )
     private List<User> likedUsers = new ArrayList<>();
+
+
+    @Transactional
+    public void deleteAllLikes () {
+        this.likedUsers.clear();
+    }
 
 }

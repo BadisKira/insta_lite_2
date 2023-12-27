@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -35,17 +36,17 @@ public class PostController {
 
     //delete post by id
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PostDto> delete(@PathVariable("id") String id) {
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    public ResponseEntity delete(@PathVariable("id") String id) throws IOException {
         postService.deletePost(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(204).body(null);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostDto> update(Authentication authentication,
                                           @PathVariable("id") String id,
-                                          UpdatePostDto updatePostDto) {
+                                          @RequestBody UpdatePostDto updatePostDto) throws IOException {
         PostDto postDtoUpdated = this.postService.update(authentication ,id, updatePostDto);
         return ResponseEntity.ok(postDtoUpdated);
     }

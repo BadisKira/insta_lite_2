@@ -1,24 +1,28 @@
 package fr.univrouen.instalite.services;
 
-import fr.univrouen.instalite.dtos.RoleEnum;
 import fr.univrouen.instalite.exceptions.*;
 import fr.univrouen.instalite.dtos.post.CreatePostDto;
 import fr.univrouen.instalite.dtos.post.PostDto;
 import fr.univrouen.instalite.dtos.post.UpdatePostDto;
 import fr.univrouen.instalite.entities.*;
+import fr.univrouen.instalite.repositories.CommentRepository;
 import fr.univrouen.instalite.repositories.PostRepository;
 import fr.univrouen.instalite.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -30,15 +34,18 @@ import java.util.Optional;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+
+    private final CommentRepository commentRepository;
     private final ModelMapper modelMapper;
 
 
     @Value("${RESOURCE_PATH}")
     private String resourcePath;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository, ModelMapper modelMapper) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository, ModelMapper modelMapper) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -122,7 +129,7 @@ public class PostService {
         return page.get().map(x -> modelMapper.map(x, PostDto.class)).toList();
     }
 
-    public PostDto update(Authentication authentication, String id, UpdatePostDto updatePostDto) {
+    public PostDto update(Authentication authentication, String id, UpdatePostDto updatePostDto) throws IOException {
         Optional<User> user = userRepository.findByEmailIgnoreCase(authentication.getName());
         if(user.isEmpty())
             throw new UserNotFoundException();
@@ -131,9 +138,10 @@ public class PostService {
         if(post.isEmpty())
             throw new PostNotFoundException();
 
-        if(!user.get().getPosts().contains(post.get()) && user.get().getRole().getName() != RoleEnum.ADMIN)
-            throw new UserNotAllowToModifyException();
-
+        /**
+         * if(!user.get().getPosts().contains(post.get()) && user.get().getRole().getName() != RoleEnum.ADMIN)
+         *             throw new UserNotAllowToModifyException();
+         * */
         if(updatePostDto.getData() != null){
             String[] contentType = updatePostDto.getData().getContentType().split("/");
             String type = contentType[0];
@@ -168,19 +176,23 @@ public class PostService {
         return modelMapper.map(post.get(),PostDto.class);
     }
 
-    public void deletePost(String idPost) {
+
+
+    public void deletePost(String idPost) throws IOException {
         Optional<Post> postToDelete = postRepository.findById(idPost);
         if (postToDelete.isEmpty())
             throw new PostNotFoundException();
-
         postRepository.delete(postToDelete.get());
         String filePath = resourcePath + idPost + "." + postToDelete.get().getExtension();
         deleteResource(filePath);
     }
 
-    private void deleteResource(String filePath){
-        File file = new File(filePath);
-        file.delete();
+    private void deleteResource(String filePath) throws IOException {
+        /*File file = new File(filePath);
+        file.delete();*/
+
+        Path path = Paths.get(filePath);
+        Files.deleteIfExists(path);
     }
 
     private void createResource(String filePath, MultipartFile data) {
