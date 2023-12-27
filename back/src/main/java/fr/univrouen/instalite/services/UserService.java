@@ -1,11 +1,15 @@
 package fr.univrouen.instalite.services;
 
+import fr.univrouen.instalite.dtos.RoleEnum;
+import fr.univrouen.instalite.dtos.user.CreateUserDto;
 import fr.univrouen.instalite.dtos.user.RegisterUserDto;
 import fr.univrouen.instalite.dtos.user.UserDto;
 import fr.univrouen.instalite.entities.PasswordReset;
+import fr.univrouen.instalite.entities.Role;
 import fr.univrouen.instalite.entities.User;
 import fr.univrouen.instalite.exceptions.PasswordDoesNotMatchException;
 import fr.univrouen.instalite.exceptions.UserNotFoundException;
+import fr.univrouen.instalite.repositories.RoleRepository;
 import fr.univrouen.instalite.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +24,8 @@ import java.util.Optional;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -76,4 +81,47 @@ public class UserService {
         user.setPassword(newEncodedPassword);
     }
 
+    public UserDto postOneUser(CreateUserDto newUser) throws Exception {
+        if (newUser.getRole().equals("ADMIN")) {
+            throw new Exception("Can't create user with admin role");
+        }
+
+        RoleEnum roleEnum = (newUser.getRole().equals("USER")) ? RoleEnum.USER : RoleEnum.SUPERUSER;
+        Optional<Role> optionalRole = this.roleRepository.findByName(roleEnum);
+
+        if (optionalRole.isEmpty()) throw new Exception("Role doesn't exist");
+
+        String hashedPassword = passwordEncoder.encode(newUser.getPassword());
+
+        User user = modelMapper.map(newUser, User.class);
+        user.setPassword(hashedPassword);
+        user.setRole(optionalRole.get());
+
+        User createdUser = this.userRepository.save(user);
+
+        return modelMapper.map(createdUser, UserDto.class);
+    }
+
+    @Transactional
+    public UserDto putOneUserById(Long userId, UserDto user) throws Exception {
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        if(optionalUser.isEmpty())
+            throw new UserNotFoundException();
+
+        if (user.getRole().equals("ADMIN")) {
+            throw new Exception("Can't create user with admin role");
+        }
+
+        RoleEnum roleEnum = (user.getRole().equals("USER")) ? RoleEnum.USER : RoleEnum.SUPERUSER;
+        Optional<Role> optionalRole = this.roleRepository.findByName(roleEnum);
+
+        User retreivedUser = optionalUser.get();
+        retreivedUser.setFirstname(user.getFirstname());
+        retreivedUser.setLastname(user.getLastname());
+        retreivedUser.setEmail(user.getEmail());
+        retreivedUser.setRole(optionalRole.orElseThrow());
+
+        return modelMapper.map(retreivedUser, UserDto.class);
+    }
 }
