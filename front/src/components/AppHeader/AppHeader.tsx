@@ -59,7 +59,7 @@ const AppHeader: FC<IProps> = () => {
               color="white"
               style={{ gap: 32 }}
             >
-              {headerRoutes.map((h) => (
+              {headerRoutes.length> 0 && headerRoutes.map((h) => (
                 <Link
                   to={h.path}
                   style={{ textDecoration: "none", color: "white" }}
@@ -72,17 +72,18 @@ const AppHeader: FC<IProps> = () => {
               ))}
               {user?.role === "ADMIN" && (
                 <>
-                  {headerRoutesAdmin.map((h) => (
-                    <Link
-                      to={h.path}
-                      style={{ textDecoration: "none", color: "white" }}
-                      key={h.path}
-                    >
-                      <Typography style={{ opacity: "0.7" }}>
-                        {h.elementName}
-                      </Typography>
-                    </Link>
-                  ))}
+                  {headerRoutesAdmin.length > 0 &&
+                    headerRoutesAdmin.map((h) => (
+                      <Link
+                        to={h.path}
+                        style={{ textDecoration: "none", color: "white" }}
+                        key={h.path}
+                      >
+                        <Typography style={{ opacity: "0.7" }}>
+                          {h.elementName}
+                        </Typography>
+                      </Link>
+                    ))}
                 </>
               )}
 
@@ -91,7 +92,7 @@ const AppHeader: FC<IProps> = () => {
                   <>
                     {headerRoutesAuthenticatedUsers.map((h) => (
                       <Link
-                        to={h.path}
+                        to={h.path+'/'+user.id}
                         style={{ textDecoration: "none", color: "white" }}
                         key={h.path}
                       >
@@ -112,7 +113,9 @@ const AppHeader: FC<IProps> = () => {
                     ))}
                   </>
                 </Grid>
-              ): <Button onClick={()=>navigate("/auth")}> Login </Button>}
+              ) : (
+                <Button onClick={() => navigate("/auth")}> Login </Button>
+              )}
             </Grid>
           </Grid>
         </Toolbar>

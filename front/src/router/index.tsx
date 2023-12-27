@@ -17,7 +17,10 @@ const ErrorPage = Loadable(
   lazy(() => import("../pages/notFound/notFound.page"))
 );
 
-const HomePage = Loadable(lazy(() => import("../pages/home/home.page")));
+
+
+
+const UserPortfolioPage = Loadable(lazy(() => import("../pages/portfolio/userPortfolio.page")));
 
 const FeedPage = Loadable(lazy(() => import("../pages/feed/Feed.page")));
 
@@ -35,10 +38,6 @@ const freeRoutes: RouteObject = {
     {
       path: "auth",
       element: <SignInUpPage />,
-    },
-    {
-      path: "home",
-      element: <HomePage />,
     },
     {
       path: "*",
@@ -67,7 +66,7 @@ const authenticatedRoutesMayebe: RouteObject = {
 };
 
 const adminRoutes: RouteObject = {
-  path: "/admin",
+  path: "/users",
   children: [
     {
       index: true,
@@ -77,8 +76,18 @@ const adminRoutes: RouteObject = {
         </ProtectedRoute>
       ),
     },
+    {
+      path: ":userId",
+      element: (
+        <ProtectedRoute allowedRoles={["ADMIN"]}>
+          <UserPortfolioPage />
+        </ProtectedRoute>
+      ),
+    },
   ],
 };
+
+
 
 const routes: RouteObject[] = [
   freeRoutes,
@@ -87,24 +96,24 @@ const routes: RouteObject[] = [
 ];
 
 export type HeaderRouteType = { path: string; elementName: string };
-export const headerRoutes = [
+export const headerRoutes: HeaderRouteType[] = [
   {
     path: "/home",
-    elementName: "Acceuil",
+    elementName: "Hame",
   },
 ];
 
-export const headerRoutesAuthenticatedUsers = [
+export const headerRoutesAuthenticatedUsers: HeaderRouteType[] = [
   {
     path: "/profil",
     elementName: "Profile",
   },
 ];
 
-export const headerRoutesAdmin = [
+export const headerRoutesAdmin: HeaderRouteType[] = [
   {
-    path: "/admin",
-    elementName: "Admin",
+    path: "/users",
+    elementName: "Utilisateurs",
   },
 ];
 export default routes;

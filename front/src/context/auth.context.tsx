@@ -1,74 +1,67 @@
-import { useEffect, useState } from 'react'
-import { ILoginProps } from '../types/auth.type'
-import { IUser, IUserInfos } from '../types/user.type'
-import instaliteApi from '../utils/axios/axiosConnection'
-import toast from 'react-hot-toast'
-import { AuthContext } from '../hooks/useAuthContext.hook'
-import { getItem, removeItem, setItem } from '../utils/localStorage.util'
-import { useNavigate } from 'react-router-dom'
-
+import { useEffect, useState } from "react"
+import { ILoginProps } from "../types/auth.type"
+import { IUser, IUserInfos } from "../types/user.type"
+import instaliteApi from "../utils/axios/axiosConnection"
+import toast from "react-hot-toast"
+import { AuthContext } from "../hooks/useAuthContext.hook"
+import { getItem, removeItem, setItem } from "../utils/localStorage.util"
+import { useNavigate } from "react-router-dom"
 
 interface IProps {
-    children: React.ReactNode
+	children: React.ReactNode
 }
 
 const AuthProvider = ({ children }: IProps) => {
-    const navigate = useNavigate()
+	const navigate = useNavigate()
 
-    const [isLoading, setIsLoading] = useState(true)
-    const [user, setUser] = useState<IUser | undefined>()
-    const [token, setToken] = useState<string | undefined>()
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+	const [isLoading, setIsLoading] = useState(true)
+	const [user, setUser] = useState<IUser | undefined>()
+	const [token, setToken] = useState<string | undefined>()
+	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
 
-    useEffect(() => {
-        setIsLoading(true)
+	useEffect(() => {
+		setIsLoading(true)
 
-        const stringUser = getItem("user")
-        
-        if (stringUser === undefined) {
-            setIsAuthenticated(false)
-            setIsLoading(false)
-            removeItem("user")
-            removeItem("token")
-            return
-        }
+		const stringUser = getItem("user")
 
-        const user: IUser = JSON.parse(stringUser)
-        const token = getItem("token")
+		if (stringUser === undefined) {
+			setIsAuthenticated(false)
+			setIsLoading(false)
+			removeItem("user")
+			removeItem("token")
+			return
+		}
 
-        if (!user || !token) {
-            setIsAuthenticated(false)
-            setIsLoading(false)
-            removeItem("user")
-            removeItem("token")
-            return
-        }
+		const user: IUser = JSON.parse(stringUser)
+		const token = getItem("token")
 
-        setUser(user)
-        setToken(token)
-        setIsAuthenticated(true)
+		if (!user || !token) {
+			setIsAuthenticated(false)
+			setIsLoading(false)
+			removeItem("user")
+			removeItem("token")
+			return
+		}
 
-        setIsLoading(false)
-    }, [setUser, setToken, setIsAuthenticated, setIsLoading])
-    
+		setUser(user)
+		setToken(token)
+		setIsAuthenticated(true)
 
-    const login = async (loginData: ILoginProps) => {
-        setIsLoading(true)
+		setIsLoading(false)
+	}, [setUser, setToken, setIsAuthenticated, setIsLoading])
 
-        try {
-            const { data } = await instaliteApi.post("/login", loginData)
+	const login = async (loginData: ILoginProps) => {
+		setIsLoading(true)
 
-            console.log(data);
-            
-            setUser(data.user as IUser)
-            setToken(data.token)
-            setIsAuthenticated(true)
-
-            setItem("user", JSON.stringify(data.user))
-            setItem("token", data.token)
-            
-            navigate("/")
-            toast.success("Connexion réussi !")
+		try {
+			const { data } = await instaliteApi.post("/login", loginData)
+			setUser(data.user as IUser)
+			setToken(data.token)
+			setIsAuthenticated(true)
+			setItem("user", JSON.stringify(data.user))
+			setItem("token", data.token)
+			navigate("/")
+			toast.success("Connexion réussi !")
         } catch (error: unknown) {
             console.log(error)
             toast.error("Une erreur est survenu lors de la connexion !")
@@ -78,69 +71,68 @@ const AuthProvider = ({ children }: IProps) => {
             setIsAuthenticated(false)
         }
 
-        setIsLoading(false)
-    }
+		setIsLoading(false)
+	}
 
-    const putUserInfos = async (userInfos: IUserInfos) => {
-        setIsLoading(true)
+	const putUserInfos = async (userInfos: IUserInfos) => {
+		setIsLoading(true)
 
-        try {
-            instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
-            const { data } = await instaliteApi.put(`/users/${user?.id}`, userInfos)
-            setUser(data as IUser)
-            setItem("user", JSON.stringify(user))
-            toast.success("Modification du compte effectué avec succes");
-        } catch (error) {
-            console.error(error)
-            toast.error("Erreur lors de la modification du compte");
-        }
-        
-        setIsLoading(false)
-    }
+		try {
+			instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
+			const { data } = await instaliteApi.put(`/users`, userInfos)
+			setUser(data as IUser)
+			setItem("user", JSON.stringify(user))
+			toast.success("Votre compte à été bien modifié !")
+		} catch (error) {
+			console.error(error)
+			toast.error("Une erreur est survenu lors de la modification !")
+		}
 
-    const putUserPassword = async (oldPassword: string, newPassword: string) => {
-        setIsLoading(true)
+		setIsLoading(false)
+	}
 
-        try {
-            instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
-            await instaliteApi.put(`/users/${user?.id}/reset-password`, { oldPassword, newPassword })
-            toast.success("Mot de passe changé avec succes");
-        } catch (error) {
-            toast.error("Erreur lors de la modification du mot de passe");
-            console.error(error)
-        }
-        
-        setIsLoading(false)
-    }
+	const putUserPassword = async (oldPassword: string, newPassword: string) => {
+		setIsLoading(true)
 
-    const logOut = async () => {
-        setUser(undefined)
-        setToken(undefined)
-        setIsAuthenticated(false)
+		try {
+			instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
+			await instaliteApi.put(`/users/reset-password`, { oldPassword, newPassword })
+			toast.success("Votre mot de passe a été mis à jour !")
+		} catch (error) {
+			console.error(error)
+			toast.error("Une erreur est survenu lors de la mise à jour !")
+		}
 
-        removeItem("user")
-        removeItem("token")
+		setIsLoading(false)
+	}
 
-        navigate("/")
-        toast.success("Vous etes déconnecté !")
-    }
+	const logOut = async () => {
+		setUser(undefined)
+		setToken(undefined)
+		setIsAuthenticated(false)
 
-    return ( 
-        <AuthContext.Provider
-            value={{
-                user, 
-                token,
-                isAuthenticated,
-                isLoading,
-                login,
-                logOut,
-                putUserInfos,
-                putUserPassword,
-            }}
-        >
-            {children}
-        </AuthContext.Provider>
-    )
+		removeItem("user")
+		removeItem("token")
+
+		navigate("/auth")
+		toast.success("Vous etes déconnecté !")
+	}
+
+	return (
+		<AuthContext.Provider
+			value={{
+				user,
+				token,
+				isAuthenticated,
+				isLoading,
+				login,
+				logOut,
+				putUserInfos,
+				putUserPassword,
+			}}>
+			{children}
+		</AuthContext.Provider>
+	)
 }
 
 export default AuthProvider

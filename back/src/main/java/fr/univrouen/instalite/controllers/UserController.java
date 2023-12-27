@@ -1,10 +1,12 @@
 package fr.univrouen.instalite.controllers;
 
+import fr.univrouen.instalite.dtos.user.CreateUserDto;
 import fr.univrouen.instalite.dtos.user.RegisterUserDto;
 import fr.univrouen.instalite.dtos.user.UserDto;
 import fr.univrouen.instalite.dtos.user.PasswordResetDto;
 import fr.univrouen.instalite.services.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -21,29 +23,73 @@ public class UserController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteOneUser(@PathVariable("id") Long id) {
-        userService.deleteOneUser(id);
-        return ResponseEntity.noContent().build();
+        try {
+            userService.deleteOneUser(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDto> postOneUser(@RequestBody CreateUserDto user) {
+        try {
+            UserDto createdUser = this.userService.postOneUser(user);
+            return ResponseEntity.ok(createdUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDto> putOneUser(@PathVariable("id") Long id, @RequestBody UserDto user) {
+        try {
+            UserDto updatedUser = userService.putOneUserById(id, user);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping( "/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserDto>> getAllUsers() {
-        List<UserDto> users = userService.getAllNoneAdminUsers();
-        return ResponseEntity.ok(users);
+        try {
+            List<UserDto> users = userService.getAllNoneAdminUsers();
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDto> putUserInfos(Authentication authentication, @RequestBody RegisterUserDto user){
-        UserDto updatedUser = userService.putUserInfos(authentication.getName(), user);
-        return ResponseEntity.ok(updatedUser);
+        try {
+            UserDto updatedUser = userService.putUserInfos(authentication.getName(), user);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping("/reset-password")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> putUserPassword(Authentication authentication,
                                                   @RequestBody PasswordResetDto passwordReset){
-        userService.putUserPassword(authentication.getName(), passwordReset);
-        return ResponseEntity.ok("Password reset successfully");
+        try {
+            userService.putUserPassword(authentication.getName(), passwordReset);
+            return ResponseEntity.ok("Password reset successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Password do not match", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

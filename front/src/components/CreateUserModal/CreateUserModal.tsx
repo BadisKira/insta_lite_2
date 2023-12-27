@@ -1,3 +1,5 @@
+import React, { useState } from "react"
+import useUserErrorStates from "../../hooks/userUserErrorStates.hook"
 import {
 	Box,
 	Button,
@@ -5,62 +7,68 @@ import {
 	FormControl,
 	FormHelperText,
 	Grid,
+	IconButton,
+	InputAdornment,
 	InputLabel,
 	MenuItem,
 	Modal,
 	OutlinedInput,
 	Select,
 } from "@mui/material"
-import { FC, useEffect, useState } from "react"
-import { IUser } from "../../types/user.type"
-import useUserErrorStates from "../../hooks/userUserErrorStates.hook"
+import VisibilityOff from "@mui/icons-material/VisibilityOff"
+import Visibility from "@mui/icons-material/Visibility"
 import { IDisplayedError } from "../../types/validation.type"
-import { emailSchema, userNameSchema } from "../../validations/account.validation"
-import toast from "react-hot-toast"
 import validation from "../../utils/validation.util"
+import { createUserSchema } from "../../validations/auth.validation"
+import toast from "react-hot-toast"
 
 interface IProps {
 	isOpen: boolean
 	setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
-	user: IUser
-	handleUpdate: (firstname: string, lastname: string, email: string, role: string) => void
+	handleCreate: (firstname: string, lastname: string, email: string, password: string, role: string) => void
 	isLoading: boolean
 }
 
-const EditUserModal: FC<IProps> = ({ isOpen, setIsOpen, user, handleUpdate, isLoading }) => {
+const CreateUserModal = ({ isOpen, setIsOpen, handleCreate, isLoading }: IProps) => {
 	const [firstname, setFirstname] = useState("")
 	const [lastname, setLastname] = useState("")
 	const [email, setEmail] = useState("")
-	const [role, setRole] = useState("")
+	const [role, setRole] = useState("USER")
+	const [password, setPassword] = useState("")
+	const [showPassword, setShowPassword] = useState(false)
 
-	useEffect(() => {
-		setFirstname(user && user.firstname)
-		setLastname(user && user.lastname)
-		setEmail(user && user.email)
-		setRole(user && user.role)
-	}, [user, user.email, user.firstname, user.lastname])
+	const {
+		errorFirstname,
+		setErrorFirstname,
+		errorLastname,
+		setErrorLastname,
+		errorEmail,
+		setErrorEmail,
+		errorPassword,
+		setErrorPassword,
+	} = useUserErrorStates()
 
-	const { errorFirstname, setErrorFirstname, errorLastname, setErrorLastname, errorEmail, setErrorEmail } =
-		useUserErrorStates()
+	const handleClickShowPassword = () => {
+		setShowPassword(!showPassword)
+	}
+
+	const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault()
+	}
 
 	const handleValidateUserInfos = async () => {
-		if (firstname === user!.firstname && lastname === user!.lastname && email === user!.email && role === user!.role) {
-			setErrorFirstname({ isError: false, message: "" })
-			setErrorLastname({ isError: false, message: "" })
-			setErrorEmail({ isError: false, message: "" })
-			return false
-		}
-
 		const displayedErrors = [
 			{ path: "firstname", setError: setErrorFirstname },
 			{ path: "lastname", setError: setErrorLastname },
 			{ path: "email", setError: setErrorEmail },
+			{ path: "password", setError: setErrorPassword },
 		] as IDisplayedError[]
 
-		if (await validation({ firstname, lastname, email }, userNameSchema.concat(emailSchema), displayedErrors)) {
+		if (await validation({ firstname, lastname, email }, createUserSchema, displayedErrors)) {
 			setErrorFirstname({ isError: false, message: "" })
 			setErrorLastname({ isError: false, message: "" })
 			setErrorEmail({ isError: false, message: "" })
+			setErrorPassword({ isError: false, message: "" })
 			return true
 		}
 
@@ -130,6 +138,31 @@ const EditUserModal: FC<IProps> = ({ isOpen, setIsOpen, user, handleUpdate, isLo
 					)}
 				</FormControl>
 				<FormControl variant="outlined" style={{ width: "100%", marginBottom: 12 }}>
+					<InputLabel htmlFor="outlined-adornment-password">Mot de passe</InputLabel>
+					<OutlinedInput
+						id="outlined-adornment-password"
+						type={showPassword ? "text" : "password"}
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						endAdornment={
+							<InputAdornment position="end">
+								<IconButton
+									aria-label="toggle password visibility"
+									onClick={handleClickShowPassword}
+									onMouseDown={handleMouseDownPassword}
+									edge="end">
+									{showPassword ? <VisibilityOff /> : <Visibility />}
+								</IconButton>
+							</InputAdornment>
+						}
+						label="Password"
+						error={errorPassword.isError}
+					/>
+					{errorPassword.isError && (
+						<FormHelperText style={{ color: "red", margin: "3px 0px 0px 0px" }}>{errorPassword.message}</FormHelperText>
+					)}
+				</FormControl>
+				<FormControl variant="outlined" style={{ width: "100%", marginBottom: 12 }}>
 					<InputLabel htmlFor="outlined-adornment-role">Role</InputLabel>
 					<Select
 						labelId="utlined-adornment-role"
@@ -150,8 +183,10 @@ const EditUserModal: FC<IProps> = ({ isOpen, setIsOpen, user, handleUpdate, isLo
 				) : (
 					<Grid container justifyContent="space-around" alignItems="center">
 						<Button
-							onClick={async () => (await handleValidateUserInfos()) && handleUpdate(firstname, lastname, email, role)}>
-							Modifier
+							onClick={async () =>
+								(await handleValidateUserInfos()) && handleCreate(firstname, lastname, email, password, role)
+							}>
+							Créer
 						</Button>
 						<Button onClick={() => setIsOpen(false)}>Annuler</Button>
 					</Grid>
@@ -161,4 +196,4 @@ const EditUserModal: FC<IProps> = ({ isOpen, setIsOpen, user, handleUpdate, isLo
 	)
 }
 
-export default EditUserModal
+export default CreateUserModal
