@@ -53,33 +53,33 @@ public class PostController {
 
     //Get user's all posts
     @GetMapping("/user/{id}")
-    public List<PostDto> getAllByUser(@PathVariable("id") Long id) {
-        return postService.getPostsFromOneUser(id);
+    public ResponseEntity<List<PostDto>> getAllByUser(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(postService.getPostsFromOneUser(id));
     }
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public List<PostDto> getUsersPost(Authentication authentication){
-        return postService.getUsersPosts(authentication.getName());
+    public ResponseEntity<List<PostDto>> getUsersPost(Authentication authentication){
+        return ResponseEntity.ok(postService.getUsersPosts(authentication.getName()));
     }
 
     @GetMapping("/all")
     //@PreAuthorize("hasRole('SUPERUSER')")
-    public List<PostDto> getAll(@RequestParam(defaultValue = "0") int pageNumber,
+    public ResponseEntity<List<PostDto>> getAll(@RequestParam(defaultValue = "0") int pageNumber,
                                 @RequestParam(defaultValue = "2") int pageLimit){
-        return postService.getAllPosts(pageNumber,pageLimit);
+        return ResponseEntity.ok(postService.getAllPosts(pageNumber,pageLimit));
     }
 
     //Get public posts
     @GetMapping("/public")
-    public List<PostDto> getAllPublicPosts() {
-        return postService.getPosts(true);
+    public ResponseEntity<List<PostDto>> getAllPublicPosts() {
+        return ResponseEntity.ok(postService.getPosts(true));
     }
 
     //Get private posts
     @GetMapping("/private")
-    public List<PostDto> getAllPrivatePosts() {
-       return postService.getPosts(false);
+    public ResponseEntity<List<PostDto>> getAllPrivatePosts() {
+       return ResponseEntity.ok(postService.getPosts(false));
     }
 
 
