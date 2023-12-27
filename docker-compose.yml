@@ -37,6 +37,19 @@ services:
     ports:
       - "8080:8080"
 
+  frontend:
+    container_name: frontend
+    depends_on:
+      - backend
+    build:
+      context: ./front/.
+    environment:
+      - REACT_APP_INSTALITE_API_BASE_URL="http://backend:8080"
+    networks:
+      - instalite
+    ports:
+      - "5173:5173"
+
 networks:
   instalite:
     driver: bridge
