@@ -65,7 +65,7 @@ public class PostController {
     }
 
     @GetMapping("/all")
-    //@PreAuthorize("hasRole('SUPERUSER')")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERUSER')")
     public ResponseEntity<List<PostDto>> getAll(@RequestParam(defaultValue = "0") int pageNumber,
                                 @RequestParam(defaultValue = "2") int pageLimit){
         return ResponseEntity.ok(postService.getAllPosts(pageNumber,pageLimit));
@@ -79,6 +79,7 @@ public class PostController {
 
     //Get private posts
     @GetMapping("/private")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERUSER')")
     public ResponseEntity<List<PostDto>> getAllPrivatePosts() {
        return ResponseEntity.ok(postService.getPosts(false));
     }
