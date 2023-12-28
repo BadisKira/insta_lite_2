@@ -1,5 +1,6 @@
 package fr.univrouen.instalite.services;
 
+import fr.univrouen.instalite.dtos.SupportedExtensions;
 import fr.univrouen.instalite.exceptions.*;
 import fr.univrouen.instalite.dtos.post.CreatePostDto;
 import fr.univrouen.instalite.dtos.post.PostDto;
@@ -59,7 +60,15 @@ public class PostService {
         String type = contentType[0];
         String extension = contentType[1];
 
-        //ToDo : block zip
+        boolean isSupported = false;
+        for (SupportedExtensions s : SupportedExtensions.values()){
+            if(s.getExtension().equalsIgnoreCase(extension)){
+                isSupported = true;
+                break;
+            }
+        }
+        if(!isSupported)
+            throw new UnsupportedFileTypeException();
 
         Optional<User> user = userRepository.findByEmailIgnoreCase(email);
 
@@ -135,7 +144,14 @@ public class PostService {
             String extension = contentType[1];
             String oldFileName = post.get().getId() + "." + post.get().getExtension();
 
-            if(extension.equals("zip"))
+            boolean isSupported = false;
+            for (SupportedExtensions s : SupportedExtensions.values()){
+                if(s.getExtension().equalsIgnoreCase(extension)){
+                    isSupported = true;
+                    break;
+                }
+            }
+            if(!isSupported)
                 throw new UnsupportedFileTypeException();
 
             deleteResource(resourcePath + oldFileName);
