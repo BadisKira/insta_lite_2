@@ -22,3 +22,10 @@ export interface ICreatePost {
   postType: "IMAGE" | "VIDEO";
 }
 
+export interface IUpdatePost {
+  title: string;
+  description: string;
+  isPublic: boolean;
+  data: File | null;
+}
+

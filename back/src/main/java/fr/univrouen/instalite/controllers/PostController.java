@@ -46,10 +46,12 @@ public class PostController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostDto> update(Authentication authentication,
                                           @PathVariable("id") String id,
-                                          @RequestBody UpdatePostDto updatePostDto) throws IOException {
+                                          UpdatePostDto updatePostDto) throws IOException {
         PostDto postDtoUpdated = this.postService.update(authentication ,id, updatePostDto);
         return ResponseEntity.ok(postDtoUpdated);
     }
+
+
 
 
     //Get user's all posts

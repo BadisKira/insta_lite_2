@@ -86,6 +86,8 @@ const FeedPageSection: React.FC<IFeedSection> = ({
                   return feedPostPage.map((feedpost) => (
                     <Post
                       {...feedpost}
+                      //@ts-ignore
+                      isPublic={feedpost.public}
                       key={feedpost.id}
                       // indexInPage={index}
                       // page={pageNumber}

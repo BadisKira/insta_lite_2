@@ -15,9 +15,16 @@ import { useAuthContext } from "../../hooks/useAuthContext.hook";
 import CreatePost from "../../components/post/createPost.component";
 export type IVisibilityPosteType = "public" | "private" | "all";
 
+/***
+ * 
+ * Ce que je veux faire c'est mettre en place un placeholder po
+ */
 const FeedPage = () => {
+  /**User authentification */
+  const { user } = useAuthContext();
+  const v = localStorage.getItem("visibilitypost");
   const [visibilityTypePost, setVisibilityTypePost] =
-    useState<IVisibilityPosteType>("public");
+    useState<IVisibilityPosteType>((v && user && user.role !== "USER") ? (v as IVisibilityPosteType) : "public");
   const getPostsFn = async (page: number) => {
     const response = await instaliteApi.get<IPost[]>(
       `posts/${visibilityTypePost}?pageNumber=${page - 1}&pageLimit=2`
@@ -25,8 +32,6 @@ const FeedPage = () => {
     return response.data;
   };
 
-  /**User authentification */
-  const { user } = useAuthContext();
   return (
     <PageContainer withHeader={true}>
       {user && user.role === "ADMIN" && <CreatePost />}
@@ -55,6 +60,7 @@ export function SelectVisibilityPostType({
 }) {
   const handleChange = (event: SelectChangeEvent) => {
     setVisibilityTypePost(event.target.value as IVisibilityPosteType);
+    localStorage.setItem("visibilitypost", event.target.value);
   };
 
   return (
