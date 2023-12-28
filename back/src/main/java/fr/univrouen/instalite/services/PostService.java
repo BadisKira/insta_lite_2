@@ -8,14 +8,10 @@ import fr.univrouen.instalite.entities.*;
 import fr.univrouen.instalite.repositories.CommentRepository;
 import fr.univrouen.instalite.repositories.PostRepository;
 import fr.univrouen.instalite.repositories.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -107,14 +103,9 @@ public class PostService {
         Optional<User> user = userRepository.findById(idUser);
 
         if(user.isEmpty())
-            throw new EntityNotFoundException("User not found");
+            throw new UserNotFoundException();
 
         return user.get().getPosts().stream().map(x ->modelMapper.map(x,PostDto.class)).toList();
-    }
-
-    public List<PostDto> getPublicPosts() throws IOException {
-        List<Post> postsPublic = postRepository.findByIsPublicTrue();
-        return postsPublic.stream().map(x -> modelMapper.map(x,PostDto.class)).toList();
     }
 
     public List<PostDto> getPosts(boolean isPublic){
@@ -129,7 +120,7 @@ public class PostService {
         return page.get().map(x -> modelMapper.map(x, PostDto.class)).toList();
     }
 
-    public PostDto update(Authentication authentication, String id, UpdatePostDto updatePostDto) throws IOException {
+    public PostDto update(Authentication authentication, String id, UpdatePostDto updatePostDto){
         Optional<User> user = userRepository.findByEmailIgnoreCase(authentication.getName());
         if(user.isEmpty())
             throw new UserNotFoundException();
@@ -138,10 +129,6 @@ public class PostService {
         if(post.isEmpty())
             throw new PostNotFoundException();
 
-        /**
-         * if(!user.get().getPosts().contains(post.get()) && user.get().getRole().getName() != RoleEnum.ADMIN)
-         *             throw new UserNotAllowToModifyException();
-         * */
         if(updatePostDto.getData() != null){
             String[] contentType = updatePostDto.getData().getContentType().split("/");
             String type = contentType[0];
@@ -178,21 +165,27 @@ public class PostService {
 
 
 
-    public void deletePost(String idPost) throws IOException {
+    public void deletePost(String idPost){
         Optional<Post> postToDelete = postRepository.findById(idPost);
         if (postToDelete.isEmpty())
             throw new PostNotFoundException();
+
+        postToDelete.get().getLikedUsers().clear();
+        postRepository.save(postToDelete.get());
+
         postRepository.delete(postToDelete.get());
+
         String filePath = resourcePath + idPost + "." + postToDelete.get().getExtension();
         deleteResource(filePath);
     }
 
-    private void deleteResource(String filePath) throws IOException {
-        /*File file = new File(filePath);
-        file.delete();*/
-
+    private void deleteResource(String filePath){
         Path path = Paths.get(filePath);
-        Files.deleteIfExists(path);
+        try{
+            Files.deleteIfExists(path);
+        }catch (IOException e){
+            throw new ResourceCouldNotBeenDeletedException();
+        }
     }
 
     private void createResource(String filePath, MultipartFile data) {

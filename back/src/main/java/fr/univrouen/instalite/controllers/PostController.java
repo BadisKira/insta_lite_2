@@ -37,17 +37,17 @@ public class PostController {
     //delete post by id
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    public ResponseEntity delete(@PathVariable("id") String id) throws IOException {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("id") String id){
         postService.deletePost(id);
-        return ResponseEntity.status(204).body(null);
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<PostDto> update(Authentication authentication,
                                           @PathVariable("id") String id,
-                                          @RequestBody UpdatePostDto updatePostDto) throws IOException {
-        PostDto postDtoUpdated = this.postService.update(authentication ,id, updatePostDto);
+                                          @RequestBody UpdatePostDto updatePostDto){
+        PostDto postDtoUpdated = postService.update(authentication ,id, updatePostDto);
         return ResponseEntity.ok(postDtoUpdated);
     }
 
