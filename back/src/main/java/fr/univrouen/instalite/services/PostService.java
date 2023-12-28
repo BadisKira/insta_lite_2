@@ -112,16 +112,12 @@ public class PostService {
         return user.get().getPosts().stream().map(x ->modelMapper.map(x,PostDto.class)).toList();
     }
 
-    public List<PostDto> getPublicPosts() throws IOException {
-        List<Post> postsPublic = postRepository.findByIsPublicTrue();
-        return postsPublic.stream().map(x -> modelMapper.map(x,PostDto.class)).toList();
-    }
 
-    public List<PostDto> getPosts(boolean isPublic){
-        List<Post> posts = isPublic ? postRepository.findByIsPublicTrue() :
-                                    postRepository.findByIsPublicFalse();
 
-        return posts.stream().map(x -> modelMapper.map(x,PostDto.class)).toList();
+    public List<PostDto> getPosts(boolean isPublic , int pageNumber, int pageLimit){
+        Page<Post> page = isPublic ? postRepository.findPostsByIsPublicTrue(PageRequest.of(pageNumber,pageLimit))
+                : postRepository.findPostsByIsPublicFalse(PageRequest.of(pageNumber,pageLimit)) ;
+        return page.get().map(x -> modelMapper.map(x, PostDto.class)).toList();
      }
 
     public List<PostDto> getAllPosts(int pageNumber, int pageLimit){
@@ -175,8 +171,6 @@ public class PostService {
 
         return modelMapper.map(post.get(),PostDto.class);
     }
-
-
 
     public void deletePost(String idPost) throws IOException {
         Optional<Post> postToDelete = postRepository.findById(idPost);

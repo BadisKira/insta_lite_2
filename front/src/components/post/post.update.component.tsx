@@ -215,7 +215,7 @@ const PostUpdateComponent = ({
         }}
       >
         <MenuItem onClick={handleClose}>
-          <ToggleVisibility postId={post.id} public={post.public} />{" "}
+          <ToggleVisibility postId={post.id} public={post.isPublic} />{" "}
         </MenuItem>
         <MenuItem onClick={() => {}}>
           <UpdatePost

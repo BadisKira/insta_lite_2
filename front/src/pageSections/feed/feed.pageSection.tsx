@@ -1,22 +1,26 @@
-import { Button, Container, Typography } from "@mui/material";
-import instaliteApi from "../../utils/axios/axiosConnection";
+import {
+  Button,
+  Container,
+  Typography,
+} from "@mui/material";
 import Post from "../../components/post/post.component";
 import { IPost } from "../../types/post.type";
 import PostSkeleton from "../../components/post/post.skeleton";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
-import CreatePost from "../../components/post/createPost.component";
 import { usePaginatedQuery } from "../../hooks/usePaginatedQuery";
-import { useAuthContext } from "../../hooks/useAuthContext.hook";
+import { IVisibilityPosteType } from "../../pages/feed/Feed.page";
 
-const getPostsFn = async (page: number) => {
-  const response = await instaliteApi.get<IPost[]>(
-    `posts/all?pageNumber=${page - 1}&pageLimit=2`
-  );
-  return response.data;
-};
+export interface IFeedSection {
+  getFn: (page: number) => Promise<any>;
+  visibilityTypePost?: IVisibilityPosteType;
+  setVisibilityTypePost?: (p: IVisibilityPosteType) => void;
+}
 
-const FeedPageSection = () => {
+const FeedPageSection: React.FC<IFeedSection> = ({
+  getFn,
+  visibilityTypePost,
+}) => {
   const {
     data,
     isError,
@@ -25,10 +29,11 @@ const FeedPageSection = () => {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
+    refetch,
   } = usePaginatedQuery({
-    getResourceFn: getPostsFn,
     limit: 2,
     queryKey: ["feedposts"],
+    getResourceFn: getFn,
   });
 
   /***
@@ -50,8 +55,12 @@ const FeedPageSection = () => {
     fetchInView().then((res) => res);
   }, [inView]);
 
-  /**User authentification */
-  const { user } = useAuthContext();
+  useEffect(() => {
+    refetch().then((res) => {
+      console.log(res);
+    });
+  }, [visibilityTypePost]);
+
 
   return (
     <Container
@@ -63,12 +72,8 @@ const FeedPageSection = () => {
         rowGap: 1,
       }}
     >
-      {user && user.role === "ADMIN" && <CreatePost />}
-
-      <br />
       {isLoading ? (
         <>
-          <PostSkeleton />
           <PostSkeleton />
         </>
       ) : (
@@ -98,7 +103,7 @@ const FeedPageSection = () => {
       ) : (
         <>
           {hasNextPage ? (
-            <Button ref={ref}>Charger plus </Button>
+            <Button ref={ref}>Charger plus</Button>
           ) : (
             <Typography variant="caption">Aucun nouveau post à voir</Typography>
           )}

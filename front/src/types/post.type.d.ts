@@ -7,7 +7,7 @@ export interface IPost {
   userId: number;
   userFirstname: string;
   userLastname: string;
-  public: boolean;
+  isPublic: boolean;
   createdAt: string;
   commentsNumber: number;
   likedUserIds: number[];

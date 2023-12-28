@@ -36,14 +36,14 @@ public class PostController {
 
     //delete post by id
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity delete(@PathVariable("id") String id) throws IOException {
         postService.deletePost(id);
         return ResponseEntity.status(204).body(null);
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostDto> update(Authentication authentication,
                                           @PathVariable("id") String id,
                                           @RequestBody UpdatePostDto updatePostDto) throws IOException {
@@ -65,7 +65,7 @@ public class PostController {
     }
 
     @GetMapping("/all")
-    //@PreAuthorize("hasRole('SUPERUSER')")
+    @PreAuthorize("hasAnyRole('SUPERUSER','ADMIN')")
     public ResponseEntity<List<PostDto>> getAll(@RequestParam(defaultValue = "0") int pageNumber,
                                 @RequestParam(defaultValue = "2") int pageLimit){
         return ResponseEntity.ok(postService.getAllPosts(pageNumber,pageLimit));
@@ -73,14 +73,17 @@ public class PostController {
 
     //Get public posts
     @GetMapping("/public")
-    public ResponseEntity<List<PostDto>> getAllPublicPosts() {
-        return ResponseEntity.ok(postService.getPosts(true));
+    public ResponseEntity<List<PostDto>> getAllPublicPosts(@RequestParam(defaultValue = "0") int pageNumber,
+                                                           @RequestParam(defaultValue = "2") int pageLimit) {
+        return ResponseEntity.ok(postService.getPosts(true,pageNumber,pageLimit));
     }
 
     //Get private posts
     @GetMapping("/private")
-    public ResponseEntity<List<PostDto>> getAllPrivatePosts() {
-       return ResponseEntity.ok(postService.getPosts(false));
+    @PreAuthorize("hasAnyRole('SUPERUSER','ADMIN')")
+    public ResponseEntity<List<PostDto>> getAllPrivatePosts(@RequestParam(defaultValue = "0") int pageNumber,
+                                                            @RequestParam(defaultValue = "2") int pageLimit) {
+       return ResponseEntity.ok(postService.getPosts(false , pageNumber,pageLimit));
     }
 
 
