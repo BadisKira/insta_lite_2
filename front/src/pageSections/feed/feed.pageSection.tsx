@@ -13,12 +13,14 @@ import { IVisibilityPosteType } from "../../pages/feed/Feed.page";
 
 export interface IFeedSection {
   getFn: (page: number) => Promise<any>;
+  queryKey: string,
   visibilityTypePost?: IVisibilityPosteType;
   setVisibilityTypePost?: (p: IVisibilityPosteType) => void;
 }
 
 const FeedPageSection: React.FC<IFeedSection> = ({
   getFn,
+  queryKey,
   visibilityTypePost,
 }) => {
   const {
@@ -32,9 +34,11 @@ const FeedPageSection: React.FC<IFeedSection> = ({
     refetch,
   } = usePaginatedQuery({
     limit: 2,
-    queryKey: ["feedposts"],
+    queryKey: [queryKey],
     getResourceFn: getFn,
   });
+
+  console.log("HAS NEXT Page ??? ", hasNextPage);
 
   /***
    * The useInView hook makes it easy to monitor the inView state of your components.
@@ -48,7 +52,6 @@ const FeedPageSection: React.FC<IFeedSection> = ({
   });
 
   useEffect(() => {
-    console.log(inView);
     const fetchInView = async () => {
       if (!isFetchingNextPage && inView) await fetchNextPage();
     };
@@ -56,11 +59,11 @@ const FeedPageSection: React.FC<IFeedSection> = ({
   }, [inView]);
 
   useEffect(() => {
-    refetch().then((res) => {
-      console.log(res);
-    });
+    if (visibilityTypePost)
+      refetch().then((res) => {
+        console.log(res);
+      });
   }, [visibilityTypePost]);
-
 
   return (
     <Container
@@ -101,7 +104,7 @@ const FeedPageSection: React.FC<IFeedSection> = ({
       )}
 
       {isFetchingNextPage ? (
-        <h1>Fetching next shit</h1>
+        <h1>Fetching next </h1>
       ) : (
         <>
           {hasNextPage ? (

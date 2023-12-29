@@ -22,6 +22,8 @@ public interface PostRepository extends ListCrudRepository<Post,String>, PagingA
     Page<Post> findPostsByIsPublicFalse(Pageable pageable);
     Page<Post> findPostsByIsPublicTrue(Pageable pageable);
 
+    Page<Post> findPostsByUser_Id(Long id,Pageable pageable) ;
+
     //List<Post> findByIsPublicTrue();
 
 

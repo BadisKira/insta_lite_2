@@ -25,18 +25,15 @@ const createPostFn = async (post: ICreatePost) => {
 
   if (post.data) postFormData.append("data", post.data);
   postFormData.append("postType", "IMAGE");
-  postFormData.append("userId", "1");
+  postFormData.append("userId", String(post.userId));
 
-  // const token ="12345789feztyfuhebhjav ce fervheh jueiz fveurihvjzbjdsvfv ";
-
-  console.log(post);
   const response = await instaliteApi.postForm(`posts`, postFormData, {
     headers: { "Content-Type": "Application/json" },
   });
   return await response.data;
 };
 
-const CreatePost = () => {
+const CreatePost = ({ userId }:{userId:number}) => {
   const [postInfo, setPostInfo] = useState<ICreatePost | undefined>(undefined);
   const queryPost = useQueryClient();
   const handleChange = (
@@ -72,7 +69,7 @@ const CreatePost = () => {
         onSubmit={async (e) => {
           e.preventDefault();
           console.log(postInfo);
-          if (postInfo) await createPostMutate({ ...postInfo, userId: 1 });
+          if (postInfo) await createPostMutate({ ...postInfo, userId });
         }}
       >
         <Grid container gap={1}>

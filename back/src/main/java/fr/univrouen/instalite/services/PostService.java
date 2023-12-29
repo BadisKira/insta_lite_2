@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.security.core.Authentication;
@@ -49,7 +50,7 @@ public class PostService {
         this.modelMapper = modelMapper;
     }
 
-    public String create(String email, CreatePostDto createPostDto){
+    public String create(CreatePostDto createPostDto){
         if (!new File(resourcePath).exists()) {
             try {
                 Files.createDirectories(Paths.get(resourcePath));
@@ -65,7 +66,7 @@ public class PostService {
 
         //ToDo : block zip
 
-        Optional<User> user = userRepository.findByEmailIgnoreCase(email);
+        Optional<User> user = userRepository.findById(createPostDto.getUserId());
 
         if(user.isEmpty())
             throw new UserNotFoundException();
@@ -103,14 +104,7 @@ public class PostService {
         return modelMapper.map(post,PostDto.class);
     }
 
-    public List<PostDto> getPostsFromOneUser(Long idUser){
-        Optional<User> user = userRepository.findById(idUser);
 
-        if(user.isEmpty())
-            throw new EntityNotFoundException("User not found");
-
-        return user.get().getPosts().stream().map(x ->modelMapper.map(x,PostDto.class)).toList();
-    }
 
 
 
@@ -199,14 +193,18 @@ public class PostService {
         }
     }
 
-    public List<PostDto> getUsersPosts(String email) {
-        Optional<User> user = userRepository.findByEmailIgnoreCase(email);
+    public List<PostDto> getPostsFromOneUser(Long id , int pageNumber , int pageLimit) {
+        Optional<User> user = userRepository.findById(id);
 
         if(user.isEmpty())
             throw new UserNotFoundException();
 
-        return user.get().getPosts().stream().map(x ->
-                modelMapper.map(x,PostDto.class)).toList();
+        Page<Post> page =
+                postRepository.findPostsByUser_Id(user.get().getId()
+                        ,PageRequest.of(pageNumber,pageLimit , Sort.by("createdAt").descending())
+                );
+        return page.get().map(x -> modelMapper.map(x, PostDto.class)).toList();
+
     }
 
     public PostDto like(String postId, String email){

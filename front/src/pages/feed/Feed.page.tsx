@@ -12,7 +12,6 @@ import FeedPageSection from "../../pageSections/feed/feed.pageSection";
 import { IPost } from "../../types/post.type";
 import instaliteApi from "../../utils/axios/axiosConnection";
 import { useAuthContext } from "../../hooks/useAuthContext.hook";
-import CreatePost from "../../components/post/createPost.component";
 export type IVisibilityPosteType = "public" | "private" | "all";
 
 /***
@@ -34,14 +33,13 @@ const FeedPage = () => {
 
   return (
     <PageContainer withHeader={true}>
-      {user && user.role === "ADMIN" && <CreatePost />}
-
       <SelectVisibilityPostType
         visibilityTypePost={visibilityTypePost}
         setVisibilityTypePost={setVisibilityTypePost}
       />
       <FeedPageSection
         getFn={getPostsFn}
+        queryKey="feedposts"
         visibilityTypePost={visibilityTypePost}
         setVisibilityTypePost={setVisibilityTypePost}
       />
@@ -62,7 +60,6 @@ export function SelectVisibilityPostType({
     setVisibilityTypePost(event.target.value as IVisibilityPosteType);
     localStorage.setItem("visibilitypost", event.target.value);
   };
-
   return (
     <Box
       sx={{

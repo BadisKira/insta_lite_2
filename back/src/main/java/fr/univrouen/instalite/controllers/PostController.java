@@ -22,9 +22,9 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<PostCreatedDto> create(Authentication authentication, CreatePostDto createPostDto) {
-        String id = postService.create(authentication.getName(), createPostDto);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PostCreatedDto> create(CreatePostDto createPostDto) {
+        String id = postService.create(createPostDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new PostCreatedDto(id));
     }
 
@@ -56,15 +56,16 @@ public class PostController {
 
     //Get user's all posts
     @GetMapping("/user/{id}")
-    public ResponseEntity<List<PostDto>> getAllByUser(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(postService.getPostsFromOneUser(id));
+    public ResponseEntity<List<PostDto>> getAllByUser(@PathVariable("id") Long id , @RequestParam(defaultValue = "0") int pageNumber,
+                                                      @RequestParam(defaultValue = "2") int pageLimit) {
+        return ResponseEntity.ok(postService.getPostsFromOneUser(id , pageNumber , pageLimit));
     }
 
-    @GetMapping("/me")
+    /*@GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<PostDto>> getUsersPost(Authentication authentication){
         return ResponseEntity.ok(postService.getUsersPosts(authentication.getName()));
-    }
+    }*/
 
     @GetMapping("/all")
     @PreAuthorize("hasAnyRole('SUPERUSER','ADMIN')")
