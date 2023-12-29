@@ -11,7 +11,7 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useMutation } from "@tanstack/react-query";
 import instaliteApi from "../../utils/axios/axiosConnection";
-import { IPost } from "../../types/post.type";
+import { IPost, IUpdatePost } from "../../types/post.type";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -27,9 +27,9 @@ type IProps = {
   // page: number;
 };
 
-
-interface IPagesArray{
-   pageParams:number[] ,pages:Array<[IPost[],any]>
+interface IPagesArray {
+  pageParams: number[];
+  pages: Array<[IPost[], any]>;
 }
 /***
  * export interface IPost {
@@ -57,41 +57,49 @@ interface IPagesArray{
 
 export interface ITogglePost {
   postId: string;
-  public: boolean;
+  isPublic: boolean;
 }
 
-const ToggleVisibility = ({ postId, public: isPublic }: ITogglePost) => {
+const ToggleVisibility = ({ postId, isPublic }: ITogglePost) => {
   // create mutation
-  const { mutateAsync,isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: async () => {
-      const response = await instaliteApi.patch(`posts/${postId}`, {
-        isPublic: !isPublic,
-      });
+      const toggleFormData = new FormData();
+      toggleFormData.append("isPublic", isPublic ? "false" : "true");
+
+      const response = await instaliteApi.patchForm(
+        `posts/${postId}`,
+        toggleFormData
+      );
       return response;
     },
     onSuccess: () => {
+      // get the visibility from local storage if the new visibility of the post doesn't match
+      // the i'll delete it from here
+      const visiblityRecherche = localStorage.getItem("visibilitypost");
       const oldPagesArray = queryClient.getQueryData([
         "feedposts",
       ]) as IPagesArray;
       const newPagesArray =
-        oldPagesArray?.pages.map((page:IPost[]) =>
-          page.map((p:IPost) => {
+        oldPagesArray?.pages.map((page: IPost[]) =>
+          page.filter((p: IPost) => {
             if (p.id == postId) {
-              return { ...p, public: !isPublic };
-            } else {
-              return p;
-            }
-          })
+              if (visiblityRecherche) {
+                if (visiblityRecherche === "all")  
+                  return true;
+                 else return false;
+              }
+            } else return true;
+          }).map(p => { if (p.id === postId) return { ...p, isPublic: !isPublic, public: !isPublic }; else return p; })
         ) ?? [];
 
-      queryClient.setQueryData(["feedposts"], (data:any) => ({
+      queryClient.setQueryData(["feedposts"], (data: any) => ({
         pages: newPagesArray,
         pageParams: data.pageParams,
       }));
       return;
     },
     onError: (response: any) => {
-      console.log(response);
       const data = response.response.data;
       toast.error(data.message);
       return;
@@ -109,14 +117,14 @@ const ToggleVisibility = ({ postId, public: isPublic }: ITogglePost) => {
 
 const DeletePost = ({
   postId,
-  handleClose,
-}: {
+}: //handleClose,
+{
   postId: string;
   handleClose: () => void;
 }) => {
   const [isToDelete, setIsToDelete] = useState<boolean>(false);
 
-  const { mutateAsync} = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: async () => {
       const response = await instaliteApi.delete(`posts/${postId}`);
       return response;
@@ -137,7 +145,6 @@ const DeletePost = ({
       return;
     },
     onError: (response: any) => {
-      console.log(response);
       const data = response.response.data;
       toast.error(data.message);
       return;
@@ -215,7 +222,7 @@ const PostUpdateComponent = ({
         }}
       >
         <MenuItem onClick={handleClose}>
-          <ToggleVisibility postId={post.id} public={post.public} />{" "}
+          <ToggleVisibility postId={post.id} isPublic={post.isPublic} />{" "}
         </MenuItem>
         <MenuItem onClick={() => {}}>
           <UpdatePost
@@ -242,12 +249,13 @@ interface IPostUpdateProps {
   onClose: () => void;
 }
 
-const UpdatePost: React.FC<IPostUpdateProps> = ({
-  post,
-  onClose,
-
-}) => {
-  const [updatedPost, setUpdatedPost] = useState<IPost>({ ...post });
+const UpdatePost: React.FC<IPostUpdateProps> = ({ post, onClose }) => {
+  const [updatedPost, setUpdatedPost] = useState<IUpdatePost>({
+    title: post.title,
+    data: null,
+    isPublic: post.isPublic,
+    description: post.description,
+  });
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
 
   const handleInputChange = (
@@ -260,30 +268,45 @@ const UpdatePost: React.FC<IPostUpdateProps> = ({
     }));
   };
 
-  const { mutateAsync,  isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: async () => {
-      const response = await instaliteApi.patch(`posts/${post.id}`, {
-        ...updatedPost,
-      });
+      const updatePostFormData = new FormData();
+
+      updatePostFormData.append("title", updatedPost.title);
+      updatePostFormData.append("description", updatedPost.description);
+      updatePostFormData.append(
+        "isPublic",
+        updatedPost.isPublic ? "true" : "false"
+      );
+
+      if (updatedPost.data) updatePostFormData.append("data", updatedPost.data);
+
+      const response = await instaliteApi.patchForm(
+        `posts/${post.id}`,
+        updatePostFormData,
+        {
+          headers: { "Content-Type": "Application/json" },
+        }
+      );
       return response;
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
       const oldPagesArray = queryClient.getQueryData([
         "feedposts",
-      ]) as IPagesArray;;
+      ]) as IPagesArray;
 
       const newPagesArray =
         oldPagesArray?.pages.map((page: IPost[]) =>
-          page.map((p:IPost) => {
+          page.map((p: IPost) => {
             if (p.id == post.id) {
-              return updatedPost;
+              return response.data;
             } else {
               return p;
             }
           })
         ) ?? [];
 
-      queryClient.setQueryData(["feedposts"], (data:any) => ({
+      queryClient.setQueryData(["feedposts"], (data: any) => ({
         pages: newPagesArray,
         pageParams: data.pageParams,
       }));
@@ -293,7 +316,6 @@ const UpdatePost: React.FC<IPostUpdateProps> = ({
       return;
     },
     onError: (response: any) => {
-      console.log(response);
       const data = response.response.data;
       toast.error(data.message);
       return;
@@ -348,22 +370,33 @@ const UpdatePost: React.FC<IPostUpdateProps> = ({
               multiline
               rows={2}
             />
-            <TextField
-              size="small"
-              label="User Firstname"
-              name="userFirstname"
-              value={updatedPost.userFirstname}
-              onChange={handleInputChange}
-              variant="outlined"
-            />
-            <TextField
-              size="small"
-              label="User Lastname"
-              name="userLastname"
-              value={updatedPost.userLastname}
-              onChange={handleInputChange}
-              variant="outlined"
-            />
+            <Box>
+              <input
+                type="file"
+                accept={"image/*"}
+                required
+                name="data"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  if (updatedPost)
+                    setUpdatedPost({
+                      ...updatedPost,
+                      data: e.target.files ? e.target.files[0] : null,
+                    });
+                }}
+              />
+
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setUpdatedPost({
+                    ...updatedPost,
+                    data: null,
+                  });
+                }}
+              >
+                clear
+              </Button>
+            </Box>
             {/* Add other TextField components for updating post properties */}
           </Box>
           {isPending ? (

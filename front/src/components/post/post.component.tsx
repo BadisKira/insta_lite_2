@@ -39,7 +39,7 @@ const Post: React.FC<IPost> = ({
   userFirstname,
   createdAt,
   likedUserIds,
-  public: isPublic,
+  isPublic,
   userId,
   userLastname,
   commentsNumber,
@@ -80,7 +80,6 @@ const Post: React.FC<IPost> = ({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    console.log(event.currentTarget);
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
@@ -145,7 +144,7 @@ const Post: React.FC<IPost> = ({
                 userFirstname,
                 createdAt,
                 likedUserIds,
-                public: isPublic,
+                isPublic,
                 userId,
                 userLastname,
                 commentsNumber,

@@ -25,7 +25,6 @@ export const validation = async (
 		return true
 	} catch (error) {
         if (error && typeof error === "object" && "errors" in error) {
-            console.log("Error paths : ", (error.errors as IYupError[]).map((err) => err.path))
             checkValidationErrors(error.errors as IYupError[], displayedErrors)
         }
         

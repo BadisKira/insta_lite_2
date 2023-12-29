@@ -13,6 +13,7 @@ interface IProps {
 const AppHeader: FC<IProps> = () => {
   const { user, isAuthenticated } = useAuthContext();
   const navigate = useNavigate();
+  
 
     return (
       <AppBar

@@ -1,22 +1,38 @@
-import { Button, Container, Typography } from "@mui/material";
-import instaliteApi from "../../utils/axios/axiosConnection";
+import {
+  Button,
+  Container,
+  Typography,
+} from "@mui/material";
 import Post from "../../components/post/post.component";
 import { IPost } from "../../types/post.type";
 import PostSkeleton from "../../components/post/post.skeleton";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
-import CreatePost from "../../components/post/createPost.component";
 import { usePaginatedQuery } from "../../hooks/usePaginatedQuery";
-import { useAuthContext } from "../../hooks/useAuthContext.hook";
+import {
+  SelectChangeEvent,
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 
-const getPostsFn = async (page: number) => {
-  const response = await instaliteApi.get<IPost[]>(
-    `posts/all?pageNumber=${page - 1}&pageLimit=2`
-  );
-  return response.data;
-};
+export type IVisibilityPosteType = "public" | "private" | "all";
 
-const FeedPageSection = () => {
+
+export interface IFeedSection {
+  getFn: (page: number) => Promise<any>;
+  queryKey: string,
+  visibilityTypePost?: IVisibilityPosteType;
+  setVisibilityTypePost?: (p: IVisibilityPosteType) => void;
+}
+
+const FeedPageSection: React.FC<IFeedSection> = ({
+  getFn,
+  queryKey,
+  visibilityTypePost,
+}) => {
   const {
     data,
     isError,
@@ -25,11 +41,13 @@ const FeedPageSection = () => {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
+    refetch,
   } = usePaginatedQuery({
-    getResourceFn: getPostsFn,
     limit: 2,
-    queryKey: ["feedposts"],
+    queryKey: [queryKey],
+    getResourceFn: getFn,
   });
+
 
   /***
    * The useInView hook makes it easy to monitor the inView state of your components.
@@ -43,15 +61,17 @@ const FeedPageSection = () => {
   });
 
   useEffect(() => {
-    console.log(inView);
     const fetchInView = async () => {
       if (!isFetchingNextPage && inView) await fetchNextPage();
     };
     fetchInView().then((res) => res);
   }, [inView]);
 
-  /**User authentification */
-  const { user } = useAuthContext();
+  useEffect(() => {
+    if (visibilityTypePost)
+      refetch().then((res) => {
+      });
+  }, [visibilityTypePost]);
 
   return (
     <Container
@@ -63,12 +83,8 @@ const FeedPageSection = () => {
         rowGap: 1,
       }}
     >
-      {user && user.role === "ADMIN" && <CreatePost />}
-
-      <br />
       {isLoading ? (
         <>
-          <PostSkeleton />
           <PostSkeleton />
         </>
       ) : (
@@ -81,6 +97,8 @@ const FeedPageSection = () => {
                   return feedPostPage.map((feedpost) => (
                     <Post
                       {...feedpost}
+                      //@ts-ignore
+                      isPublic={feedpost.public}
                       key={feedpost.id}
                       // indexInPage={index}
                       // page={pageNumber}
@@ -94,11 +112,11 @@ const FeedPageSection = () => {
       )}
 
       {isFetchingNextPage ? (
-        <h1>Fetching next shit</h1>
+        <h1>Fetching next </h1>
       ) : (
         <>
           {hasNextPage ? (
-            <Button ref={ref}>Charger plus </Button>
+            <Button ref={ref}>Charger plus</Button>
           ) : (
             <Typography variant="caption">Aucun nouveau post à voir</Typography>
           )}
@@ -109,3 +127,34 @@ const FeedPageSection = () => {
 };
 
 export default FeedPageSection;
+
+export function SelectVisibilityPostType({
+  visibilityTypePost,
+  setVisibilityTypePost,
+}: {
+  visibilityTypePost: IVisibilityPosteType;
+  setVisibilityTypePost: (p: IVisibilityPosteType) => void;
+}) {
+  const handleChange = (event: SelectChangeEvent) => {
+    setVisibilityTypePost(event.target.value as IVisibilityPosteType);
+    localStorage.setItem("visibilitypost", event.target.value);
+  };
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "start",
+      }}
+    >
+      <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
+        <InputLabel>Choisissez le type post </InputLabel>
+        <Select value={visibilityTypePost} label="Age" onChange={handleChange}>
+          <MenuItem value={"public"}>Publique</MenuItem>
+          <MenuItem value={"private"}>Privée</MenuItem>
+          <MenuItem value={"all"}>Tout</MenuItem>
+        </Select>
+      </FormControl>
+    </Box>
+  );
+}

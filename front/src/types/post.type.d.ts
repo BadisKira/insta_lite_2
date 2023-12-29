@@ -7,7 +7,7 @@ export interface IPost {
   userId: number;
   userFirstname: string;
   userLastname: string;
-  public: boolean;
+  isPublic: boolean;
   createdAt: string;
   commentsNumber: number;
   likedUserIds: number[];
@@ -20,5 +20,12 @@ export interface ICreatePost {
   isPublic: boolean;
   data: File | null;
   postType: "IMAGE" | "VIDEO";
+}
+
+export interface IUpdatePost {
+  title: string;
+  description: string;
+  isPublic: boolean;
+  data: File | null;
 }
 

@@ -22,9 +22,9 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<PostCreatedDto> create(Authentication authentication, CreatePostDto createPostDto) {
-        String id = postService.create(authentication.getName(), createPostDto);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PostCreatedDto> create(CreatePostDto createPostDto) {
+        String id = postService.create(createPostDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new PostCreatedDto(id));
     }
 
@@ -36,33 +36,40 @@ public class PostController {
 
     //delete post by id
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") String id){
+    public void delete(@PathVariable("id") String id)  {
         postService.deletePost(id);
+
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostDto> update(Authentication authentication,
                                           @PathVariable("id") String id,
-                                          @RequestBody UpdatePostDto updatePostDto){
-        PostDto postDtoUpdated = postService.update(authentication ,id, updatePostDto);
+                                          UpdatePostDto updatePostDto) throws IOException {
+        PostDto postDtoUpdated = this.postService.update(authentication ,id, updatePostDto);
         return ResponseEntity.ok(postDtoUpdated);
     }
 
 
+
+
     //Get user's all posts
     @GetMapping("/user/{id}")
-    public ResponseEntity<List<PostDto>> getAllByUser(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(postService.getPostsFromOneUser(id));
+    public ResponseEntity<List<PostDto>> getAllByUser(@PathVariable("id") Long id ,
+                                                      @RequestParam(defaultValue = "0") int pageNumber,
+                                                      @RequestParam(defaultValue = "2") int pageLimit,
+                                                      @RequestParam(defaultValue = "all") String visibilityType) {
+        System.out.println("visibility type " + visibilityType);
+        return ResponseEntity.ok(postService.getPostsFromOneUser(id , pageNumber , pageLimit , visibilityType));
     }
 
-    @GetMapping("/me")
+    /*@GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<PostDto>> getUsersPost(Authentication authentication){
         return ResponseEntity.ok(postService.getUsersPosts(authentication.getName()));
-    }
+    }*/
 
     @GetMapping("/all")
     @PreAuthorize("hasAnyRole('ADMIN','SUPERUSER')")
@@ -73,15 +80,17 @@ public class PostController {
 
     //Get public posts
     @GetMapping("/public")
-    public ResponseEntity<List<PostDto>> getAllPublicPosts() {
-        return ResponseEntity.ok(postService.getPosts(true));
+    public ResponseEntity<List<PostDto>> getAllPublicPosts(@RequestParam(defaultValue = "0") int pageNumber,
+                                                           @RequestParam(defaultValue = "2") int pageLimit) {
+        return ResponseEntity.ok(postService.getPosts(true,pageNumber,pageLimit));
     }
 
     //Get private posts
     @GetMapping("/private")
-    @PreAuthorize("hasAnyRole('ADMIN','SUPERUSER')")
-    public ResponseEntity<List<PostDto>> getAllPrivatePosts() {
-       return ResponseEntity.ok(postService.getPosts(false));
+    @PreAuthorize("hasAnyRole('SUPERUSER','ADMIN')")
+    public ResponseEntity<List<PostDto>> getAllPrivatePosts(@RequestParam(defaultValue = "0") int pageNumber,
+                                                            @RequestParam(defaultValue = "2") int pageLimit) {
+       return ResponseEntity.ok(postService.getPosts(false , pageNumber,pageLimit));
     }
 
 

@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,7 +47,7 @@ public class PostService {
         this.modelMapper = modelMapper;
     }
 
-    public String create(String email, CreatePostDto createPostDto){
+    public String create(CreatePostDto createPostDto){
         if (!new File(resourcePath).exists()) {
             try {
                 Files.createDirectories(Paths.get(resourcePath));
@@ -70,7 +71,7 @@ public class PostService {
         if(!isSupported)
             throw new UnsupportedFileTypeException();
 
-        Optional<User> user = userRepository.findByEmailIgnoreCase(email);
+        Optional<User> user = userRepository.findById(createPostDto.getUserId());
 
         if(user.isEmpty())
             throw new UserNotFoundException();
@@ -78,7 +79,7 @@ public class PostService {
         Post post = new Post(null, createPostDto.getTitle(),
                 createPostDto.getDescription(),
                 extension, type
-                ,createPostDto.isPublic()
+                ,createPostDto.getIsPublic()
                 ,Date.valueOf(LocalDate.now())
                 ,user.get(),
                 new ArrayList<Comment>(),
@@ -108,20 +109,15 @@ public class PostService {
         return modelMapper.map(post,PostDto.class);
     }
 
-    public List<PostDto> getPostsFromOneUser(Long idUser){
-        Optional<User> user = userRepository.findById(idUser);
 
-        if(user.isEmpty())
-            throw new UserNotFoundException();
+        
 
-        return user.get().getPosts().stream().map(x ->modelMapper.map(x,PostDto.class)).toList();
-    }
 
-    public List<PostDto> getPosts(boolean isPublic){
-        List<Post> posts = isPublic ? postRepository.findByIsPublicTrue() :
-                                    postRepository.findByIsPublicFalse();
 
-        return posts.stream().map(x -> modelMapper.map(x,PostDto.class)).toList();
+    public List<PostDto> getPosts(boolean isPublic , int pageNumber, int pageLimit){
+        Page<Post> page = isPublic ? postRepository.findPostsByIsPublicTrue(PageRequest.of(pageNumber,pageLimit))
+                : postRepository.findPostsByIsPublicFalse(PageRequest.of(pageNumber,pageLimit)) ;
+        return page.get().map(x -> modelMapper.map(x, PostDto.class)).toList();
      }
 
     public List<PostDto> getAllPosts(int pageNumber, int pageLimit){
@@ -214,14 +210,36 @@ public class PostService {
         }
     }
 
-    public List<PostDto> getUsersPosts(String email) {
-        Optional<User> user = userRepository.findByEmailIgnoreCase(email);
+    public List<PostDto> getPostsFromOneUser(Long id , int pageNumber , int pageLimit , String visibilityType) {
+        Optional<User> user = userRepository.findById(id);
 
         if(user.isEmpty())
             throw new UserNotFoundException();
+        Page<Post> page = null ;
 
-        return user.get().getPosts().stream().map(x ->
-                modelMapper.map(x,PostDto.class)).toList();
+        System.out.println("Post service visibility type  ==  " + visibilityType);
+        switch (visibilityType) {
+            case "all" : page = postRepository.findPostsByUser_Id(user.get().getId()
+                    ,PageRequest.of(pageNumber,pageLimit , Sort.by("createdAt").descending())
+            ); break;
+            case "public" :
+                page = postRepository.findPostsByIsPublicTrueAndUser_Id(user.get().getId()
+                        ,PageRequest.of(pageNumber,pageLimit , Sort.by("createdAt").descending()) );
+                break;
+
+            case "private" : postRepository.findPostsByIsPublicFalseAndUser_Id(user.get().getId()
+                    ,PageRequest.of(pageNumber,pageLimit , Sort.by("createdAt").descending()) );
+
+            default:  page = postRepository.findPostsByUser_Id(user.get().getId()
+                    ,PageRequest.of(pageNumber,pageLimit , Sort.by("createdAt").descending())
+            ); break;
+
+
+        }
+
+
+        return page.get().map(x -> modelMapper.map(x, PostDto.class)).toList();
+
     }
 
     public PostDto like(String postId, String email){

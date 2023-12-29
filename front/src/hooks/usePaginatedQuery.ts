@@ -19,6 +19,7 @@ export const usePaginatedQuery = <T>({
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
+    refetch,
   } = useInfiniteQuery({
     queryKey: queryKey,
     queryFn: async ({ pageParam }: { pageParam: number }) =>
@@ -39,5 +40,6 @@ export const usePaginatedQuery = <T>({
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
+    refetch
   };
 };

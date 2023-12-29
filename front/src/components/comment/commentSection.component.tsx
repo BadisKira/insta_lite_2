@@ -40,7 +40,6 @@ const CommentSection = ({
   } = useQuery({
     queryKey: ["countComments", postId],
     queryFn: async () => {
-      console.log("count comments");
       const response = await instaliteApi.get(`comments/count/${postId}`);
       return response.data;
     },
@@ -65,7 +64,6 @@ const CommentSection = ({
   });
 
   useEffect(() => {
-    console.log(inView);
     const fetchInView = async () => {
       if (!isFetchingNextPage && inView) await fetchNextPage();
     };

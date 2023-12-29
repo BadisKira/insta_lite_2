@@ -63,7 +63,6 @@ const AuthProvider = ({ children }: IProps) => {
 			navigate("/")
 			toast.success("Connexion réussi !")
         } catch (error: unknown) {
-            console.log(error)
             toast.error("Une erreur est survenu lors de la connexion !")
             
             removeItem("user")
@@ -84,7 +83,6 @@ const AuthProvider = ({ children }: IProps) => {
 			setItem("user", JSON.stringify(user))
 			toast.success("Votre compte à été bien modifié !")
 		} catch (error) {
-			console.error(error)
 			toast.error("Une erreur est survenu lors de la modification !")
 		}
 
@@ -99,7 +97,6 @@ const AuthProvider = ({ children }: IProps) => {
 			await instaliteApi.put(`/users/reset-password`, { oldPassword, newPassword })
 			toast.success("Votre mot de passe a été mis à jour !")
 		} catch (error) {
-			console.error(error)
 			toast.error("Une erreur est survenu lors de la mise à jour !")
 		}
 
