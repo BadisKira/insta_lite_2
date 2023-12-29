@@ -47,7 +47,6 @@ const AdminPage = () => {
 			// Refetching query to get new data
 			queryClient.refetchQueries({ queryKey: ["getAllNoneAdminUsers"] })
 		} catch (error) {
-			console.error(error)
 
 			toast.success("Une erreur est survenue lors de la suppression")
 		}
@@ -71,7 +70,6 @@ const AdminPage = () => {
 			// Refetching query to get new data
 			queryClient.refetchQueries({ queryKey: ["getAllNoneAdminUsers"] })
 		} catch (error) {
-			console.error(error)
 			toast.error("Une erreur est survenu lors de la modification !")
 		}
 
@@ -96,7 +94,6 @@ const AdminPage = () => {
 			queryClient.refetchQueries({ queryKey: ["getAllNoneAdminUsers"] })
 			setIsCreateModalOpen(false)
 		} catch (error) {
-			console.error(error)
 			toast.error("Une erreur est survenu lors de la création !")
 		}
 

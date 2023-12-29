@@ -66,7 +66,6 @@ const CreatePost = ({ userId }:{userId:number}) => {
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          console.log(postInfo);
           if (postInfo) await createPostMutate({ ...postInfo, userId });
         }}
       >

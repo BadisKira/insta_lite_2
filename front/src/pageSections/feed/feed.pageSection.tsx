@@ -48,7 +48,6 @@ const FeedPageSection: React.FC<IFeedSection> = ({
     getResourceFn: getFn,
   });
 
-  console.log("HAS NEXT Page ??? ", hasNextPage);
 
   /***
    * The useInView hook makes it easy to monitor the inView state of your components.
@@ -71,7 +70,6 @@ const FeedPageSection: React.FC<IFeedSection> = ({
   useEffect(() => {
     if (visibilityTypePost)
       refetch().then((res) => {
-        console.log(res);
       });
   }, [visibilityTypePost]);
 

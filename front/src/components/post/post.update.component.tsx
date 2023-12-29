@@ -65,7 +65,6 @@ const ToggleVisibility = ({ postId, isPublic }: ITogglePost) => {
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async () => {
       const toggleFormData = new FormData();
-      console.log("isPublic ", isPublic);
       toggleFormData.append("isPublic", isPublic ? "false" : "true");
 
       const response = await instaliteApi.patchForm(
@@ -75,7 +74,6 @@ const ToggleVisibility = ({ postId, isPublic }: ITogglePost) => {
       return response;
     },
     onSuccess: () => {
-      console.log("success");
       // get the visibility from local storage if the new visibility of the post doesn't match
       // the i'll delete it from here
       const visiblityRecherche = localStorage.getItem("visibilitypost");
@@ -102,7 +100,6 @@ const ToggleVisibility = ({ postId, isPublic }: ITogglePost) => {
       return;
     },
     onError: (response: any) => {
-      console.log(response);
       const data = response.response.data;
       toast.error(data.message);
       return;
@@ -148,7 +145,6 @@ const DeletePost = ({
       return;
     },
     onError: (response: any) => {
-      console.log(response);
       const data = response.response.data;
       toast.error(data.message);
       return;
@@ -320,7 +316,6 @@ const UpdatePost: React.FC<IPostUpdateProps> = ({ post, onClose }) => {
       return;
     },
     onError: (response: any) => {
-      console.log(response);
       const data = response.response.data;
       toast.error(data.message);
       return;
