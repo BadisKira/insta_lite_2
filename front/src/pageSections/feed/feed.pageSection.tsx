@@ -9,7 +9,17 @@ import PostSkeleton from "../../components/post/post.skeleton";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
 import { usePaginatedQuery } from "../../hooks/usePaginatedQuery";
-import { IVisibilityPosteType } from "../../pages/feed/Feed.page";
+import {
+  SelectChangeEvent,
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+
+export type IVisibilityPosteType = "public" | "private" | "all";
+
 
 export interface IFeedSection {
   getFn: (page: number) => Promise<any>;
@@ -119,3 +129,34 @@ const FeedPageSection: React.FC<IFeedSection> = ({
 };
 
 export default FeedPageSection;
+
+export function SelectVisibilityPostType({
+  visibilityTypePost,
+  setVisibilityTypePost,
+}: {
+  visibilityTypePost: IVisibilityPosteType;
+  setVisibilityTypePost: (p: IVisibilityPosteType) => void;
+}) {
+  const handleChange = (event: SelectChangeEvent) => {
+    setVisibilityTypePost(event.target.value as IVisibilityPosteType);
+    localStorage.setItem("visibilitypost", event.target.value);
+  };
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "start",
+      }}
+    >
+      <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
+        <InputLabel>Choisissez le type post </InputLabel>
+        <Select value={visibilityTypePost} label="Age" onChange={handleChange}>
+          <MenuItem value={"public"}>Publique</MenuItem>
+          <MenuItem value={"private"}>Privée</MenuItem>
+          <MenuItem value={"all"}>Tout</MenuItem>
+        </Select>
+      </FormControl>
+    </Box>
+  );
+}

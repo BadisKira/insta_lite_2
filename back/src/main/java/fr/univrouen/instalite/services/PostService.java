@@ -74,7 +74,7 @@ public class PostService {
         Post post = new Post(null, createPostDto.getTitle(),
                 createPostDto.getDescription(),
                 extension, type
-                ,createPostDto.isPublic()
+                ,createPostDto.getIsPublic()
                 ,Date.valueOf(LocalDate.now())
                 ,user.get(),
                 new ArrayList<Comment>(),
@@ -193,16 +193,34 @@ public class PostService {
         }
     }
 
-    public List<PostDto> getPostsFromOneUser(Long id , int pageNumber , int pageLimit) {
+    public List<PostDto> getPostsFromOneUser(Long id , int pageNumber , int pageLimit , String visibilityType) {
         Optional<User> user = userRepository.findById(id);
 
         if(user.isEmpty())
             throw new UserNotFoundException();
+        Page<Post> page = null ;
 
-        Page<Post> page =
-                postRepository.findPostsByUser_Id(user.get().getId()
-                        ,PageRequest.of(pageNumber,pageLimit , Sort.by("createdAt").descending())
-                );
+        System.out.println("Post service visibility type  ==  " + visibilityType);
+        switch (visibilityType) {
+            case "all" : page = postRepository.findPostsByUser_Id(user.get().getId()
+                    ,PageRequest.of(pageNumber,pageLimit , Sort.by("createdAt").descending())
+            ); break;
+            case "public" :
+                page = postRepository.findPostsByIsPublicTrueAndUser_Id(user.get().getId()
+                        ,PageRequest.of(pageNumber,pageLimit , Sort.by("createdAt").descending()) );
+                break;
+
+            case "private" : postRepository.findPostsByIsPublicFalseAndUser_Id(user.get().getId()
+                    ,PageRequest.of(pageNumber,pageLimit , Sort.by("createdAt").descending()) );
+
+            default:  page = postRepository.findPostsByUser_Id(user.get().getId()
+                    ,PageRequest.of(pageNumber,pageLimit , Sort.by("createdAt").descending())
+            ); break;
+
+
+        }
+
+
         return page.get().map(x -> modelMapper.map(x, PostDto.class)).toList();
 
     }

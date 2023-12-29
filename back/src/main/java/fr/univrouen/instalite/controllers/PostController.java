@@ -56,9 +56,12 @@ public class PostController {
 
     //Get user's all posts
     @GetMapping("/user/{id}")
-    public ResponseEntity<List<PostDto>> getAllByUser(@PathVariable("id") Long id , @RequestParam(defaultValue = "0") int pageNumber,
-                                                      @RequestParam(defaultValue = "2") int pageLimit) {
-        return ResponseEntity.ok(postService.getPostsFromOneUser(id , pageNumber , pageLimit));
+    public ResponseEntity<List<PostDto>> getAllByUser(@PathVariable("id") Long id ,
+                                                      @RequestParam(defaultValue = "0") int pageNumber,
+                                                      @RequestParam(defaultValue = "2") int pageLimit,
+                                                      @RequestParam(defaultValue = "all") String visibilityType) {
+        System.out.println("visibility type " + visibilityType);
+        return ResponseEntity.ok(postService.getPostsFromOneUser(id , pageNumber , pageLimit , visibilityType));
     }
 
     /*@GetMapping("/me")

@@ -27,9 +27,7 @@ const createPostFn = async (post: ICreatePost) => {
   postFormData.append("postType", "IMAGE");
   postFormData.append("userId", String(post.userId));
 
-  const response = await instaliteApi.postForm(`posts`, postFormData, {
-    headers: { "Content-Type": "Application/json" },
-  });
+  const response = await instaliteApi.postForm(`posts`, postFormData, {  });
   return await response.data;
 };
 
@@ -54,7 +52,7 @@ const CreatePost = ({ userId }:{userId:number}) => {
     onSuccess: () => {
       // faire un toast
       queryPost.invalidateQueries({
-        queryKey: ["feedposts"],
+        queryKey: ["userAllPosts"],
       });
       setPostInfo(EMPTYPOST);
     },
