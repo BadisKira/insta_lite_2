@@ -57,23 +57,48 @@ const CreatePost = ({ userId }: { userId: number }) => {
 	})
 
 	return (
-		<Paper elevation={2} sx={{ width: "95%", padding: 2, marginTop: 3 }}>
+		<Grid
+			container
+			style={{
+				padding: 30,
+				marginTop: 3,
+				borderRadius: 12,
+				gap: 30,
+				backgroundColor: "white",
+				boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+			}}>
 			<form
 				onSubmit={async (e) => {
 					e.preventDefault()
-					if (postInfo) await createPostMutate({ ...postInfo, userId })
+					if (postInfo) {
+						await createPostMutate({ ...postInfo, userId })
+					}
 				}}>
-				<Grid container gap={1}>
-					<Grid item container spacing={1}>
+				<Grid container direction="column" gap={1}>
+					<Grid item container direction="column" spacing={1}>
 						<Grid item xs={12} sm={4}>
 							<TextField
 								fullWidth
 								size="small"
 								variant="outlined"
 								value={postInfo?.title}
-								label="Title of the post"
+								label="Titre"
 								name="title"
 								required
+								onChange={handleChange}
+							/>
+						</Grid>
+
+						<Grid item xs={12}>
+							<TextField
+								variant="outlined"
+								required
+								value={postInfo?.description}
+								label="Description"
+								name="description"
+								multiline
+								fullWidth
+								rows={1}
 								onChange={handleChange}
 							/>
 						</Grid>
@@ -107,20 +132,6 @@ const CreatePost = ({ userId }: { userId: number }) => {
 							<CustomCheckBoxChip value={postInfo?.isPublic} setValue={setPostInfo} name="isPublic" />
 						</Grid>
 					</Grid>
-
-					<Grid item xs={12}>
-						<TextField
-							variant="outlined"
-							required
-							value={postInfo?.description}
-							label="Description of the post"
-							name="description"
-							multiline
-							fullWidth
-							rows={1}
-							onChange={handleChange}
-						/>
-					</Grid>
 				</Grid>
 
 				<Button
@@ -131,10 +142,10 @@ const CreatePost = ({ userId }: { userId: number }) => {
 						height: "40px",
 						marginY: "10px",
 					}}>
-					{isPending ? <Loader /> : "Create"}
+					{isPending ? <Loader /> : "Créer le post"}
 				</Button>
 			</form>
-		</Paper>
+		</Grid>
 	)
 }
 
@@ -149,7 +160,7 @@ const CustomCheckBoxChip = ({ value, setValue, name }) => {
 	return (
 		<Stack gap={1}>
 			<Chip
-				size="small"
+				size="medium"
 				sx={{ width: "80px", fontSize: 10 }}
 				label={value ? "Public" : "Private"}
 				variant={"outlined"}
