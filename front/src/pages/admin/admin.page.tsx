@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import PageContainer from "../../components/PageContainer/PageContainer";
-import instaliteApi from "../../utils/axios/axiosConnection";
 import { IUser } from "../../types/user.type";
 import { Button, Grid, TextField, Typography } from "@mui/material";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
@@ -12,6 +11,7 @@ import UserCard from "../../components/UserCard/UserCard";
 import { queryClient } from "../../main";
 import CreateUserModal from "../../components/CreateUserModal/CreateUserModal";
 import { debounce } from "lodash";
+import useAxiosPrivate from "../../hooks/useAxios";
 const AdminPage = () => {
   const { token } = useAuthContext();
 
@@ -38,6 +38,8 @@ const AdminPage = () => {
     },
     [debounceGetFilteredDeliveryMen]
   );
+
+  const instaliteApi = useAxiosPrivate();
 
   const { data: users , refetch} = useQuery({
     queryKey: ["getAllNoneAdminUsers"],

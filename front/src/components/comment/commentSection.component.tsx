@@ -1,6 +1,5 @@
 import { Box, Button, IconButton, Stack, Typography } from "@mui/material";
 import { usePaginatedQuery } from "../../hooks/usePaginatedQuery";
-import instaliteApi from "../../utils/axios/axiosConnection";
 import { IComment, queryKeyComment } from "../../types/comment.type";
 import { Close } from "@mui/icons-material";
 import { useInView } from "react-intersection-observer";
@@ -10,6 +9,7 @@ import CommentItem from "./commentItem.component";
 import Loader from "../Loader";
 import { useQuery } from "@tanstack/react-query";
 import { ProtectedComponent } from "../../router/ProtectedComponent";
+import useAxiosPrivate from "../../hooks/useAxios";
 
 const CommentSection = ({
   postId,
@@ -17,7 +17,8 @@ const CommentSection = ({
 }: {
   postId: string;
   setCommentSectionOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
+  }) => {
+  const instaliteApi = useAxiosPrivate();
   const getCommentsByPost = async (page: number) => {
     // let token =localStorage.getItem("token");
     const response = await instaliteApi.get<IComment[]>(
@@ -25,7 +26,6 @@ const CommentSection = ({
       {
         headers: {
           "Content-Type": "Application/json",
-          // Authorization: "Bearer " + token,
         },
       }
     );

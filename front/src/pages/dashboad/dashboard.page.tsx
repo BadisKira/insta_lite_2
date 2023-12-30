@@ -9,10 +9,14 @@ import {
 } from "@mui/material";
 import PageContainer from "../../components/PageContainer/PageContainer";
 import { useQuery } from "@tanstack/react-query";
-import instaliteApi from "../../utils/axios/axiosConnection";
-import { ICommentsDashboard, ILikesDashboard, IPostsDashboard, IUsersDashboard } from "../../types/dashboard.type";
+import {
+  ICommentsDashboard,
+  ILikesDashboard,
+  IPostsDashboard,
+  IUsersDashboard,
+} from "../../types/dashboard.type";
 import { IPost } from "../../types/post.type";
-
+import useAxiosPrivate from "../../hooks/useAxios";
 
 const queryKeyDashboardPosts = "dashboard-posts";
 const queryKeyDashboardLikes = "dashboard-likes";
@@ -20,64 +24,53 @@ const queryKeyDashboardComments = "dashboard-comments";
 const queryKeyDashboardUsers = "dashboard-users";
 const queryKeyDashboardMostLikedPost = "dashboard-liked-post";
 
-
-const getDashBoardPosts = async () => {
-    return await instaliteApi.get<IPostsDashboard>("/posts/dashboard");
-};
-
-const getDashBoardLikes = async () => {
-  return await instaliteApi.get<ILikesDashboard>("/posts/likes/dashboard");
-};
-
-const getDashBoardComments = async () => {
-  return await instaliteApi.get<ICommentsDashboard>("/comments/dashboard");
-};
-
-const getDashBoardUsers= async () => {
-  return await instaliteApi.get<IUsersDashboard>("/users/dashboard");
-};
-
-
-const getDashBoardMostLikedPost = async () => {
-    return await instaliteApi.get<IPost>("/posts/mostLiked");
-};
-
-
-
-
-
 const DashboardPage = () => {
+  const instaliteApi = useAxiosPrivate();
+  const getDashBoardPosts = async () => {
+    return await instaliteApi.get<IPostsDashboard>("/posts/dashboard");
+  };
 
-    
-    const { data: dashboardPosts , isLoading:isLoadingPosts } = useQuery({
-        queryKey: [queryKeyDashboardPosts],
-        queryFn: getDashBoardPosts
-    });
+  const getDashBoardLikes = async () => {
+    return await instaliteApi.get<ILikesDashboard>("/posts/likes/dashboard");
+  };
 
-      const { data: dashboardComment, isLoading: isLoadingComments } = useQuery({
-        queryKey: [queryKeyDashboardComments],
-        queryFn: getDashBoardComments,
-      });
+  const getDashBoardComments = async () => {
+    return await instaliteApi.get<ICommentsDashboard>("/comments/dashboard");
+  };
 
-    
-      const { data: dashboardUsers, isLoading: isLoadingUsers } = useQuery({
-        queryKey: [queryKeyDashboardUsers],
-        queryFn: getDashBoardUsers,
-      });
+  const getDashBoardUsers = async () => {
+    return await instaliteApi.get<IUsersDashboard>("/users/dashboard");
+  };
 
-    
-      const { data: dashboardLikes, isLoading: isLoadingLikes } = useQuery({
-        queryKey: [queryKeyDashboardLikes],
-        queryFn: getDashBoardLikes,
-      });
+  const getDashBoardMostLikedPost = async () => {
+    return await instaliteApi.get<IPost>("/posts/mostLiked");
+  };
 
-      const { data: mostLikedPost, isLoading: isLoadingMostLikedPost } = useQuery({
-        queryKey: [queryKeyDashboardMostLikedPost],
-        queryFn: getDashBoardMostLikedPost,
-      });
+  const { data: dashboardPosts, isLoading: isLoadingPosts } = useQuery({
+    queryKey: [queryKeyDashboardPosts],
+    queryFn: getDashBoardPosts,
+  });
 
+  const { data: dashboardComment, isLoading: isLoadingComments } = useQuery({
+    queryKey: [queryKeyDashboardComments],
+    queryFn: getDashBoardComments,
+  });
 
-    
+  const { data: dashboardUsers, isLoading: isLoadingUsers } = useQuery({
+    queryKey: [queryKeyDashboardUsers],
+    queryFn: getDashBoardUsers,
+  });
+
+  const { data: dashboardLikes, isLoading: isLoadingLikes } = useQuery({
+    queryKey: [queryKeyDashboardLikes],
+    queryFn: getDashBoardLikes,
+  });
+
+  const { data: mostLikedPost, isLoading: isLoadingMostLikedPost } = useQuery({
+    queryKey: [queryKeyDashboardMostLikedPost],
+    queryFn: getDashBoardMostLikedPost,
+  });
+
   return (
     <PageContainer withHeader={true}>
       <Typography variant="h4" my={1}>

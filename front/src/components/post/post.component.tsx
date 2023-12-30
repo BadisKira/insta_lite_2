@@ -15,9 +15,9 @@ import NotesIcon from "@mui/icons-material/Notes";
 import ContentDialog from "./content.dialog.component";
 import CommentSection from "../comment/commentSection.component";
 import { useMutation } from "@tanstack/react-query";
-import instaliteApi from "../../utils/axios/axiosConnection";
 import { IUser } from "../../types/user.type";
 import PostUpdateComponent from "./post.update.component";
+import useAxiosPrivate from "../../hooks/useAxios";
 
 const WIDTH_COMPONENT = 500;
 const WIDTH_EXPAND_COMMENT = 850;
@@ -57,6 +57,9 @@ const Post: React.FC<IPost> = ({
   const pageIsSmall = useMediaQuery(theme.breakpoints.down("md"));
   const [openContentDialog, setOpenContentDialog] =
     React.useState<boolean>(false);
+  
+  
+  const instaliteApi = useAxiosPrivate();
 
   const likeMutation = useMutation({
     mutationKey: ["like", id],
@@ -174,14 +177,14 @@ const Post: React.FC<IPost> = ({
             style={{ height: "100%" }}
           />
 
-          <ContentDialog
+          {/* <ContentDialog
             alt={title}
             contentType={"IMAGE"}
             fullScreen={false}
             openContentDialog={openContentDialog}
             setOpenContentDialog={setOpenContentDialog}
             srcContent={`http://localhost:8080/api/resource/${id}`}
-          />
+          /> */}
         </CardMedia>
 
         <CardContent>

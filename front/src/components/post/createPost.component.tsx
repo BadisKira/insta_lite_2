@@ -3,8 +3,8 @@ import { ICreatePost } from "../../types/post.type";
 import { Button, Chip, Grid, Paper, Stack, TextField } from "@mui/material";
 import { useState } from "react";
 import { Done } from "@mui/icons-material";
-import  instaliteApi  from "../../utils/axios/axiosConnection";
 import Loader from "../Loader";
+import useAxiosPrivate from "../../hooks/useAxios";
 
 
 const EMPTYPOST: ICreatePost = {
@@ -16,24 +16,28 @@ const EMPTYPOST: ICreatePost = {
   userId: 0,
 };
 
-const createPostFn = async (post: ICreatePost) => {
-  const postFormData = new FormData();
 
-  postFormData.append("title", post.title);
-  postFormData.append("description", post.description);
-  postFormData.append("isPublic", post.isPublic ? "true" : "false");
-
-  if (post.data) postFormData.append("data", post.data);
-  postFormData.append("postType", "IMAGE");
-  postFormData.append("userId", String(post.userId));
-
-  const response = await instaliteApi.postForm(`posts`, postFormData, {  });
-  return await response.data;
-};
 
 const CreatePost = ({ userId }:{userId:number}) => {
   const [postInfo, setPostInfo] = useState<ICreatePost | undefined>(undefined);
   const queryPost = useQueryClient();
+
+  const instaliteApi = useAxiosPrivate();
+
+  const createPostFn = async (post: ICreatePost) => {
+    const postFormData = new FormData();
+
+    postFormData.append("title", post.title);
+    postFormData.append("description", post.description);
+    postFormData.append("isPublic", post.isPublic ? "true" : "false");
+
+    if (post.data) postFormData.append("data", post.data);
+    postFormData.append("postType", "IMAGE");
+    postFormData.append("userId", String(post.userId));
+
+    const response = await instaliteApi.postForm(`posts`, postFormData, {});
+    return await response.data;
+  };
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {

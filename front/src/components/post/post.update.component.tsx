@@ -10,13 +10,13 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useMutation } from "@tanstack/react-query";
-import instaliteApi from "../../utils/axios/axiosConnection";
 import { IPost, IUpdatePost } from "../../types/post.type";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { queryClient } from "../../main";
+import useAxiosPrivate from "../../hooks/useAxios";
 type IProps = {
   open: boolean;
   handleClose: () => void;
@@ -61,6 +61,7 @@ export interface ITogglePost {
 }
 
 const ToggleVisibility = ({ postId, isPublic }: ITogglePost) => {
+  const instaliteApi = useAxiosPrivate();
   // create mutation
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async () => {
@@ -123,6 +124,7 @@ const DeletePost = ({
   handleClose: () => void;
 }) => {
   const [isToDelete, setIsToDelete] = useState<boolean>(false);
+  const instaliteApi = useAxiosPrivate();
 
   const { mutateAsync } = useMutation({
     mutationFn: async () => {
@@ -196,6 +198,7 @@ const PostUpdateComponent = ({
   // page,
   handleClick,
 }: IProps) => {
+
   return (
     <>
       <IconButton
@@ -250,6 +253,8 @@ interface IPostUpdateProps {
 }
 
 const UpdatePost: React.FC<IPostUpdateProps> = ({ post, onClose }) => {
+  const instaliteApi = useAxiosPrivate();
+
   const [updatedPost, setUpdatedPost] = useState<IUpdatePost>({
     title: post.title,
     data: null,
