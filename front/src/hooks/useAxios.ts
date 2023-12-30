@@ -1,7 +1,6 @@
 import axios from "axios";
 import { getItem } from "../utils/localStorage.util";
-import { useEffect } from "react";
-import { useAuthContext } from "./useAuthContext.hook";
+import { useEffect, useLayoutEffect } from "react";
 import toast from "react-hot-toast";
 
 
@@ -14,18 +13,11 @@ const config = {
 const useAxiosPrivate = () => {
     const instaliteApi = axios.create(config);
     const token = getItem("token");
-    const { user } = useAuthContext();
-
-    useEffect(() => {
-        if (token !== undefined) {
-        instaliteApi.defaults.headers.common.Authorization = "Bearer " + token;
-        }
-    }, []);
-
-    useEffect(() => {
+  
+    useLayoutEffect(() => {
       const requestIntercept = instaliteApi.interceptors.request.use(
         (config) => {
-          if (!config.headers["Authorization"] || token) {
+          if (token) {
             config.headers["Authorization"] = `Bearer ${token}`;
           }
           return config;
@@ -47,7 +39,7 @@ const useAxiosPrivate = () => {
         instaliteApi.interceptors.request.eject(requestIntercept);
         instaliteApi.interceptors.response.eject(responseIntercept);
       };
-    }, [user]);
+    });
 
     return  instaliteApi
     
