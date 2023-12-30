@@ -14,6 +14,8 @@ const queryKeyDashboardComments = "dashboard-comments"
 const queryKeyDashboardUsers = "dashboard-users"
 // const queryKeyDashboardMostLikedPost = "dashboard-liked-post"
 
+import { Chart } from "chartjs"
+
 const DashboardPage = () => {
 	const instaliteApi = useAxiosPrivate()
 
@@ -67,6 +69,44 @@ const DashboardPage = () => {
 		return percentage
 	}
 
+	const data = {
+		labels: ["Administrateurs", "Super-Utilisateurs", "Utilisateurs normaux"],
+		datasets: [
+			{
+				label: "Nombre d'administrateurs",
+				data: usersStats && usersStats.countAdmins,
+				backgroundColor: "#ffa9a9",
+			},
+			{
+				label: "Nombre de super-utilisateurs",
+				data: usersStats && usersStats.countSuperUsers,
+				backgroundColor: "#4deb3e",
+			},
+			{
+				label: "Nombre d'utilisateurs normaux",
+				data: usersStats && usersStats.countUsers,
+				backgroundColor: "#90b9e7",
+			},
+		],
+	}
+
+	const config = {
+		type: "doughnut",
+		data: data,
+		options: {
+			responsive: true,
+			plugins: {
+				legend: {
+					position: "top",
+				},
+				title: {
+					display: true,
+					text: "Chart.js Doughnut Chart",
+				},
+			},
+		},
+	}
+
 	return (
 		<PageContainer withHeader={true}>
 			<Grid container direction="row" style={{ padding: "50px 0px", gap: 30 }}>
@@ -90,7 +130,7 @@ const DashboardPage = () => {
 									Utilisateurs
 								</Typography>
 							</Grid>
-							{JSON.stringify(usersStats)}
+							<Chart data={config} />
 						</Grid>
 					</Grid>
 				)}
