@@ -87,12 +87,7 @@ public class PostService {
         );
         postRepository.save(post);
 
-        File file = new File(resourcePath + post.getId() + "." + extension);
-        try (OutputStream os = new FileOutputStream(file)) {
-            os.write(createPostDto.getData().getBytes());
-        } catch (Exception e){
-            throw new FileCouldNotBeCreatedException();
-        }
+        createResource(resourcePath + post.getId() + "." + extension,createPostDto.getData());
 
         return post.getId();
     }
@@ -210,36 +205,24 @@ public class PostService {
         }
     }
 
-    public List<PostDto> getPostsFromOneUser(Long id , int pageNumber , int pageLimit , String visibilityType) {
+    public List<PostDto> getPostsFromOneUser(Long id, int pageNumber, int pageLimit, String visibilityType) {
         Optional<User> user = userRepository.findById(id);
 
         if(user.isEmpty())
             throw new UserNotFoundException();
-        Page<Post> page = null ;
 
-        System.out.println("Post service visibility type  ==  " + visibilityType);
-        switch (visibilityType) {
-            case "all" : page = postRepository.findPostsByUser_Id(user.get().getId()
-                    ,PageRequest.of(pageNumber,pageLimit , Sort.by("createdAt").descending())
-            ); break;
-            case "public" :
-                page = postRepository.findPostsByIsPublicTrueAndUser_Id(user.get().getId()
-                        ,PageRequest.of(pageNumber,pageLimit , Sort.by("createdAt").descending()) );
-                break;
-
-            case "private" : postRepository.findPostsByIsPublicFalseAndUser_Id(user.get().getId()
-                    ,PageRequest.of(pageNumber,pageLimit , Sort.by("createdAt").descending()) );
-
-            default:  page = postRepository.findPostsByUser_Id(user.get().getId()
-                    ,PageRequest.of(pageNumber,pageLimit , Sort.by("createdAt").descending())
-            ); break;
-
-
-        }
-
+        Page<Post> page = switch (visibilityType) {
+            case "all" -> postRepository.findPostsByUser_Id(user.get().getId(),
+                    PageRequest.of(pageNumber, pageLimit, Sort.by("createdAt").descending()));
+            case "public" -> postRepository.findPostsByIsPublicTrueAndUser_Id(user.get().getId(),
+                    PageRequest.of(pageNumber, pageLimit, Sort.by("createdAt").descending()));
+            case "private" -> postRepository.findPostsByIsPublicFalseAndUser_Id(user.get().getId(),
+                    PageRequest.of(pageNumber, pageLimit, Sort.by("createdAt").descending()));
+            default -> postRepository.findPostsByUser_Id(user.get().getId(),
+                    PageRequest.of(pageNumber, pageLimit, Sort.by("createdAt").descending()));
+        };
 
         return page.get().map(x -> modelMapper.map(x, PostDto.class)).toList();
-
     }
 
     public PostDto like(String postId, String email){

@@ -14,7 +14,7 @@ import java.sql.Date;
 @NoArgsConstructor
 @ToString
 public class CreatePostDto {
-    private Long userId ;
+    private Long userId;
     private MultipartFile data;
     private String title;
     private String description;

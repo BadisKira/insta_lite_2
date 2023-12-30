@@ -7,7 +7,9 @@ import fr.univrouen.instalite.dtos.user.UserDto;
 import fr.univrouen.instalite.dtos.user.PasswordResetDto;
 import fr.univrouen.instalite.entities.Role;
 import fr.univrouen.instalite.entities.User;
+import fr.univrouen.instalite.exceptions.CanNotCreateAdminUserException;
 import fr.univrouen.instalite.exceptions.PasswordDoesNotMatchException;
+import fr.univrouen.instalite.exceptions.RoleDoesNotExistInDbException;
 import fr.univrouen.instalite.exceptions.UserNotFoundException;
 import fr.univrouen.instalite.repositories.RoleRepository;
 import fr.univrouen.instalite.repositories.UserRepository;
@@ -81,15 +83,15 @@ public class UserService {
         user.setPassword(newEncodedPassword);
     }
 
-    public UserDto postOneUser(CreateUserDto newUser) throws Exception {
-        if (newUser.getRole().equals("ADMIN")) {
-            throw new Exception("Can't create user with admin role");
-        }
+    public UserDto postOneUser(CreateUserDto newUser){
+        //ToDo : review this
+        if (newUser.getRole().equals("ADMIN"))
+            throw new CanNotCreateAdminUserException();
 
         RoleEnum roleEnum = (newUser.getRole().equals("USER")) ? RoleEnum.USER : RoleEnum.SUPERUSER;
         Optional<Role> optionalRole = this.roleRepository.findByName(roleEnum);
 
-        if (optionalRole.isEmpty()) throw new Exception("Role doesn't exist");
+        if (optionalRole.isEmpty()) throw new RoleDoesNotExistInDbException();
 
         String hashedPassword = passwordEncoder.encode(newUser.getPassword());
 
@@ -97,21 +99,21 @@ public class UserService {
         user.setPassword(hashedPassword);
         user.setRole(optionalRole.get());
 
-        User createdUser = this.userRepository.save(user);
+        User createdUser = userRepository.save(user);
 
         return modelMapper.map(createdUser, UserDto.class);
     }
 
     @Transactional
-    public UserDto putOneUserById(Long userId, UserDto user) throws Exception {
+    public UserDto putOneUserById(Long userId, UserDto user) {
         Optional<User> optionalUser = userRepository.findById(userId);
 
         if(optionalUser.isEmpty())
             throw new UserNotFoundException();
 
-        if (user.getRole().equals("ADMIN")) {
-            throw new Exception("Can't create user with admin role");
-        }
+        //ToDo : review this
+        if (user.getRole().equals("ADMIN"))
+            throw new CanNotCreateAdminUserException();
 
         RoleEnum roleEnum = (user.getRole().equals("USER")) ? RoleEnum.USER : RoleEnum.SUPERUSER;
         Optional<Role> optionalRole = this.roleRepository.findByName(roleEnum);

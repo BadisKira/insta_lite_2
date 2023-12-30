@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -75,6 +76,9 @@ public class JWTAuthentificationFilter extends OncePerRequestFilter {
                 }
             }
             filterChain.doFilter(request,response) ;
+        }catch (ServletException e){
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            handlerExceptionResolver.resolveException(request, response, null, e);
         }catch (Exception e){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid token");
