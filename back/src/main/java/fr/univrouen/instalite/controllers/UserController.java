@@ -101,4 +101,16 @@ public class UserController {
         UserDashBoardDto userDashBoardDto =  userService.dashBoardUsersInfo();
         return ResponseEntity.ok(userDashBoardDto);
     }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDto> getOneUser(@PathVariable(value = "id") Long id) {
+        try {
+            UserDto user = userService.getOneUser(id);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

@@ -42,6 +42,15 @@ public class UserService {
         return users.stream().map(x -> modelMapper.map(x, UserDto.class)).toList();
     }
 
+    public UserDto getOneUser(Long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        if(optionalUser.isEmpty())
+            throw new UserNotFoundException();
+
+        return modelMapper.map(optionalUser.get(), UserDto.class);
+    }
+
     @Transactional
     public UserDto putUserInfos(String email, RegisterUserDto userDto){
         Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email);
