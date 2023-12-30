@@ -101,18 +101,12 @@ public class PostController {
     @GetMapping("/dashboard")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostDashboardDto> dashBoardPostsInfo() {
-        return  null ;
+        return ResponseEntity.ok(postService.postDashboard());
     }
 
     @GetMapping("/likes/dashboard")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<LikeDashboardDto> dashBoardLikesInfo() {
-        return  null ;
-    }
-
-    @GetMapping("/mostLiked")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PostDto> mostLikedPost() {
-        return  null ;
+        return ResponseEntity.ok(postService.likeDashboard());
     }
 }
