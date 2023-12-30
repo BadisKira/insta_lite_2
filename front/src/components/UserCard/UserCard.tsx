@@ -63,7 +63,7 @@ const UserCard = ({ user, handleDelete, handleUpdate }: IProps) => {
 					{user.role}
 				</Typography>
 				<Grid container>
-					<Button variant="outlined" onClick={() => navigate(`/users/${user.id}`)}>
+					<Button variant="outlined" onClick={() => navigate(`users/${user.id}`)}>
 						Voir portfolio
 					</Button>
 				</Grid>

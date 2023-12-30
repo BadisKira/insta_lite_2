@@ -10,7 +10,7 @@ const UserPortfolioPage = () => {
 
   return (
     <PageContainer withHeader={true}>
-      <Grid container style={{ padding: "50px 0px" }}>
+      <Grid container style={{ padding: "25px 0px"  }}>
         <Grid>User ID : {userId}</Grid>
 
         {userId && <CreatePost userId={parseInt(userId)} />}

@@ -91,7 +91,7 @@ const DashboardPage = () => {
 
 	return (
 		<PageContainer withHeader={true}>
-			<Grid container direction="row" style={{ padding: "50px 0px", gap: 30 }}>
+			<Grid container direction="row" style={{ padding: "25px 0px", gap: 30 }}>
 				<Typography variant="h4">Dashboard</Typography>
 				<Grid container item xs={12} justifyContent="center">
 					<Grid

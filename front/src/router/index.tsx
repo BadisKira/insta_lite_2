@@ -113,20 +113,12 @@ const routes: RouteObject[] = [
 export type HeaderRouteType = { path: string; elementName: string };
 export const headerRoutes: HeaderRouteType[] = [
   {
-    path: "/home",
-    elementName: "Anticonstitutionnellement",
+    path: "/",
+    elementName: "Acceuil",
   },
   {
-    path: "/home2",
-    elementName: "Hame65",
-  },
-  {
-    path: "/home3",
-    elementName: "Hame15",
-  },
-  {
-    path: "/home4",
-    elementName: "Hame2",
+    path: "/Artistes",
+    elementName: "Artistes",
   },
 ];
 
@@ -135,12 +127,17 @@ export const headerRoutesAuthenticatedUsers: HeaderRouteType[] = [
     path: "/profil",
     elementName: "Profile",
   },
+  
 ];
 
 export const headerRoutesAdmin: HeaderRouteType[] = [
   {
-    path: "/users",
+    path: "/admin",
     elementName: "Utilisateurs",
   },
+  {
+    path: "/admin/dashboard",
+    elementName:'Dashboard'
+  }
 ];
 export default routes;
