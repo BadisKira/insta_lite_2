@@ -19,3 +19,8 @@ body {
   background: rgb(112, 112, 112);
   border-radius: 7px;
 }
+
+a {
+  text-decoration: none;
+  color: white;
+}
