@@ -1,4 +1,3 @@
-import { FC } from "react"
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined"
 import { useAuthContext } from "../../hooks/useAuthContext.hook"
 import { headerRoutes, headerRoutesAdmin, headerRoutesAuthenticatedUsers } from "../../router"
@@ -12,18 +11,17 @@ import {
 	Typography,
 	Box,
 	Drawer,
-	List,
-	ListItem,
-	ListItemText,
 	useMediaQuery,
 	useTheme,
 	Button,
-	Stack,
 } from "@mui/material"
 import MenuIcon from "@mui/icons-material/Menu"
-interface IProps {}
 
-const HeaderContent = ({ isMobile }: { isMobile: boolean }) => {
+interface IProps {
+	isMobile: boolean
+}
+
+const HeaderContent = ({ isMobile }: IProps) => {
 	const { user, isAuthenticated } = useAuthContext()
 	const navigate = useNavigate()
 

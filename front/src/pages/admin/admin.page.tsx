@@ -25,19 +25,19 @@ const AdminPage = () => {
 
 	const [name, setName] = useState<string>("")
 
-	const debounceGetFilteredDeliveryMen = useMemo(
+	const debounceGetFilteredUsers = useMemo(
 		() =>
-			debounce((props: any) => {
-				setName(props)
-			}, 350),
+			debounce((value: string) => {
+				setName(value)
+			}, 2000),
 		[]
 	)
 
-	const getFilteredDeliveryMen = useCallback(
-		(props: any) => {
-			debounceGetFilteredDeliveryMen(props)
+	const getFilteredUsers = useCallback(
+		(value: string) => {
+			debounceGetFilteredUsers(value)
 		},
-		[debounceGetFilteredDeliveryMen]
+		[debounceGetFilteredUsers]
 	)
 
 	const instaliteApi = useAxios()
@@ -162,7 +162,7 @@ const AdminPage = () => {
 					/>
 				)}
 			</Suspense>
-			<Grid container style={{ padding: "50px 0px" }}>
+			<Grid container style={{ padding: "50px 0px", gap: 18 }}>
 				<Grid container justifyContent="space-between" alignItems="center" style={{ marginBottom: 20 }}>
 					<Typography variant="h5" fontWeight="bold" style={{ width: "fit-content" }}>
 						Gestion des utilisateurs
@@ -173,13 +173,14 @@ const AdminPage = () => {
 				</Grid>
 				<Grid>
 					<TextField
-						label="Recherche par firstName et userName"
-						placeholder="Recherche par firstName et userName"
+						label="Recherche par nom"
+						placeholder="Recherche par nom"
 						variant="outlined"
 						size="small"
 						value={name}
 						onChange={(e) => {
-							getFilteredDeliveryMen(e.target.value)
+							setName(e.target.value)
+							getFilteredUsers(e.target.value)
 						}}
 						style={{ margin: "10px 0px" }}
 					/>

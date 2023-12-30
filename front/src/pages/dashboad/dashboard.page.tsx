@@ -2,7 +2,6 @@ import { Grid, Typography } from "@mui/material"
 import PageContainer from "../../components/PageContainer/PageContainer"
 import { useQuery } from "@tanstack/react-query"
 import { ICommentsDashboard, ILikesDashboard, IPostsDashboard, IUsersDashboard } from "../../types/dashboard.type"
-// import { IPost } from "../../types/post.type"
 import useAxiosPrivate from "../../hooks/useAxios"
 import CommentOutlinedIcon from "@mui/icons-material/CommentOutlined"
 import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined"
@@ -12,9 +11,6 @@ const queryKeyDashboardPosts = "dashboard-posts"
 const queryKeyDashboardLikes = "dashboard-likes"
 const queryKeyDashboardComments = "dashboard-comments"
 const queryKeyDashboardUsers = "dashboard-users"
-// const queryKeyDashboardMostLikedPost = "dashboard-liked-post"
-
-import { Chart } from "chartjs"
 
 const DashboardPage = () => {
 	const instaliteApi = useAxiosPrivate()
@@ -51,14 +47,6 @@ const DashboardPage = () => {
 		},
 	})
 
-	// const { data: mostLikedPost, isLoading: isLoadingMostLikedPost } = useQuery({
-	// 	queryKey: [queryKeyDashboardMostLikedPost],
-	// 	queryFn: async () => {
-	// 	const { data } = await instaliteApi.get<IPost>("/posts/mostLiked")
-	// 	return data
-	// }
-	// })
-
 	const calculatePercentage = (value: number, total: number) => {
 		const percentage = ((value / total) * 100).toFixed(2)
 
@@ -69,44 +57,6 @@ const DashboardPage = () => {
 		return percentage
 	}
 
-	const data = {
-		labels: ["Administrateurs", "Super-Utilisateurs", "Utilisateurs normaux"],
-		datasets: [
-			{
-				label: "Nombre d'administrateurs",
-				data: usersStats && usersStats.countAdmins,
-				backgroundColor: "#ffa9a9",
-			},
-			{
-				label: "Nombre de super-utilisateurs",
-				data: usersStats && usersStats.countSuperUsers,
-				backgroundColor: "#4deb3e",
-			},
-			{
-				label: "Nombre d'utilisateurs normaux",
-				data: usersStats && usersStats.countUsers,
-				backgroundColor: "#90b9e7",
-			},
-		],
-	}
-
-	const config = {
-		type: "doughnut",
-		data: data,
-		options: {
-			responsive: true,
-			plugins: {
-				legend: {
-					position: "top",
-				},
-				title: {
-					display: true,
-					text: "Chart.js Doughnut Chart",
-				},
-			},
-		},
-	}
-
 	return (
 		<PageContainer withHeader={true}>
 			<Grid container direction="row" style={{ padding: "50px 0px", gap: 30 }}>
@@ -114,23 +64,73 @@ const DashboardPage = () => {
 					Dashboard
 				</Typography>
 				{!isLoadingUsers && usersStats && (
-					<Grid container item xs={12} justifyContent="center">
-						<Grid
-							container
-							direction="column"
-							style={{
-								borderRadius: 12,
-								padding: 16,
-								gap: 8,
-								boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
-							}}>
-							<Grid container justifyContent="flex-start" alignItems="center" style={{ gap: 8 }}>
-								<GroupOutlinedIcon style={{ fill: "#488fec" }} />
-								<Typography variant="h6" fontWeight="bold" color="#488fec">
-									Utilisateurs
+					<Grid
+						container
+						direction="column"
+						style={{
+							borderRadius: 12,
+							padding: 16,
+							gap: 8,
+							boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+						}}>
+						<Grid container justifyContent="flex-start" alignItems="center" style={{ gap: 8 }}>
+							<GroupOutlinedIcon style={{ fill: "#488fec" }} />
+							<Typography variant="h6" fontWeight="bold" color="#488fec">
+								Utilisateurs
+							</Typography>
+						</Grid>
+						<Grid container justifyContent="center" alignItems="center" style={{ gap: 8 }}>
+							<Grid
+								container
+								direction="column"
+								justifyContent="flex-start"
+								alignItems="center"
+								flex={1}
+								style={{
+									gap: 6,
+									borderRadius: 8,
+									boxShadow: "rgba(180, 184, 189, 0.2) 0px 8px 24px",
+									padding: "26px",
+								}}>
+								<Typography variant="h6" fontWeight="bold">
+									{usersStats.countAdmins}
 								</Typography>
+								<Typography style={{ textAlign: "center" }}>Administrateurs</Typography>
 							</Grid>
-							<Chart data={config} />
+							<Grid
+								container
+								direction="column"
+								justifyContent="flex-start"
+								alignItems="center"
+								flex={1}
+								style={{
+									gap: 6,
+									borderRadius: 8,
+									boxShadow: "rgba(180, 184, 189, 0.2) 0px 8px 24px",
+									padding: "26px",
+								}}>
+								<Typography variant="h6" fontWeight="bold">
+									{usersStats.countSuperUsers}
+								</Typography>
+								<Typography style={{ textAlign: "center" }}>Super-Utilisateurs</Typography>
+							</Grid>
+							<Grid
+								container
+								direction="column"
+								justifyContent="flex-start"
+								alignItems="center"
+								flex={1}
+								style={{
+									gap: 6,
+									borderRadius: 8,
+									boxShadow: "rgba(180, 184, 189, 0.2) 0px 8px 24px",
+									padding: "26px",
+								}}>
+								<Typography variant="h6" fontWeight="bold">
+									{usersStats.countUsers}
+								</Typography>
+								<Typography style={{ textAlign: "center" }}>Utilisateurs normaux</Typography>
+							</Grid>
 						</Grid>
 					</Grid>
 				)}
