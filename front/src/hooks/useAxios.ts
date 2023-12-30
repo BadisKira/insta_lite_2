@@ -1,16 +1,22 @@
 import axios from "axios";
 import { getItem } from "../utils/localStorage.util";
-import { useEffect, useLayoutEffect } from "react";
+import { useLayoutEffect } from "react";
 import toast from "react-hot-toast";
 
 
-const config = {
-  baseURL: "http://localhost:8080/api/",
-  timeout: 5000,
-};
+
 
 
 const useAxiosPrivate = () => {
+
+  const baseURL =
+    import.meta.env.VITE_REACT_APP_INSTALITE_API_BASE_URL ||
+    "http://localhost:8080/api/";
+  
+  const config = {
+    baseURL,
+    timeout: 5000,
+  };
     const instaliteApi = axios.create(config);
     const token = getItem("token");
   

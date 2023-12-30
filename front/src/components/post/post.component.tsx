@@ -10,9 +10,8 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { red } from "@mui/material/colors";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { Box, Collapse, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Collapse, Modal, useMediaQuery, useTheme } from "@mui/material";
 import NotesIcon from "@mui/icons-material/Notes";
-import ContentDialog from "./content.dialog.component";
 import CommentSection from "../comment/commentSection.component";
 import { useMutation } from "@tanstack/react-query";
 import { IUser } from "../../types/user.type";
@@ -30,7 +29,6 @@ const HEIGHT_CARD = HEIGHT_COMPONENT;
 const HEIGHT_COMMENT_WHEN_EXPAND = 400;
 
 const HEIGHT_COMPONENT_EXPAND = HEIGHT_CARD + HEIGHT_COMMENT_WHEN_EXPAND;
-
 
 const Post: React.FC<IPost> = ({
   title,
@@ -55,10 +53,8 @@ const Post: React.FC<IPost> = ({
 
   const theme = useTheme();
   const pageIsSmall = useMediaQuery(theme.breakpoints.down("md"));
-  const [openContentDialog, setOpenContentDialog] =
-    React.useState<boolean>(false);
-  
-  
+
+
   const instaliteApi = useAxiosPrivate();
 
   const likeMutation = useMutation({
@@ -167,29 +163,15 @@ const Post: React.FC<IPost> = ({
             background: "black",
             cursor: "pointer",
           }}
-          onClick={() => {
-            setOpenContentDialog(true);
-          }}
         >
-          {/* <img
-            src={`http://localhost:8080/api/resource/${id}`}
-            alt={title}
-            sttiyle={{ height: "100%" }}
-          /> */}
+         
           <ImageWithSize title={title} id={id} />
-          {/* <ContentDialog
-            alt={title}
-            contentType={"IMAGE"}
-            fullScreen={false}
-            openContentDialog={openContentDialog}
-            setOpenContentDialog={setOpenContentDialog}
-            srcContent={`http://localhost:8080/api/resource/${id}`}
-          /> */}
+         
         </CardMedia>
 
         <CardContent>
           <Typography variant="body2" color="text.secondary">
-            {description} {isPublic ? "public" : 'private'}
+            {description} {isPublic ? "public" : "private"}
           </Typography>
         </CardContent>
         <CardActions
@@ -287,38 +269,72 @@ const LikeButton = ({
   );
 };
 
-const ImageWithSize = ({ id, title }:{id:string,title:string}) => {
+const ImageWithSize = ({ id, title }: { id: string; title: string }) => {
   const imageUrl = `http://localhost:8080/api/resource/${id}`;
   const [imageSize, setImageSize] = React.useState<any>({
-    w:0 , h:0
+    w: 0,
+    h: 0,
   });
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const openModal = () => {
+    setModalOpen(true);
+  };
 
-    React.useLayoutEffect(() => {
-        const img = new Image();
+  const closeModal = () => {
+    setModalOpen(false);
+  };
 
-        img.onload = function() {
-            const imageWidth = img.width;
-            const imageHeight = img.height;
+  React.useLayoutEffect(() => {
+    const img = new Image();
 
-            setImageSize({ w: imageWidth, h: imageHeight });
-        };
+    img.onload = function () {
+      const imageWidth = img.width;
+      const imageHeight = img.height;
 
-        img.src = imageUrl;
+      setImageSize({ w: imageWidth, h: imageHeight });
+    };
 
-        return () => {
-        };
-    }, [imageUrl]);
+    img.src = imageUrl;
 
-    return (
-        <img
-            src={imageUrl}
-            alt={title}
+    return () => {};
+  }, [imageUrl]);
+
+  return (
+    <>
+      <img
+        src={imageUrl}
+        alt={title}
+        onClick={openModal}
         style={{
           height: imageSize.w <= imageSize.h ? "100%" : "auto",
           width: imageSize.w > imageSize.h ? "100%" : "auto",
-         }}
-            onLoad={() => console.log(`Largeur de l'image : ${imageSize.WIDTH_COMPONENT}px, Hauteur de l'image : ${imageSize.height}px`)}
+        }}
+        onLoad={() =>
+          console.log(
+            `Largeur de l'image : ${imageSize.WIDTH_COMPONENT}px, Hauteur de l'image : ${imageSize.height}px`
+          )
+        }
+      />
+      <Modal
+        open={modalOpen}
+        onClose={closeModal}
+        sx={{
+          maxWidth: "100%",
+          maxHeight: "100%",
+          display: "flex",
+          justifyContent: "center",
+          padding:"2.5%"
+        }}
+      >
+        <img
+          src={imageUrl}
+          alt={title}
+          style={{
+            height: imageSize.w <= imageSize.h ? "100%" : "auto",
+            width: imageSize.w > imageSize.h ? "100%" : "auto",
+          }}
         />
-    );
+      </Modal>
+    </>
+  );
 };
-
