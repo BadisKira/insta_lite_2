@@ -28,6 +28,8 @@ const ProfilPage = Loadable(lazy(() => import("../pages/profil/profil.page")));
 
 const AdminPage = Loadable(lazy(() => import("../pages/admin/admin.page")));
 
+const DashboardPage = Loadable(lazy(() => import("../pages/dashboad/dashboard.page")));
+
 const freeRoutes: RouteObject = {
   path: "/",
   children: [
@@ -66,7 +68,7 @@ const authenticatedRoutesMayebe: RouteObject = {
 };
 
 const adminRoutes: RouteObject = {
-  path: "/users",
+  path: "/admin",
   children: [
     {
       index: true,
@@ -77,12 +79,25 @@ const adminRoutes: RouteObject = {
       ),
     },
     {
-      path: ":userId",
+      path: 'dashboard',
       element: (
-        <ProtectedRoute allowedRoles={["ADMIN"]}>
-          <UserPortfolioPage />
+         <ProtectedRoute allowedRoles={["ADMIN"]}>
+          <DashboardPage />
         </ProtectedRoute>
-      ),
+      )
+    },
+    {
+      path: "users",
+      children: [
+        {
+          path: ":userId",
+          element: (
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <UserPortfolioPage />
+            </ProtectedRoute>
+          ),
+        },
+      ],
     },
   ],
 };

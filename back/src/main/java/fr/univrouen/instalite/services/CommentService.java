@@ -1,8 +1,11 @@
 package fr.univrouen.instalite.services;
 
+import fr.univrouen.instalite.dtos.RoleEnum;
 import fr.univrouen.instalite.dtos.comment.CommentCountDto;
+import fr.univrouen.instalite.dtos.comment.CommentDashboardDto;
 import fr.univrouen.instalite.dtos.comment.CommentDto;
 import fr.univrouen.instalite.dtos.comment.CreateCommentDto;
+import fr.univrouen.instalite.dtos.user.UserDashBoardDto;
 import fr.univrouen.instalite.exceptions.*;
 import fr.univrouen.instalite.entities.Comment;
 import fr.univrouen.instalite.entities.Post;
@@ -90,5 +93,19 @@ public class CommentService {
 
     public CommentCountDto getCount(String postId) {
         return new CommentCountDto(commentRepository.countCommentsByPost_Id(postId));
+    }
+
+    public CommentDashboardDto dashBoardCommentsInfo() {
+        //private Long mostCommentsPost ;
+        //private Long allComments ;
+        Long counts  = commentRepository.count();
+        Optional<Long> countsForMostCommentedPost = postRepository.maxCommentsForAnyPost();
+        Optional<Long> countsForAverageCommentsByPost = postRepository.averageCommentsForAnyPost() ;
+
+        CommentDashboardDto commentDashboardDto =  new CommentDashboardDto(countsForMostCommentedPost.get() , countsForAverageCommentsByPost.get() , counts) ;
+        System.out.println(commentDashboardDto.toString());
+
+        return commentDashboardDto;
+
     }
 }

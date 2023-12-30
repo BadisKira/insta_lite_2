@@ -1,9 +1,6 @@
 package fr.univrouen.instalite.controllers;
 
-import fr.univrouen.instalite.dtos.post.CreatePostDto;
-import fr.univrouen.instalite.dtos.post.PostCreatedDto;
-import fr.univrouen.instalite.dtos.post.PostDto;
-import fr.univrouen.instalite.dtos.post.UpdatePostDto;
+import fr.univrouen.instalite.dtos.post.*;
 import fr.univrouen.instalite.services.PostService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -100,4 +97,22 @@ public class PostController {
         return ResponseEntity.ok(postService.like(postId, authentication.getName()));
     }
 
+
+    @GetMapping("/dashboard")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PostDashboardDto> dashBoardPostsInfo() {
+        return  null ;
+    }
+
+    @GetMapping("/likes/dashboard")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<LikeDashboardDto> dashBoardLikesInfo() {
+        return  null ;
+    }
+
+    @GetMapping("/mostLiked")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PostDto> mostLikedPost() {
+        return  null ;
+    }
 }

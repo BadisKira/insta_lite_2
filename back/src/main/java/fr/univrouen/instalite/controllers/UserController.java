@@ -1,9 +1,6 @@
 package fr.univrouen.instalite.controllers;
 
-import fr.univrouen.instalite.dtos.user.CreateUserDto;
-import fr.univrouen.instalite.dtos.user.RegisterUserDto;
-import fr.univrouen.instalite.dtos.user.UserDto;
-import fr.univrouen.instalite.dtos.user.PasswordResetDto;
+import fr.univrouen.instalite.dtos.user.*;
 import fr.univrouen.instalite.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -91,5 +88,17 @@ public class UserController {
             e.printStackTrace();
             return new ResponseEntity<>("Password do not match", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDto>> searchByName(@RequestParam(defaultValue = "") String name ) {
+        return ResponseEntity.ok(userService.seachUserByName(name)) ;
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<UserDashBoardDto> userDashboardInfo() {
+        UserDashBoardDto userDashBoardDto =  userService.dashBoardUsersInfo();
+        System.out.println("dashboard "  + userDashBoardDto.toString());
+    return ResponseEntity.ok(userDashBoardDto);
     }
 }

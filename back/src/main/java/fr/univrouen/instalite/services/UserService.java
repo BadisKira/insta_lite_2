@@ -1,10 +1,7 @@
 package fr.univrouen.instalite.services;
 
 import fr.univrouen.instalite.dtos.RoleEnum;
-import fr.univrouen.instalite.dtos.user.CreateUserDto;
-import fr.univrouen.instalite.dtos.user.RegisterUserDto;
-import fr.univrouen.instalite.dtos.user.UserDto;
-import fr.univrouen.instalite.dtos.user.PasswordResetDto;
+import fr.univrouen.instalite.dtos.user.*;
 import fr.univrouen.instalite.entities.Role;
 import fr.univrouen.instalite.entities.User;
 import fr.univrouen.instalite.exceptions.PasswordDoesNotMatchException;
@@ -123,5 +120,27 @@ public class UserService {
         retreivedUser.setRole(optionalRole.orElseThrow());
 
         return modelMapper.map(retreivedUser, UserDto.class);
+    }
+
+
+    public List<UserDto> seachUserByName(String name) {
+        Optional<List<User>> users = userRepository.findUsersByUsernameContainingOrLastnameContaining(name) ;
+        return users.get().stream().map(x -> modelMapper.map(x, UserDto.class)).toList();
+    }
+
+
+    public UserDashBoardDto dashBoardUsersInfo() {
+        Optional<Long> countadmins = userRepository.countUsersByRoleIs(RoleEnum.ADMIN) ;
+        Optional<Long> countusers = userRepository.countUsersByRoleIs(RoleEnum.USER) ;
+        Optional<Long> countsuperUsers = userRepository.countUsersByRoleIs(RoleEnum.SUPERUSER) ;
+
+
+        UserDashBoardDto userDashBoardDto =  new UserDashBoardDto(
+                countadmins.get() , countusers.get() , countsuperUsers.get()
+            ) ;
+
+        System.out.println(userDashBoardDto.toString());
+
+        return  userDashBoardDto;
     }
 }
