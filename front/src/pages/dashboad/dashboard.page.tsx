@@ -1,4 +1,4 @@
-import { Button, Card, CardActions, CardContent, Grid, Typography, CircularProgress } from "@mui/material"
+import { Grid, Typography } from "@mui/material"
 import PageContainer from "../../components/PageContainer/PageContainer"
 import { useQuery } from "@tanstack/react-query"
 import { ICommentsDashboard, ILikesDashboard, IPostsDashboard, IUsersDashboard } from "../../types/dashboard.type"
@@ -16,10 +16,6 @@ const queryKeyDashboardUsers = "dashboard-users"
 
 const DashboardPage = () => {
 	const instaliteApi = useAxiosPrivate()
-
-	// const getDashBoardMostLikedPost = async () => {
-	// 	return await instaliteApi.get<IPost>("/posts/mostLiked")
-	// }
 
 	const { data: postsStats, isLoading: isLoadingPosts } = useQuery({
 		queryKey: [queryKeyDashboardPosts],
@@ -55,7 +51,10 @@ const DashboardPage = () => {
 
 	// const { data: mostLikedPost, isLoading: isLoadingMostLikedPost } = useQuery({
 	// 	queryKey: [queryKeyDashboardMostLikedPost],
-	// 	queryFn: getDashBoardMostLikedPost,
+	// 	queryFn: async () => {
+	// 	const { data } = await instaliteApi.get<IPost>("/posts/mostLiked")
+	// 	return data
+	// }
 	// })
 
 	const calculatePercentage = (value: number, total: number) => {
@@ -327,41 +326,3 @@ const DashboardPage = () => {
 }
 
 export default DashboardPage
-
-function CardInvertedColors() {
-	return (
-		<>
-			<Card variant="outlined" sx={{ bgcolor: "primary.main", color: "white" }}>
-				<CardContent
-					sx={{
-						display: "flex",
-						flexDirection: { xs: "column", md: "row" },
-						alignItems: "center",
-					}}>
-					<CircularProgress
-						size={60}
-						thickness={2}
-						variant="determinate"
-						value={20}
-						color="secondary"
-						sx={{ mr: { xs: 2, md: 0 } }}
-					/>
-					<div>
-						<Typography variant="body1">Gross profit</Typography>
-						<Typography variant="h4" sx={{ color: "white" }}>
-							$ 432.6M
-						</Typography>
-					</div>
-				</CardContent>
-				<CardActions>
-					<Button variant="outlined" size="small" sx={{ color: "white", border: "1px solid white", mr: 1 }}>
-						Add to Watchlist
-					</Button>
-					<Button variant="contained" size="small">
-						See breakdown
-					</Button>
-				</CardActions>
-			</Card>
-		</>
-	)
-}

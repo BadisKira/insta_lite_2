@@ -41,16 +41,12 @@ const authenticatedRoutesMayebe: RouteObject = {
 	path: "/",
 	children: [
 		{
-			path: "profil",
-			children: [
-				{
-					element: (
-						<ProtectedRoute allowedRoles={["ADMIN", "SUPERUSER", "USER"]}>
-							<ProfilPage />
-						</ProtectedRoute>
-					),
-				},
-			],
+			path: "profile",
+			element: (
+				<ProtectedRoute allowedRoles={["ADMIN", "SUPERUSER", "USER"]}>
+					<ProfilPage />
+				</ProtectedRoute>
+			),
 		},
 	],
 }
@@ -93,36 +89,33 @@ const adminRoutes: RouteObject = {
 const routes: RouteObject[] = [freeRoutes, authenticatedRoutesMayebe, adminRoutes]
 
 export type HeaderRouteType = { path: string; elementName: string }
+
 export const headerRoutes: HeaderRouteType[] = [
 	{
-		path: "/home",
-		elementName: "Anticonstitutionnellement",
+		path: "/",
+		elementName: "Acceuil",
 	},
 	{
-		path: "/home2",
-		elementName: "Hame65",
-	},
-	{
-		path: "/home3",
-		elementName: "Hame15",
-	},
-	{
-		path: "/home4",
-		elementName: "Hame2",
+		path: "/artists",
+		elementName: "Artistes",
 	},
 ]
 
 export const headerRoutesAuthenticatedUsers: HeaderRouteType[] = [
 	{
-		path: "/profil",
+		path: "/profile",
 		elementName: "Profile",
 	},
 ]
 
 export const headerRoutesAdmin: HeaderRouteType[] = [
 	{
-		path: "/users",
+		path: "/admin",
 		elementName: "Utilisateurs",
+	},
+	{
+		path: "/admin/dashboard",
+		elementName: "Dashboard",
 	},
 ]
 export default routes
