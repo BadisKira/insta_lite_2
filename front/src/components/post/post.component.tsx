@@ -171,12 +171,12 @@ const Post: React.FC<IPost> = ({
             setOpenContentDialog(true);
           }}
         >
-          <img
+          {/* <img
             src={`http://localhost:8080/api/resource/${id}`}
             alt={title}
-            style={{ height: "100%" }}
-          />
-
+            sttiyle={{ height: "100%" }}
+          /> */}
+          <ImageWithSize title={title} id={id} />
           {/* <ContentDialog
             alt={title}
             contentType={"IMAGE"}
@@ -286,3 +286,39 @@ const LikeButton = ({
     </>
   );
 };
+
+const ImageWithSize = ({ id, title }:{id:string,title:string}) => {
+  const imageUrl = `http://localhost:8080/api/resource/${id}`;
+  const [imageSize, setImageSize] = React.useState<any>({
+    w:0 , h:0
+  });
+
+    React.useLayoutEffect(() => {
+        const img = new Image();
+
+        img.onload = function() {
+            const imageWidth = img.width;
+            const imageHeight = img.height;
+
+            setImageSize({ w: imageWidth, h: imageHeight });
+        };
+
+        img.src = imageUrl;
+
+        return () => {
+        };
+    }, [imageUrl]);
+
+    return (
+        <img
+            src={imageUrl}
+            alt={title}
+        style={{
+          height: imageSize.w <= imageSize.h ? "100%" : "auto",
+          width: imageSize.w > imageSize.h ? "100%" : "auto",
+         }}
+            onLoad={() => console.log(`Largeur de l'image : ${imageSize.WIDTH_COMPONENT}px, Hauteur de l'image : ${imageSize.height}px`)}
+        />
+    );
+};
+
