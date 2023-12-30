@@ -130,17 +130,14 @@ public class UserService {
 
 
     public UserDashBoardDto dashBoardUsersInfo() {
-        Optional<Long> countadmins = userRepository.countUsersByRoleIs(RoleEnum.ADMIN) ;
-        Optional<Long> countusers = userRepository.countUsersByRoleIs(RoleEnum.USER) ;
-        Optional<Long> countsuperUsers = userRepository.countUsersByRoleIs(RoleEnum.SUPERUSER) ;
+        List<User> users = userRepository.findAll();
+        long adminCount = users.stream().filter(x -> x.getRole().getName() == RoleEnum.ADMIN).count();
+        long userCount = users.stream().filter(x -> x.getRole().getName() == RoleEnum.USER).count();
+        long superUserCount = users.stream().filter(x -> x.getRole().getName() == RoleEnum.SUPERUSER).count();
 
-
-        UserDashBoardDto userDashBoardDto =  new UserDashBoardDto(
-                countadmins.get() , countusers.get() , countsuperUsers.get()
-            ) ;
-
-        System.out.println(userDashBoardDto.toString());
-
-        return  userDashBoardDto;
+        return new UserDashBoardDto(
+                adminCount,
+                userCount,
+                superUserCount);
     }
 }

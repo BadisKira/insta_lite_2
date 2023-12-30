@@ -56,6 +56,7 @@ public class CommentController {
     }
 
     @GetMapping("/dashboard")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CommentDashboardDto> userDashboardInfo() {
         return ResponseEntity.ok(commentService.dashBoardCommentsInfo());
     }

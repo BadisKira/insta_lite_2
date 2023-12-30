@@ -96,16 +96,20 @@ public class CommentService {
     }
 
     public CommentDashboardDto dashBoardCommentsInfo() {
-        //private Long mostCommentsPost ;
-        //private Long allComments ;
-        Long counts  = commentRepository.count();
-        Optional<Long> countsForMostCommentedPost = postRepository.maxCommentsForAnyPost();
-        Optional<Long> countsForAverageCommentsByPost = postRepository.averageCommentsForAnyPost() ;
+        long commentCount  = commentRepository.count();
+        long postCount = postRepository.count();
 
-        CommentDashboardDto commentDashboardDto =  new CommentDashboardDto(countsForMostCommentedPost.get() , countsForAverageCommentsByPost.get() , counts) ;
-        System.out.println(commentDashboardDto.toString());
+        Optional<Integer> countsForMostCommentedPost =
+                postRepository.findAll().stream().map(
+                x -> x.getCommentList().size()).max(Integer::compare);
 
-        return commentDashboardDto;
+        long countsForAverageCommentsByPost = postCount > 0 ? commentCount / postCount : 0;
 
+        return new CommentDashboardDto(
+                countsForMostCommentedPost.isPresent() ?
+                        (long)countsForMostCommentedPost.get()
+                        : 0,
+                countsForAverageCommentsByPost,
+                commentCount);
     }
 }

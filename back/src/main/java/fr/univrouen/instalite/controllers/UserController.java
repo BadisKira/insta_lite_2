@@ -96,9 +96,9 @@ public class UserController {
     }
 
     @GetMapping("/dashboard")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDashBoardDto> userDashboardInfo() {
         UserDashBoardDto userDashBoardDto =  userService.dashBoardUsersInfo();
-        System.out.println("dashboard "  + userDashBoardDto.toString());
-    return ResponseEntity.ok(userDashBoardDto);
+        return ResponseEntity.ok(userDashBoardDto);
     }
 }
