@@ -69,8 +69,7 @@ const FeedPageSection: React.FC<IFeedSection> = ({
 
   useEffect(() => {
     if (visibilityTypePost)
-      refetch().then((res) => {
-      });
+      refetch().then();
   }, [visibilityTypePost]);
 
   return (
