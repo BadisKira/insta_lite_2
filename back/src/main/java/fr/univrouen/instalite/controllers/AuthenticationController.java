@@ -37,10 +37,4 @@ public class AuthenticationController {
         ResponseLogin responseLogin = new ResponseLogin(user, jwtToken);
         return new ResponseEntity<>(responseLogin, HttpStatus.OK);
     }
-
-    @PostMapping("/refresh-token")
-    public String refreshToken(HttpServletRequest request, HttpServletResponse response){
-        //authenticationService.refreshToken(request,response);
-        return "";
-    }
 }

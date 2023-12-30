@@ -9,6 +9,7 @@ import AddComment from "./addcomment.component";
 import CommentItem from "./commentItem.component";
 import Loader from "../Loader";
 import { useQuery } from "@tanstack/react-query";
+import { ProtectedComponent } from "../../router/ProtectedComponent";
 
 const CommentSection = ({
   postId,
@@ -39,7 +40,6 @@ const CommentSection = ({
   } = useQuery({
     queryKey: ["countComments", postId],
     queryFn: async () => {
-      console.log("count comments");
       const response = await instaliteApi.get(`comments/count/${postId}`);
       return response.data;
     },
@@ -64,7 +64,6 @@ const CommentSection = ({
   });
 
   useEffect(() => {
-    console.log(inView);
     const fetchInView = async () => {
       if (!isFetchingNextPage && inView) await fetchNextPage();
     };
@@ -140,12 +139,28 @@ const CommentSection = ({
             <Loader color="red" size={30} />
           </Box>
         ) : (
-            <>{hasNextPage ? <Button variant="text" size="small" ref={ref}>load more</Button> : <Typography fontSize={10} color={"darkgray"} textAlign={"center"}>aucun nouveau commentaire </Typography>}</>
+          <>
+            {hasNextPage ? (
+              <Button variant="text" size="small" ref={ref}>
+                load more
+              </Button>
+            ) : (
+              <Typography fontSize={10} color={"darkgray"} textAlign={"center"}>
+                aucun nouveau commentaire{" "}
+              </Typography>
+            )}
+          </>
         )}
       </Stack>
 
       <Box width={"100%"}>
-        <AddComment postId={postId} key={"ddver8465"} refetchCount={refetch} />
+        <ProtectedComponent allowedRoles={[]}>
+          <AddComment
+            postId={postId}
+            key={"ddver8465"}
+            refetchCount={refetch}
+          />
+        </ProtectedComponent>
       </Box>
     </Stack>
   );

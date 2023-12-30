@@ -25,18 +25,13 @@ const createPostFn = async (post: ICreatePost) => {
 
   if (post.data) postFormData.append("data", post.data);
   postFormData.append("postType", "IMAGE");
-  postFormData.append("userId", "1");
+  postFormData.append("userId", String(post.userId));
 
-  // const token ="12345789feztyfuhebhjav ce fervheh jueiz fveurihvjzbjdsvfv ";
-
-  console.log(post);
-  const response = await instaliteApi.postForm(`posts`, postFormData, {
-    headers: { "Content-Type": "Application/json" },
-  });
+  const response = await instaliteApi.postForm(`posts`, postFormData, {  });
   return await response.data;
 };
 
-const CreatePost = () => {
+const CreatePost = ({ userId }:{userId:number}) => {
   const [postInfo, setPostInfo] = useState<ICreatePost | undefined>(undefined);
   const queryPost = useQueryClient();
   const handleChange = (
@@ -57,24 +52,26 @@ const CreatePost = () => {
     onSuccess: () => {
       // faire un toast
       queryPost.invalidateQueries({
-        queryKey: ["feedposts"],
+        queryKey: ["userAllPosts"],
       });
       setPostInfo(EMPTYPOST);
     },
   });
 
   return (
-    <Paper elevation={10} sx={{ width: "100%", marginTop: 3, padding: 2 }}>
+    <Paper
+      elevation={2}
+      sx={{ width: "95%", padding: 2,  marginTop: 3 }}
+    >
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          console.log(postInfo);
-          if (postInfo) await createPostMutate({ ...postInfo, userId: 1 });
+          if (postInfo) await createPostMutate({ ...postInfo, userId });
         }}
       >
         <Grid container gap={1}>
           <Grid item container spacing={1}>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -87,7 +84,7 @@ const CreatePost = () => {
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={6} sm={4}>
               <input
                 type="file"
                 accept={"image/*"}
@@ -102,6 +99,24 @@ const CreatePost = () => {
                 }}
               />
             </Grid>
+
+            <Grid
+              item
+              xs={6}
+              sm={4}
+              sx={{
+                display: "flex",
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <CustomCheckBoxChip
+                value={postInfo?.isPublic}
+                setValue={setPostInfo}
+                name="isPublic"
+              />
+            </Grid>
           </Grid>
 
           <Grid item xs={12}>
@@ -113,23 +128,8 @@ const CreatePost = () => {
               name="description"
               multiline
               fullWidth
-              rows={2}
+              rows={1}
               onChange={handleChange}
-            />
-          </Grid>
-          <Grid
-            item
-            sx={{
-              display: "flex",
-              width: "100%",
-              justifyContent: "start",
-              alignItems: "center",
-            }}
-          >
-            <CustomCheckBoxChip
-              value={postInfo?.isPublic}
-              setValue={setPostInfo}
-              name="isPublic"
             />
           </Grid>
         </Grid>

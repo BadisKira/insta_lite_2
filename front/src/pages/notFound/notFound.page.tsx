@@ -6,7 +6,7 @@ const NotFoundPage = () => {
     const navigate = useNavigate()
 
     return (
-        <PageContainer>
+        <PageContainer withHeader={false}>
             <Typography variant="h3" color="hotpink">Page introuvable</Typography>
             <Button
                 onClick={() => navigate(-1)}>

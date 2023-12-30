@@ -24,8 +24,8 @@ public class Comment  {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name = "post_id", nullable = false )
     private Post post;
     @Column(name = "content" , nullable = false , length = 255)
     private String content;

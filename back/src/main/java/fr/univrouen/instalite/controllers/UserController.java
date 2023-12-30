@@ -1,13 +1,13 @@
 package fr.univrouen.instalite.controllers;
 
+import fr.univrouen.instalite.dtos.user.CreateUserDto;
 import fr.univrouen.instalite.dtos.user.RegisterUserDto;
 import fr.univrouen.instalite.dtos.user.UserDto;
-import fr.univrouen.instalite.entities.PasswordReset;
+import fr.univrouen.instalite.dtos.user.PasswordResetDto;
 import fr.univrouen.instalite.services.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -22,9 +22,23 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> deleteOneUser(@PathVariable("id") Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteOneUser(@PathVariable("id") Long id) {
         userService.deleteOneUser(id);
-        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDto> postOneUser(@RequestBody CreateUserDto user) {
+            UserDto createdUser = userService.postOneUser(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDto> putOneUser(@PathVariable("id") Long id, @RequestBody UserDto user) {
+        UserDto updatedUser = userService.putOneUserById(id, user);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @GetMapping( "/all")
@@ -44,7 +58,7 @@ public class UserController {
     @PutMapping("/reset-password")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> putUserPassword(Authentication authentication,
-                                                  @RequestBody PasswordReset passwordReset){
+                                                  @RequestBody PasswordResetDto passwordReset){
         userService.putUserPassword(authentication.getName(), passwordReset);
         return ResponseEntity.ok("Password reset successfully");
     }

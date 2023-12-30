@@ -1,6 +1,6 @@
 export type IComment = {
     id: string,
-    firstName: string,
+    userFirstname: string,
     userLastname: string,
     postId: string,
     createdAt: string,

@@ -1,24 +1,26 @@
 package fr.univrouen.instalite.services;
 
-import fr.univrouen.instalite.dtos.RoleEnum;
+import fr.univrouen.instalite.dtos.SupportedExtensions;
 import fr.univrouen.instalite.exceptions.*;
 import fr.univrouen.instalite.dtos.post.CreatePostDto;
 import fr.univrouen.instalite.dtos.post.PostDto;
 import fr.univrouen.instalite.dtos.post.UpdatePostDto;
 import fr.univrouen.instalite.entities.*;
+import fr.univrouen.instalite.repositories.CommentRepository;
 import fr.univrouen.instalite.repositories.PostRepository;
 import fr.univrouen.instalite.repositories.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -30,19 +32,22 @@ import java.util.Optional;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+
+    private final CommentRepository commentRepository;
     private final ModelMapper modelMapper;
 
 
     @Value("${RESOURCE_PATH}")
     private String resourcePath;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository, ModelMapper modelMapper) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository, ModelMapper modelMapper) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
         this.modelMapper = modelMapper;
     }
 
-    public String create(String email, CreatePostDto createPostDto){
+    public String create(CreatePostDto createPostDto){
         if (!new File(resourcePath).exists()) {
             try {
                 Files.createDirectories(Paths.get(resourcePath));
@@ -56,9 +61,17 @@ public class PostService {
         String type = contentType[0];
         String extension = contentType[1];
 
-        //ToDo : block zip
+        boolean isSupported = false;
+        for (SupportedExtensions s : SupportedExtensions.values()){
+            if(s.getExtension().equalsIgnoreCase(extension)){
+                isSupported = true;
+                break;
+            }
+        }
+        if(!isSupported)
+            throw new UnsupportedFileTypeException();
 
-        Optional<User> user = userRepository.findByEmailIgnoreCase(email);
+        Optional<User> user = userRepository.findById(createPostDto.getUserId());
 
         if(user.isEmpty())
             throw new UserNotFoundException();
@@ -66,7 +79,7 @@ public class PostService {
         Post post = new Post(null, createPostDto.getTitle(),
                 createPostDto.getDescription(),
                 extension, type
-                ,createPostDto.isPublic()
+                ,createPostDto.getIsPublic()
                 ,Date.valueOf(LocalDate.now())
                 ,user.get(),
                 new ArrayList<Comment>(),
@@ -74,12 +87,7 @@ public class PostService {
         );
         postRepository.save(post);
 
-        File file = new File(resourcePath + post.getId() + "." + extension);
-        try (OutputStream os = new FileOutputStream(file)) {
-            os.write(createPostDto.getData().getBytes());
-        } catch (Exception e){
-            throw new FileCouldNotBeCreatedException();
-        }
+        createResource(resourcePath + post.getId() + "." + extension,createPostDto.getData());
 
         return post.getId();
     }
@@ -96,25 +104,15 @@ public class PostService {
         return modelMapper.map(post,PostDto.class);
     }
 
-    public List<PostDto> getPostsFromOneUser(Long idUser){
-        Optional<User> user = userRepository.findById(idUser);
 
-        if(user.isEmpty())
-            throw new EntityNotFoundException("User not found");
+        
 
-        return user.get().getPosts().stream().map(x ->modelMapper.map(x,PostDto.class)).toList();
-    }
 
-    public List<PostDto> getPublicPosts() throws IOException {
-        List<Post> postsPublic = postRepository.findByIsPublicTrue();
-        return postsPublic.stream().map(x -> modelMapper.map(x,PostDto.class)).toList();
-    }
 
-    public List<PostDto> getPosts(boolean isPublic){
-        List<Post> posts = isPublic ? postRepository.findByIsPublicTrue() :
-                                    postRepository.findByIsPublicFalse();
-
-        return posts.stream().map(x -> modelMapper.map(x,PostDto.class)).toList();
+    public List<PostDto> getPosts(boolean isPublic , int pageNumber, int pageLimit){
+        Page<Post> page = isPublic ? postRepository.findPostsByIsPublicTrue(PageRequest.of(pageNumber,pageLimit))
+                : postRepository.findPostsByIsPublicFalse(PageRequest.of(pageNumber,pageLimit)) ;
+        return page.get().map(x -> modelMapper.map(x, PostDto.class)).toList();
      }
 
     public List<PostDto> getAllPosts(int pageNumber, int pageLimit){
@@ -122,7 +120,7 @@ public class PostService {
         return page.get().map(x -> modelMapper.map(x, PostDto.class)).toList();
     }
 
-    public PostDto update(Authentication authentication, String id, UpdatePostDto updatePostDto) {
+    public PostDto update(Authentication authentication, String id, UpdatePostDto updatePostDto){
         Optional<User> user = userRepository.findByEmailIgnoreCase(authentication.getName());
         if(user.isEmpty())
             throw new UserNotFoundException();
@@ -131,16 +129,20 @@ public class PostService {
         if(post.isEmpty())
             throw new PostNotFoundException();
 
-        if(!user.get().getPosts().contains(post.get()) && user.get().getRole().getName() != RoleEnum.ADMIN)
-            throw new UserNotAllowToModifyException();
-
         if(updatePostDto.getData() != null){
             String[] contentType = updatePostDto.getData().getContentType().split("/");
             String type = contentType[0];
             String extension = contentType[1];
             String oldFileName = post.get().getId() + "." + post.get().getExtension();
 
-            if(extension.equals("zip"))
+            boolean isSupported = false;
+            for (SupportedExtensions s : SupportedExtensions.values()){
+                if(s.getExtension().equalsIgnoreCase(extension)){
+                    isSupported = true;
+                    break;
+                }
+            }
+            if(!isSupported)
                 throw new UnsupportedFileTypeException();
 
             deleteResource(resourcePath + oldFileName);
@@ -168,19 +170,29 @@ public class PostService {
         return modelMapper.map(post.get(),PostDto.class);
     }
 
-    public void deletePost(String idPost) {
+
+
+    public void deletePost(String idPost){
         Optional<Post> postToDelete = postRepository.findById(idPost);
         if (postToDelete.isEmpty())
             throw new PostNotFoundException();
 
+        postToDelete.get().getLikedUsers().clear();
+        postRepository.save(postToDelete.get());
+
         postRepository.delete(postToDelete.get());
+
         String filePath = resourcePath + idPost + "." + postToDelete.get().getExtension();
         deleteResource(filePath);
     }
 
     private void deleteResource(String filePath){
-        File file = new File(filePath);
-        file.delete();
+        Path path = Paths.get(filePath);
+        try{
+            Files.deleteIfExists(path);
+        }catch (IOException e){
+            throw new ResourceCouldNotBeenDeletedException();
+        }
     }
 
     private void createResource(String filePath, MultipartFile data) {
@@ -193,14 +205,24 @@ public class PostService {
         }
     }
 
-    public List<PostDto> getUsersPosts(String email) {
-        Optional<User> user = userRepository.findByEmailIgnoreCase(email);
+    public List<PostDto> getPostsFromOneUser(Long id, int pageNumber, int pageLimit, String visibilityType) {
+        Optional<User> user = userRepository.findById(id);
 
         if(user.isEmpty())
             throw new UserNotFoundException();
 
-        return user.get().getPosts().stream().map(x ->
-                modelMapper.map(x,PostDto.class)).toList();
+        Page<Post> page = switch (visibilityType) {
+            case "all" -> postRepository.findPostsByUser_Id(user.get().getId(),
+                    PageRequest.of(pageNumber, pageLimit, Sort.by("createdAt").descending()));
+            case "public" -> postRepository.findPostsByIsPublicTrueAndUser_Id(user.get().getId(),
+                    PageRequest.of(pageNumber, pageLimit, Sort.by("createdAt").descending()));
+            case "private" -> postRepository.findPostsByIsPublicFalseAndUser_Id(user.get().getId(),
+                    PageRequest.of(pageNumber, pageLimit, Sort.by("createdAt").descending()));
+            default -> postRepository.findPostsByUser_Id(user.get().getId(),
+                    PageRequest.of(pageNumber, pageLimit, Sort.by("createdAt").descending()));
+        };
+
+        return page.get().map(x -> modelMapper.map(x, PostDto.class)).toList();
     }
 
     public PostDto like(String postId, String email){
