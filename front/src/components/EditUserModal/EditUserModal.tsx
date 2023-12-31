@@ -143,6 +143,9 @@ const EditUserModal: FC<IProps> = ({ isOpen, setIsOpen, user, handleUpdate, isLo
 						<MenuItem key="SUPERUSER" value="SUPERUSER">
 							SUPERUSER
 						</MenuItem>
+						<MenuItem key="ADMIN" value="ADMIN">
+							ADMIN
+						</MenuItem>
 					</Select>
 				</FormControl>
 				{isLoading ? (

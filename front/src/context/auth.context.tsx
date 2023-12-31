@@ -54,6 +54,7 @@ const AuthProvider = ({ children }: IProps) => {
 		setIsLoading(true)
 
 		try {
+			instaliteApi.defaults.headers.common.Authorization = null
 			const { data } = await instaliteApi.post("/login", loginData)
 			setUser(data.user as IUser)
 			setToken(data.token)
@@ -62,13 +63,13 @@ const AuthProvider = ({ children }: IProps) => {
 			setItem("token", data.token)
 			navigate("/")
 			toast.success("Connexion réussi !")
-        } catch (error: unknown) {
-            toast.error("Une erreur est survenu lors de la connexion !")
-            
-            removeItem("user")
-            removeItem("token")
-            setIsAuthenticated(false)
-        }
+		} catch (error: unknown) {
+			toast.error("Une erreur est survenu lors de la connexion !")
+
+			removeItem("user")
+			removeItem("token")
+			setIsAuthenticated(false)
+		}
 
 		setIsLoading(false)
 	}

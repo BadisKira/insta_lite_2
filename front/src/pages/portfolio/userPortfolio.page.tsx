@@ -8,6 +8,7 @@ import FaceRetouchingNaturalIcon from "@mui/icons-material/FaceRetouchingNatural
 import { useQuery } from "@tanstack/react-query"
 import useAxios from "../../hooks/useAxios"
 import { IUser } from "../../types/user.type"
+import { ProtectedComponent } from "../../router/ProtectedComponent"
 
 const UserPortfolioPage = () => {
 	const { userId } = useParams()
@@ -40,7 +41,9 @@ const UserPortfolioPage = () => {
 				</Grid>
 			</Grid>
 
-			{userId && <CreatePost userId={parseInt(userId)} />}
+			<ProtectedComponent allowedRoles={["ADMIN"]}>
+				<>{userId && <CreatePost userId={parseInt(userId)} />}</>
+			</ProtectedComponent>
 			{userId && <UserPortfolioSectionPage userId={parseInt(userId)} />}
 		</PageContainer>
 	)

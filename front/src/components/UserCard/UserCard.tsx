@@ -5,14 +5,16 @@ import React from "react"
 import MoreVertIcon from "@mui/icons-material/MoreVert"
 import BasicMenu from "../BasicMenu/BasicMenu"
 import { useNavigate } from "react-router-dom"
+import { ProtectedComponent } from "../../router/ProtectedComponent"
 
 interface IProps {
 	user: IUser
-	handleDelete: () => void
-	handleUpdate: () => void
+	redirectionUrl: string
+	handleDelete?: () => void
+	handleUpdate?: () => void
 }
 
-const UserCard = ({ user, handleDelete, handleUpdate }: IProps) => {
+const UserCard = ({ user, redirectionUrl, handleDelete, handleUpdate }: IProps) => {
 	const navigate = useNavigate()
 
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
@@ -24,7 +26,11 @@ const UserCard = ({ user, handleDelete, handleUpdate }: IProps) => {
 			Supprimer: handleDelete,
 		}
 
-		operationDict[element]()
+		const operation = operationDict[element]
+
+		if (operation) {
+			operation()
+		}
 	}
 
 	return (
@@ -45,25 +51,29 @@ const UserCard = ({ user, handleDelete, handleUpdate }: IProps) => {
 						</Typography>
 						<Typography style={{ opacity: 0.7, width: "fit-content" }}>{user.email}</Typography>
 					</Grid>
-					<Grid>
-						<IconButton onClick={(e: React.MouseEvent<HTMLButtonElement>) => setAnchorEl(e.currentTarget)}>
-							<MoreVertIcon />
-						</IconButton>
+					<ProtectedComponent allowedRoles={["ADMIN"]}>
+						<Grid>
+							<IconButton onClick={(e: React.MouseEvent<HTMLButtonElement>) => setAnchorEl(e.currentTarget)}>
+								<MoreVertIcon />
+							</IconButton>
 
-						<BasicMenu
-							anchorEl={anchorEl}
-							menuElements={["Modifier", "Supprimer"]}
-							open={open}
-							handleMenuElementClick={handleMenuElementClick}
-							handleClose={() => setAnchorEl(null)}
-						/>
-					</Grid>
+							<BasicMenu
+								anchorEl={anchorEl}
+								menuElements={["Modifier", "Supprimer"]}
+								open={open}
+								handleMenuElementClick={handleMenuElementClick}
+								handleClose={() => setAnchorEl(null)}
+							/>
+						</Grid>
+					</ProtectedComponent>
 				</Grid>
-				<Typography variant="body2" style={{ padding: "4px 8px", backgroundColor: "#d4d4d4", borderRadius: 8 }}>
-					{user.role}
-				</Typography>
+				<ProtectedComponent allowedRoles={["ADMIN"]}>
+					<Typography variant="body2" style={{ padding: "4px 8px", backgroundColor: "#88a5f3", borderRadius: 8 }}>
+						{user.role}
+					</Typography>
+				</ProtectedComponent>
 				<Grid container>
-					<Button variant="outlined" onClick={() => navigate(`users/${user.id}`)}>
+					<Button variant="outlined" onClick={() => navigate(`/${redirectionUrl}/${user.id}`)}>
 						Voir portfolio
 					</Button>
 				</Grid>

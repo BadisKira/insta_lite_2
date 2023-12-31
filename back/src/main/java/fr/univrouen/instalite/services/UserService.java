@@ -113,11 +113,7 @@ public class UserService {
         if(optionalUser.isEmpty())
             throw new UserNotFoundException();
 
-        //ToDo : review this
-        if (user.getRole().equals("ADMIN"))
-            throw new CanNotCreateAdminUserException();
-
-        RoleEnum roleEnum = (user.getRole().equals("USER")) ? RoleEnum.USER : RoleEnum.SUPERUSER;
+        RoleEnum roleEnum = (user.getRole().equals("USER")) ? RoleEnum.USER : (user.getRole().equals("ADMIN")) ? RoleEnum.ADMIN : RoleEnum.SUPERUSER;
         Optional<Role> optionalRole = this.roleRepository.findByName(roleEnum);
 
         User retreivedUser = optionalUser.get();

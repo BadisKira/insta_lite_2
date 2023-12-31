@@ -13,7 +13,7 @@ import CreateUserModal from "../../components/CreateUserModal/CreateUserModal"
 import { debounce } from "lodash"
 import useAxios from "../../hooks/useAxios"
 
-const AdminPage = () => {
+const UsersPage = () => {
 	const { token } = useAuthContext()
 
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -191,6 +191,7 @@ const AdminPage = () => {
 							<UserCard
 								key={user.id}
 								user={user}
+								redirectionUrl="admin/users"
 								handleDelete={() => handleOpenDeleteModal(user.id)}
 								handleUpdate={() => handleOpenEditModal(user)}
 							/>
@@ -201,4 +202,4 @@ const AdminPage = () => {
 	)
 }
 
-export default AdminPage
+export default UsersPage

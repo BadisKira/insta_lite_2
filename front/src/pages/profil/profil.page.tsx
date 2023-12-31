@@ -11,7 +11,7 @@ import { useAuthContext } from "../../hooks/useAuthContext.hook"
 import { useEffect } from "react"
 
 const ProfilPage = () => {
-	const { user, putUserInfos, putUserPassword } = useAuthContext()
+	const { user, putUserInfos, putUserPassword, logOut } = useAuthContext()
 
 	const {
 		firstname,
@@ -92,8 +92,13 @@ const ProfilPage = () => {
 			return
 		}
 
+		const isLogout = email !== (user && user?.email)
+
 		try {
 			putUserInfos({ firstname, lastname, email, password: confirmPassword })
+			if (isLogout) {
+				logOut()
+			}
 		} catch (error) {
 			console.error(error)
 		}

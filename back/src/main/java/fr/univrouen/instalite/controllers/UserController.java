@@ -19,9 +19,14 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteOneUser(@PathVariable("id") Long id) {
-        userService.deleteOneUser(id);
+    public ResponseEntity<String> deleteOneUser(@PathVariable("id") Long id) {
+        try {
+            userService.deleteOneUser(id);
+            return new ResponseEntity<>("Supprimé avec succès", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Erreur", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping

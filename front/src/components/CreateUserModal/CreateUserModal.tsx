@@ -176,6 +176,9 @@ const CreateUserModal = ({ isOpen, setIsOpen, handleCreate, isLoading }: IProps)
 						<MenuItem key="SUPERUSER" value="SUPERUSER">
 							SUPERUSER
 						</MenuItem>
+						<MenuItem key="ADMIN" value="ADMIN">
+							ADMIN
+						</MenuItem>
 					</Select>
 				</FormControl>
 				{isLoading ? (

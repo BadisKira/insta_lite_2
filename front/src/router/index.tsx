@@ -16,8 +16,9 @@ const ErrorPage = Loadable(lazy(() => import("../pages/notFound/notFound.page"))
 const UserPortfolioPage = Loadable(lazy(() => import("../pages/portfolio/userPortfolio.page")))
 const FeedPage = Loadable(lazy(() => import("../pages/feed/Feed.page")))
 const ProfilPage = Loadable(lazy(() => import("../pages/profil/profil.page")))
-const AdminPage = Loadable(lazy(() => import("../pages/admin/admin.page")))
+const UsersPage = Loadable(lazy(() => import("../pages/users/users.page")))
 const DashboardPage = Loadable(lazy(() => import("../pages/dashboad/dashboard.page")))
+const ArtistsPage = Loadable(lazy(() => import("../pages/artists/artists.page")))
 
 const freeRoutes: RouteObject = {
 	path: "/",
@@ -48,6 +49,22 @@ const authenticatedRoutesMayebe: RouteObject = {
 				</ProtectedRoute>
 			),
 		},
+		{
+			path: "artists",
+			element: (
+				<ProtectedRoute allowedRoles={["USER", "SUPERUSER"]}>
+					<ArtistsPage />
+				</ProtectedRoute>
+			),
+		},
+		{
+			path: "artists/:userId",
+			element: (
+				<ProtectedRoute allowedRoles={["USER", "SUPERUSER"]}>
+					<UserPortfolioPage />
+				</ProtectedRoute>
+			),
+		},
 	],
 }
 
@@ -58,7 +75,7 @@ const adminRoutes: RouteObject = {
 			index: true,
 			element: (
 				<ProtectedRoute allowedRoles={["ADMIN"]}>
-					<AdminPage />
+					<UsersPage />
 				</ProtectedRoute>
 			),
 		},

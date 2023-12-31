@@ -34,13 +34,13 @@ public class User implements UserDetails {
     private Role role;
 
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Post> posts = new ArrayList<Post>();
 
-    @ManyToMany(mappedBy = "likedUsers")
+    @ManyToMany(mappedBy = "likedUsers", cascade = CascadeType.ALL)
     private List<Post> likedPosts = new ArrayList<>();
 
     /**
