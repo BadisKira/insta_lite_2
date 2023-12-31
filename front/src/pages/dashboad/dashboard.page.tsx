@@ -435,6 +435,10 @@ const DonutChartExample = ({ data }: { data: IUsersDashboard }) => {
     ],
   };
 
-  return <Doughnut data={d}  />;
+	return (
+    <div style={{maxHeight:"300px"}}>
+      <Doughnut data={d} />
+    </div>
+  );
 };
 export default DashboardPage;
