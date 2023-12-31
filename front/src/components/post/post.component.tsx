@@ -18,6 +18,7 @@ import { IUser } from "../../types/user.type"
 import PostUpdateComponent from "./post.update.component"
 import useAxiosPrivate from "../../hooks/useAxios"
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined"
+import { ProtectedComponent } from "../../router/ProtectedComponent"
 
 const WIDTH_COMPONENT = 500
 const WIDTH_EXPAND_COMMENT = 850
@@ -140,26 +141,28 @@ const Post: React.FC<IPost> = ({
 							<IconButton onClick={handleDownloadImage}>
 								<FileDownloadOutlinedIcon />
 							</IconButton>
-							<PostUpdateComponent
-								anchorEl={anchorEl}
-								handleClick={handleClick}
-								handleClose={handleClose}
-								open={open}
-								// page={page ? page : 0}
-								// indexInPage={indexInPage ? indexInPage : 0}
-								post={{
-									title,
-									description,
-									id,
-									userFirstname,
-									createdAt,
-									likedUserIds,
-									isPublic,
-									userId,
-									userLastname,
-									commentsNumber,
-								}}
-							/>
+							<ProtectedComponent allowedRoles={["ADMIN"]}>
+								<PostUpdateComponent
+									anchorEl={anchorEl}
+									handleClick={handleClick}
+									handleClose={handleClose}
+									open={open}
+									// page={page ? page : 0}
+									// indexInPage={indexInPage ? indexInPage : 0}
+									post={{
+										title,
+										description,
+										id,
+										userFirstname,
+										createdAt,
+										likedUserIds,
+										isPublic,
+										userId,
+										userLastname,
+										commentsNumber,
+									}}
+								/>
+							</ProtectedComponent>
 						</Grid>
 					}
 					title={title}
@@ -261,7 +264,7 @@ const LikeButton = ({ likes, likeMutation }: { likes: number[]; likeMutation: an
 
 const ImageWithSize = ({ id, title }: { id: string; title: string }) => {
 	const imageUrl = `http://localhost:8080/api/resource/${id}`
-	const [imageSize, setImageSize] = React.useState<any>({
+	const [imageSize, setImageSize] = React.useState<{ w: number; h: number }>({
 		w: 0,
 		h: 0,
 	})
@@ -299,9 +302,6 @@ const ImageWithSize = ({ id, title }: { id: string; title: string }) => {
 					height: imageSize.w <= imageSize.h ? "100%" : "auto",
 					width: imageSize.w > imageSize.h ? "100%" : "auto",
 				}}
-				onLoad={() =>
-					console.log(`Largeur de l'image : ${imageSize.WIDTH_COMPONENT}px, Hauteur de l'image : ${imageSize.height}px`)
-				}
 			/>
 			<Modal
 				open={modalOpen}
