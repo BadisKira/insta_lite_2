@@ -23,7 +23,12 @@ const UserPortfolioSectionPage = ({ userId }: { userId: number }) => {
 	}
 
 	return (
-		<Grid container>
+		<Grid
+			container
+			direction="column"
+			justifyContent="center"
+			alignItems="center"
+			style={{ padding: "50px 0px", gap: 30 }}>
 			<ProtectedComponent allowedRoles={["ADMIN", "SUPERUSER"]}>
 				<SelectVisibilityPostType
 					visibilityTypePost={visibilityTypePost}

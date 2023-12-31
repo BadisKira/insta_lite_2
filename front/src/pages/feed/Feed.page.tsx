@@ -8,6 +8,7 @@ import { IPost } from "../../types/post.type"
 import { useAuthContext } from "../../hooks/useAuthContext.hook"
 import useAxiosPrivate from "../../hooks/useAxios"
 import { ProtectedComponent } from "../../router/ProtectedComponent"
+import { Grid } from "@mui/material"
 
 /***
  *
@@ -28,18 +29,25 @@ const FeedPage = () => {
 
 	return (
 		<PageContainer withHeader={true}>
-			<ProtectedComponent allowedRoles={["ADMIN", "SUPERUSER"]}>
-				<SelectVisibilityPostType
+			<Grid
+				container
+				direction="column"
+				justifyContent="center"
+				alignItems="center"
+				style={{ padding: "50px 0px", gap: 30 }}>
+				<ProtectedComponent allowedRoles={["ADMIN", "SUPERUSER"]}>
+					<SelectVisibilityPostType
+						visibilityTypePost={visibilityTypePost}
+						setVisibilityTypePost={setVisibilityTypePost}
+					/>
+				</ProtectedComponent>
+				<FeedPageSection
+					getFn={getPostsFn}
+					queryKey="feedposts"
 					visibilityTypePost={visibilityTypePost}
 					setVisibilityTypePost={setVisibilityTypePost}
 				/>
-			</ProtectedComponent>
-			<FeedPageSection
-				getFn={getPostsFn}
-				queryKey="feedposts"
-				visibilityTypePost={visibilityTypePost}
-				setVisibilityTypePost={setVisibilityTypePost}
-			/>
+			</Grid>
 		</PageContainer>
 	)
 }

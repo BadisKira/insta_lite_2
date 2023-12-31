@@ -113,11 +113,11 @@ export function SelectVisibilityPostType({
 	return (
 		<Box
 			sx={{
-				width: "100%",
+				width: 500,
 				display: "flex",
 				justifyContent: "start",
 			}}>
-			<FormControl sx={{ m: 1, minWidth: 200 }} size="small">
+			<FormControl sx={{ minWidth: 500 }}>
 				<InputLabel>Choisissez le type post </InputLabel>
 				<Select value={visibilityTypePost} label="Age" onChange={handleChange}>
 					<MenuItem value={"public"}>Publique</MenuItem>
