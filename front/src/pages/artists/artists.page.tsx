@@ -1,16 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import PageContainer from "../../components/PageContainer/PageContainer"
 import { Grid, TextField, Typography } from "@mui/material"
 import { debounce } from "lodash"
-import useAxios from "../../hooks/useAxios"
 import { useQuery } from "@tanstack/react-query"
 import { IUser } from "../../types/user.type"
-import { useAuthContext } from "../../hooks/useAuthContext.hook"
 import UserCard from "../../components/UserCard/UserCard"
-
+import useAxios from "../../hooks/useAxios";
 const ArtistsPage = () => {
-	const { token } = useAuthContext()
-	const instaliteApi = useAxios()
+	
+	const instaliteApi = useAxios();
 
 	const [name, setName] = useState<string>("")
 
@@ -32,7 +30,6 @@ const ArtistsPage = () => {
 	const { data: users, refetch } = useQuery({
 		queryKey: ["getAllNoneAdminUsers"],
 		queryFn: async () => {
-			instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
 			const { data } = await instaliteApi.get<IUser[]>(`users/search?name=${name}`)
 			return data
 		},
@@ -44,7 +41,7 @@ const ArtistsPage = () => {
 
 	return (
 		<PageContainer withHeader={true}>
-			<Grid container style={{ padding: "50px 0px", gap: 18 }}>
+			<Grid container style={{ padding: "25px 0px", gap: 2 }}>
 				<Grid container justifyContent="space-between" alignItems="center" style={{ marginBottom: 20 }}>
 					<Typography variant="h5" fontWeight="bold" style={{ width: "fit-content" }}>
 						Artists

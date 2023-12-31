@@ -12,55 +12,37 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useMutation } from "@tanstack/react-query";
 import { IPost, IUpdatePost } from "../../types/post.type";
 import toast from "react-hot-toast";
-import { useState } from "react";
+import {  useLayoutEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { queryClient } from "../../main";
 import useAxiosPrivate from "../../hooks/useAxios";
+
+import { useLocation } from "react-router-dom";
+
+
 type IProps = {
   open: boolean;
   handleClose: () => void;
   anchorEl: any;
   handleClick: (event: React.MouseEvent<HTMLElement>) => void;
   post: IPost;
-  // indexInPage: number;
-  // page: number;
+
 };
 
 interface IPagesArray {
   pageParams: number[];
   pages: Array<[IPost[], any]>;
 }
-/***
- * export interface IPost {
-  id: string;
-  title: string;
-  description: string;
-  userId: number;
-  userFirstname: string;
-  userLastname: string;
-  public: boolean;
-  createdAt: string;
-  commentsNumber: number;
-  likedUserIds: number[];
-}
- * 
- */
-/**1- Rendre un post public ou non  */
-/**Il suffirait juste d'envoyer une requette de modificationn et de changer uniquement sa visibilité ? */
-/**2- Lancer un update ou non : est ce que je dois faire un modal qui vas modifier le post actuellement
- * selectionné pour la modification  ensuite enviyer une requetteback end et une fois que le retour est de 20
- * je modifie directement le cache surt le cote front end et hop la on y voit que du feux
- * ???
- */
-/**3- Je sais pas pour l'instant  */
+
 
 export interface ITogglePost {
   postId: string;
   isPublic: boolean;
+  queryKey: string;
 }
 
-const ToggleVisibility = ({ postId, isPublic }: ITogglePost) => {
+const ToggleVisibility = ({ postId, isPublic , queryKey }: ITogglePost) => {
   const instaliteApi = useAxiosPrivate();
   // create mutation
   const { mutateAsync, isPending } = useMutation({
@@ -79,7 +61,7 @@ const ToggleVisibility = ({ postId, isPublic }: ITogglePost) => {
       // the i'll delete it from here
       const visiblityRecherche = localStorage.getItem("visibilitypost");
       const oldPagesArray = queryClient.getQueryData([
-        "feedposts",
+        queryKey,
       ]) as IPagesArray;
       const newPagesArray =
         oldPagesArray?.pages.map((page: IPost[]) =>
@@ -94,7 +76,7 @@ const ToggleVisibility = ({ postId, isPublic }: ITogglePost) => {
           }).map(p => { if (p.id === postId) return { ...p, isPublic: !isPublic, public: !isPublic }; else return p; })
         ) ?? [];
 
-      queryClient.setQueryData(["feedposts"], (data: any) => ({
+      queryClient.setQueryData([queryKey], (data: any) => ({
         pages: newPagesArray,
         pageParams: data.pageParams,
       }));
@@ -118,9 +100,11 @@ const ToggleVisibility = ({ postId, isPublic }: ITogglePost) => {
 
 const DeletePost = ({
   postId,
+  queryKey,
 }: //handleClose,
 {
-  postId: string;
+    postId: string;
+    queryKey: string;
   handleClose: () => void;
 }) => {
   const [isToDelete, setIsToDelete] = useState<boolean>(false);
@@ -132,15 +116,13 @@ const DeletePost = ({
       return response;
     },
     onSuccess: () => {
-      const oldPagesArray = queryClient.getQueryData([
-        "feedposts",
-      ]) as IPagesArray;
+      const oldPagesArray = queryClient.getQueryData([queryKey]) as IPagesArray;
       const newPagesArray =
         oldPagesArray?.pages.map((page) =>
           page.filter((val) => val.id !== postId)
         ) ?? [];
 
-      queryClient.setQueryData(["feedposts"], (data: any) => ({
+      queryClient.setQueryData([queryKey], (data: any) => ({
         pages: newPagesArray,
         pageParams: data.pageParams,
       }));
@@ -194,11 +176,18 @@ const PostUpdateComponent = ({
   open,
   handleClose,
   anchorEl,
-  // indexInPage,
-  // page,
   handleClick,
 }: IProps) => {
-
+  //  
+  const location = useLocation();
+  const [queryKey,setQueryKey] = useState<string>(""); 
+  console.log("Location page" , location);
+  useLayoutEffect(() => {
+    if (location.pathname === "/")
+      setQueryKey("feedposts");
+    else 
+      setQueryKey("userAllPosts");
+  }, [location]);
   return (
     <>
       <IconButton
@@ -225,18 +214,27 @@ const PostUpdateComponent = ({
         }}
       >
         <MenuItem onClick={handleClose}>
-          <ToggleVisibility postId={post.id} isPublic={post.isPublic} />{" "}
+          <ToggleVisibility
+            postId={post.id}
+            isPublic={post.isPublic}
+            queryKey={queryKey}
+          />{" "}
         </MenuItem>
         <MenuItem onClick={() => {}}>
           <UpdatePost
             post={post}
             onClose={handleClose}
+            queryKey={queryKey}
             // indexInPage={indexInPage}
             // page={page}
           />
         </MenuItem>
         <MenuItem>
-          <DeletePost handleClose={handleClose} postId={post.id} />
+          <DeletePost
+            handleClose={handleClose}
+            postId={post.id}
+            queryKey={queryKey}
+          />
         </MenuItem>
       </Menu>
     </>
@@ -250,9 +248,10 @@ interface IPostUpdateProps {
   indexInPage?: number;
   page?: number;
   onClose: () => void;
+  queryKey: string;
 }
 
-const UpdatePost: React.FC<IPostUpdateProps> = ({ post, onClose }) => {
+const UpdatePost: React.FC<IPostUpdateProps> = ({ post, onClose  , queryKey}) => {
   const instaliteApi = useAxiosPrivate();
 
   const [updatedPost, setUpdatedPost] = useState<IUpdatePost>({
@@ -297,7 +296,7 @@ const UpdatePost: React.FC<IPostUpdateProps> = ({ post, onClose }) => {
     },
     onSuccess: (response) => {
       const oldPagesArray = queryClient.getQueryData([
-        "feedposts",
+        queryKey,
       ]) as IPagesArray;
 
       const newPagesArray =
@@ -311,7 +310,7 @@ const UpdatePost: React.FC<IPostUpdateProps> = ({ post, onClose }) => {
           })
         ) ?? [];
 
-      queryClient.setQueryData(["feedposts"], (data: any) => ({
+      queryClient.setQueryData([queryKey], (data: any) => ({
         pages: newPagesArray,
         pageParams: data.pageParams,
       }));

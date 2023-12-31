@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useLayoutEffect, useState } from "react"
 import PageContainer from "../../components/PageContainer/PageContainer"
 import FeedPageSection, {
 	IVisibilityPosteType,
@@ -22,6 +22,12 @@ const FeedPage = () => {
 	const [visibilityTypePost, setVisibilityTypePost] = useState<IVisibilityPosteType>(
 		v && user && user.role !== "USER" ? (v as IVisibilityPosteType) : "public"
 	)
+
+	useLayoutEffect(() => {
+		setVisibilityTypePost(
+      v && user && user.role !== "USER" ? (v as IVisibilityPosteType) : "public"
+    );
+	 }, [user]);
 	const getPostsFn = async (page: number) => {
 		const response = await instaliteApi.get<IPost[]>(`posts/${visibilityTypePost}?pageNumber=${page - 1}&pageLimit=2`)
 		return response.data
@@ -34,7 +40,7 @@ const FeedPage = () => {
 				direction="column"
 				justifyContent="center"
 				alignItems="center"
-				style={{ padding: "50px 0px", gap: 30 }}>
+				style={{ padding: "25px 0px", gap: 30 }}>
 				<ProtectedComponent allowedRoles={["ADMIN", "SUPERUSER"]}>
 					<SelectVisibilityPostType
 						visibilityTypePost={visibilityTypePost}

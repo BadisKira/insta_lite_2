@@ -1,6 +1,6 @@
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined"
 import { useAuthContext } from "../../hooks/useAuthContext.hook"
-import { headerRoutes, headerRoutesAdmin, headerRoutesAuthenticatedUsers } from "../../router"
+import { headerInprotectedRoutes, headerRoutesAdmin, headerRoutesAuthenticatedUsers } from "../../router"
 import { Link, useNavigate } from "react-router-dom"
 import React, { useState } from "react"
 import {
@@ -26,83 +26,106 @@ const HeaderContent = ({ isMobile }: IProps) => {
 	const navigate = useNavigate()
 
 	return (
-		<>
-			{headerRoutes.length > 0 &&
-				headerRoutes.map((h) => (
-					<Link
-						to={h.path}
-						style={{
-							margin: isMobile ? "10px 0px" : "0px",
-						}}
-						key={h.path}>
-						<Typography style={{ opacity: "0.7" }}>{h.elementName}</Typography>
-					</Link>
-				))}
-			{user?.role === "ADMIN" && (
-				<>
-					{headerRoutesAdmin.length > 0 &&
-						headerRoutesAdmin.map((h) => (
-							<Link to={h.path} style={{ margin: isMobile ? "10px 0px" : "0px" }} key={h.path}>
-								<Typography style={{ opacity: "0.7" }}>{h.elementName}</Typography>
-							</Link>
-						))}
-				</>
-			)}
+    <>
+      {headerInprotectedRoutes.length > 0 &&
+        headerInprotectedRoutes.map((h) => {
+          if (h.path === "/artists" && user && user.role === "ADMIN")
+            return <Link to=""></Link>;
+          else
+            return (
+              <Link
+                to={h.path}
+                style={{
+                  margin: isMobile ? "10px 0px" : "0px",
+                }}
+                key={h.path}
+              >
+                <Typography style={{ opacity: "0.7" }}>
+                  {h.elementName}
+                </Typography>
+              </Link>
+            );
+            
+        })}
 
-			{user && isAuthenticated ? (
-				<Grid
-					flex={1}
-					container
-					justifyContent="flex-end"
-					sx={{
-						margin: isMobile ? "50px 0px" : "0px",
-					}}>
-					<>
-						{headerRoutesAuthenticatedUsers.map((h) => (
-							<Link
-								to={h.path}
-								style={{
-									textDecoration: "none",
-									color: "white",
-									width: "100%",
-								}}
-								key={h.path}>
-								<Grid
-									container
-									display={"flex"}
-									width={"100%"}
-									justifyContent="center"
-									alignItems="center"
-									flexDirection={"column"}
-									style={{ rowGap: 4 }}>
-									<AccountCircleOutlinedIcon style={{ width: 30, height: 30 }} />
-									<Typography>
-										{user?.firstname} {user?.lastname}
-									</Typography>
-								</Grid>
-							</Link>
-						))}
-					</>
-				</Grid>
-			) : (
-				<Button
-					sx={{
-						background: "white",
-						color: "black",
-						width: 200,
-						"&:hover": {
-							color: "white",
-						},
-						boxShadow:
-							" rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;",
-					}}
-					onClick={() => navigate("/auth")}>
-					{" "}
-					Login{" "}
-				</Button>
-			)}
-		</>
-	)
+      
+      {user?.role === "ADMIN" && (
+        <>
+          {headerRoutesAdmin.length > 0 &&
+            headerRoutesAdmin.map((h) => (
+              <Link
+                to={h.path}
+                style={{ margin: isMobile ? "10px 0px" : "0px" }}
+                key={h.path}
+              >
+                <Typography style={{ opacity: "0.7" }}>
+                  {h.elementName}
+                </Typography>
+              </Link>
+            ))}
+        </>
+      )}
+
+      {user && isAuthenticated ? (
+        <Grid
+          flex={1}
+          container
+          justifyContent="flex-end"
+          sx={{
+            margin: isMobile ? "50px 0px" : "0px",
+          }}
+        >
+          <>
+            {headerRoutesAuthenticatedUsers.map((h) => (
+              <Link
+                to={h.path}
+                style={{
+                  textDecoration: "none",
+                  color: "white",
+                  width: "100%",
+                }}
+                key={h.path}
+              >
+                <Grid
+                  container
+                  display={"flex"}
+                  width={"100%"}
+                  justifyContent="center"
+                  alignItems="center"
+                  flexDirection={"column"}
+                  style={{ rowGap: 4 }}
+                >
+                  <AccountCircleOutlinedIcon
+                    style={{ width: 30, height: 30 }}
+                  />
+                  <Typography>
+                    {user?.firstname} {user?.lastname}
+                  </Typography>
+                </Grid>
+              </Link>
+            ))}
+          </>
+        </Grid>
+      ) : (
+        <Button
+          sx={{
+            background: "white",
+            color: "black",
+            width: 200,
+            "&:hover": {
+              color: "white",
+            },
+            boxShadow:
+              " rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;",
+          }}
+          onClick={() => navigate("/auth")}
+        >
+          {" "}
+          Login{" "}
+        </Button>
+      )}
+    </>
+  );
 }
 // export default AppHeader;
 

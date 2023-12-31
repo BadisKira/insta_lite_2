@@ -15,18 +15,19 @@ const UserPortfolioPage = () => {
 
 	const instaliteApi = useAxios()
 
-	const { data: user } = useQuery({
+	const { data: user  } = useQuery({
 		queryKey: ["getOneUser"],
 		queryFn: async () => {
 			const { data } = await instaliteApi.get<IUser>(`users/${userId}`)
 			return data
 		},
+		staleTime:0,
 	})
 
 	return (
 		<PageContainer withHeader={true}>
 			<Grid container style={{ padding: "25px 0px" }}>
-				<Grid container justifyContent="flex-start" alignItems="center" style={{ gap: 20 }}>
+				<Grid container justifyContent="flex-start" alignItems="center" style={{ gap: 2 }}>
 					{user && (
 						<>
 							<FaceRetouchingNaturalIcon style={{ fill: "#5570e7", width: 40, height: 40 }} />

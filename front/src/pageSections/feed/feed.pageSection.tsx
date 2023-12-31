@@ -3,7 +3,7 @@ import Post from "../../components/post/post.component"
 import { IPost } from "../../types/post.type"
 import PostSkeleton from "../../components/post/post.skeleton"
 import { useInView } from "react-intersection-observer"
-import { useEffect } from "react"
+import { useEffect, useLayoutEffect } from "react"
 import { usePaginatedQuery } from "../../hooks/usePaginatedQuery"
 import { SelectChangeEvent, Box, FormControl, InputLabel, Select, MenuItem } from "@mui/material"
 
@@ -110,6 +110,10 @@ export function SelectVisibilityPostType({
 		setVisibilityTypePost(event.target.value as IVisibilityPosteType)
 		localStorage.setItem("visibilitypost", event.target.value)
 	}
+
+	useLayoutEffect(() => {
+			
+	}, []);
 	return (
 		<Box
 			sx={{

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Grid } from "@mui/material"
+import { Button, Grid } from "@mui/material"
 import { useNavigate } from "react-router-dom"
 import validation from "../../utils/validation.util"
 import { IDisplayedError } from "../../types/validation.type"
@@ -156,43 +156,67 @@ const AuthPage = () => {
 	const changePageSection = () => setIsOnLoginSection(!isOnLoginSection)
 
 	return (
-		<PageContainer withHeader={false}>
-			<Grid flex={1} container>
-				<Grid flex={1} container justifyContent="center" alignItems="center" style={{ height: "100vh" }}>
-					<AuthFormPageSection
-						firstname={firstname}
-						setFirstname={setFirstname}
-						errorFirstname={errorFirstname}
-						lastname={lastname}
-						setLastname={setLastname}
-						errorLastname={errorLastname}
-						registerEmail={registerEmail}
-						setRegisterEmail={setRegisterEmail}
-						errorRegisterEmail={errorRegisterEmail}
-						registerPassword={registerPassword}
-						setRegisterPassword={setRegisterPassword}
-						errorRegisterPassword={errorRegisterPassword}
-						confirmPassword={confirmPassword}
-						setConfirmPassword={setConfirmPassword}
-						errorConfirmPassword={errorConfirmPassword}
-						email={email}
-						setEmail={setEmail}
-						errorEmail={errorEmail}
-						password={password}
-						setPassword={setPassword}
-						errorPassword={errorPassword}
-						handleRegister={handleRegister}
-						handleLogin={handleLogin}
-						changePageSection={changePageSection}
-						isOnLoginSection={isOnLoginSection}
-					/>
-				</Grid>
-				<Grid flex={1} container justifyContent="center" alignItems="center" style={{ height: "100vh" }}>
-					<PortfolioPageSection />
-				</Grid>
-			</Grid>
-		</PageContainer>
-	)
+    <PageContainer withHeader={false}>
+      <Grid flex={1} container>
+        <Grid
+          flex={1}
+          container
+          justifyContent="center"
+          alignItems="center"
+          style={{ height: "100vh" }}
+          position={"relative"}
+        >
+          <AuthFormPageSection
+            firstname={firstname}
+            setFirstname={setFirstname}
+            errorFirstname={errorFirstname}
+            lastname={lastname}
+            setLastname={setLastname}
+            errorLastname={errorLastname}
+            registerEmail={registerEmail}
+            setRegisterEmail={setRegisterEmail}
+            errorRegisterEmail={errorRegisterEmail}
+            registerPassword={registerPassword}
+            setRegisterPassword={setRegisterPassword}
+            errorRegisterPassword={errorRegisterPassword}
+            confirmPassword={confirmPassword}
+            setConfirmPassword={setConfirmPassword}
+            errorConfirmPassword={errorConfirmPassword}
+            email={email}
+            setEmail={setEmail}
+            errorEmail={errorEmail}
+            password={password}
+            setPassword={setPassword}
+            errorPassword={errorPassword}
+            handleRegister={handleRegister}
+            handleLogin={handleLogin}
+            changePageSection={changePageSection}
+            isOnLoginSection={isOnLoginSection}
+          />
+        </Grid>
+        <Grid
+          flex={1}
+          container
+          justifyContent="center"
+          alignItems="center"
+          sx={{ height: "100vh" }}
+        >
+          <Button
+            sx={{
+              position: "absolute",
+              top: 10,
+              left: 10,
+            }}
+            variant="contained"
+            onClick={() => navigate("/")}
+          >
+            Page d'acceuil
+          </Button>
+          <PortfolioPageSection />
+        </Grid>
+      </Grid>
+    </PageContainer>
+  );
 }
 
 export default AuthPage

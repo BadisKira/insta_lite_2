@@ -63,8 +63,12 @@ const AuthProvider = ({ children }: IProps) => {
 			setItem("token", data.token)
 			navigate("/")
 			toast.success("Connexion réussi !")
-		} catch (error: unknown) {
-			toast.error("Une erreur est survenu lors de la connexion !")
+		} catch (error: any) {
+
+			if(error.response.data.status ===403)
+				toast.error("Vos identifiants sont incorrectes")
+			else 
+				toast.error("Erreur Serveur");
 
 			removeItem("user")
 			removeItem("token")
