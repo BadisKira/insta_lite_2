@@ -262,8 +262,10 @@ const LikeButton = ({ likes, likeMutation }: { likes: number[]; likeMutation: an
 	)
 }
 
+const url = import.meta.env.VITE_REACT_APP_INSTALITE_API_BASE_URL;
+
 const ImageWithSize = ({ id, title }: { id: string; title: string }) => {
-	const imageUrl = `http://localhost:8080/api/resource/${id}`
+	const imageUrl = `${url}resource/${id}`
 	const [imageSize, setImageSize] = React.useState<{ w: number; h: number }>({
 		w: 0,
 		h: 0,

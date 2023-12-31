@@ -1,18 +1,11 @@
 import axios from "axios"
-import { getItem } from "../localStorage.util"
-
-const token = getItem("token")
 
 const config = {
-    baseURL: "http://localhost:8080/api/",
+    baseURL:  import.meta.env.VITE_REACT_APP_INSTALITE_API_BASE_URL,
     timeout: 5000,
 }
 
 const instaliteApi = axios.create(config);
 
-
-if (token !== undefined) {
-    instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
-}
 
 export default instaliteApi
