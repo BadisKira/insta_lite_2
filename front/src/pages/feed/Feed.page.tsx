@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from "react"
+import { useLayoutEffect, useState } from "react"
 import PageContainer from "../../components/PageContainer/PageContainer"
 import FeedPageSection, {
 	IVisibilityPosteType,
@@ -24,10 +24,9 @@ const FeedPage = () => {
 	)
 
 	useLayoutEffect(() => {
-		setVisibilityTypePost(
-      v && user && user.role !== "USER" ? (v as IVisibilityPosteType) : "public"
-    );
-	 }, [user]);
+		setVisibilityTypePost(v && user && user.role !== "USER" ? (v as IVisibilityPosteType) : "public")
+	}, [user])
+
 	const getPostsFn = async (page: number) => {
 		const response = await instaliteApi.get<IPost[]>(`posts/${visibilityTypePost}?pageNumber=${page - 1}&pageLimit=2`)
 		return response.data

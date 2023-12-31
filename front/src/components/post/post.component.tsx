@@ -183,7 +183,7 @@ const Post: React.FC<IPost> = ({
 
 				<CardContent>
 					<Typography variant="body2" color="text.secondary">
-						{description} {isPublic ? "public" : "private"}
+						{description}
 					</Typography>
 				</CardContent>
 				<CardActions

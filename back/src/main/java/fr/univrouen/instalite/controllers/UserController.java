@@ -78,14 +78,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDto> getOneUser(@PathVariable(value = "id") Long id) {
-        try {
-            UserDto user = userService.getOneUser(id);
-            return ResponseEntity.ok(user);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        UserDto user = userService.getOneUser(id);
+        return ResponseEntity.ok(user);
     }
 }
