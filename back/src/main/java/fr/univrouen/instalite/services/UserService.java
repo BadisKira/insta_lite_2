@@ -1,10 +1,7 @@
 package fr.univrouen.instalite.services;
 
 import fr.univrouen.instalite.dtos.RoleEnum;
-import fr.univrouen.instalite.dtos.user.CreateUserDto;
-import fr.univrouen.instalite.dtos.user.RegisterUserDto;
-import fr.univrouen.instalite.dtos.user.UserDto;
-import fr.univrouen.instalite.dtos.user.PasswordResetDto;
+import fr.univrouen.instalite.dtos.user.*;
 import fr.univrouen.instalite.entities.Role;
 import fr.univrouen.instalite.entities.User;
 import fr.univrouen.instalite.exceptions.CanNotCreateAdminUserException;
@@ -45,6 +42,15 @@ public class UserService {
     public List<UserDto> getAllNoneAdminUsers() {
         List<User> users = userRepository.getAllNoneAdminUsers();
         return users.stream().map(x -> modelMapper.map(x, UserDto.class)).toList();
+    }
+
+    public UserDto getOneUser(Long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        if(optionalUser.isEmpty())
+            throw new UserNotFoundException();
+
+        return modelMapper.map(optionalUser.get(), UserDto.class);
     }
 
     @Transactional
@@ -125,5 +131,24 @@ public class UserService {
         retreivedUser.setRole(optionalRole.orElseThrow());
 
         return modelMapper.map(retreivedUser, UserDto.class);
+    }
+
+
+    public List<UserDto> seachUserByName(String name) {
+        Optional<List<User>> users = userRepository.findUsersByUsernameContainingOrLastnameContaining(name) ;
+        return users.get().stream().map(x -> modelMapper.map(x, UserDto.class)).toList();
+    }
+
+
+    public UserDashBoardDto dashBoardUsersInfo() {
+        List<User> users = userRepository.findAll();
+        long adminCount = users.stream().filter(x -> x.getRole().getName() == RoleEnum.ADMIN).count();
+        long userCount = users.stream().filter(x -> x.getRole().getName() == RoleEnum.USER).count();
+        long superUserCount = users.stream().filter(x -> x.getRole().getName() == RoleEnum.SUPERUSER).count();
+
+        return new UserDashBoardDto(
+                adminCount,
+                userCount,
+                superUserCount);
     }
 }

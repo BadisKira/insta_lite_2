@@ -1,9 +1,6 @@
 package fr.univrouen.instalite.controllers;
 
-import fr.univrouen.instalite.dtos.user.CreateUserDto;
-import fr.univrouen.instalite.dtos.user.RegisterUserDto;
-import fr.univrouen.instalite.dtos.user.UserDto;
-import fr.univrouen.instalite.dtos.user.PasswordResetDto;
+import fr.univrouen.instalite.dtos.user.*;
 import fr.univrouen.instalite.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -61,5 +58,29 @@ public class UserController {
                                                   @RequestBody PasswordResetDto passwordReset){
         userService.putUserPassword(authentication.getName(), passwordReset);
         return ResponseEntity.ok("Password reset successfully");
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDto>> searchByName(@RequestParam(defaultValue = "") String name ) {
+        return ResponseEntity.ok(userService.seachUserByName(name)) ;
+    }
+
+    @GetMapping("/dashboard")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDashBoardDto> userDashboardInfo() {
+        UserDashBoardDto userDashBoardDto =  userService.dashBoardUsersInfo();
+        return ResponseEntity.ok(userDashBoardDto);
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDto> getOneUser(@PathVariable(value = "id") Long id) {
+        try {
+            UserDto user = userService.getOneUser(id);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

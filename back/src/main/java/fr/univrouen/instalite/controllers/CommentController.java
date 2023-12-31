@@ -1,8 +1,10 @@
 package fr.univrouen.instalite.controllers;
 
 import fr.univrouen.instalite.dtos.comment.CommentCountDto;
+import fr.univrouen.instalite.dtos.comment.CommentDashboardDto;
 import fr.univrouen.instalite.dtos.comment.CommentDto;
 import fr.univrouen.instalite.dtos.comment.CreateCommentDto;
+import fr.univrouen.instalite.dtos.user.UserDashBoardDto;
 import fr.univrouen.instalite.services.CommentService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -51,6 +53,12 @@ public class CommentController {
     @GetMapping("/count/{postId}")
      public ResponseEntity<CommentCountDto> getCount(@PathVariable String postId) {
         return ResponseEntity.ok(commentService.getCount(postId));
+    }
+
+    @GetMapping("/dashboard")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<CommentDashboardDto> userDashboardInfo() {
+        return ResponseEntity.ok(commentService.dashBoardCommentsInfo());
     }
 
 }

@@ -22,3 +22,4 @@ rad.json
 TestResults.xml
 .idea/
 */package-lock.json
+front/node_modules/*

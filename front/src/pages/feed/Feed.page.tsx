@@ -3,8 +3,8 @@ import { useState } from "react";
 import PageContainer from "../../components/PageContainer/PageContainer";
 import FeedPageSection, { IVisibilityPosteType, SelectVisibilityPostType } from "../../pageSections/feed/feed.pageSection";
 import { IPost } from "../../types/post.type";
-import instaliteApi from "../../utils/axios/axiosConnection";
 import { useAuthContext } from "../../hooks/useAuthContext.hook";
+import useAxiosPrivate from "../../hooks/useAxios";
 
 /***
  * 
@@ -12,6 +12,7 @@ import { useAuthContext } from "../../hooks/useAuthContext.hook";
  */
 const FeedPage = () => {
   /**User authentification */
+  const instaliteApi = useAxiosPrivate();
   const { user } = useAuthContext();
   const v = localStorage.getItem("visibilitypost");
   const [visibilityTypePost, setVisibilityTypePost] =

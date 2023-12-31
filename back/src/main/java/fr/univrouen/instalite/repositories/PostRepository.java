@@ -31,6 +31,10 @@ public interface PostRepository extends ListCrudRepository<Post,String>, PagingA
 
     //List<Post> findByIsPublicTrue();
 
+    @Query("select  max(count (p.commentList)) from Post p group by p.id")
+    Optional<Long> maxCommentsForAnyPost();
 
+    @Query("select  avg(count (p.commentList)) from Post p group by p.id")
+    Optional<Long> averageCommentsForAnyPost();
 
 }

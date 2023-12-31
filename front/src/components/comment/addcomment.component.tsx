@@ -7,26 +7,11 @@ import {
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import  instaliteApi  from "../../utils/axios/axiosConnection";
 import { ICreateComment, queryKeyComment } from "../../types/comment.type";
 import Loader from "../Loader";
+import useAxiosPrivate from "../../hooks/useAxios";
 
 const EMPTYCONTENT = "";
-const addCommentFn = async (comment: ICreateComment) => {
-  // const user = localStorage.getItem("authData");
-  // let token;
-  // if (user) {
-  //   token = JSON.parse(user).token;
-  // }
-  const response = await instaliteApi.post(`comments`, comment, {
-    headers: {
-      "Content-Type": "Application/json",
-      //Authorization: "Bearer " + token,
-    },
-  });
-
-  return response.data;
-};
 
 const AddComment = ({
   postId,
@@ -38,6 +23,19 @@ const AddComment = ({
   const [content, setContent] = useState<string>("");
   const userId = 1;
   const queryClient = useQueryClient();
+
+  const instaliteApi = useAxiosPrivate();
+
+  const addCommentFn = async (comment: ICreateComment) => {
+    const response = await instaliteApi.post(`comments`, comment, {
+      headers: {
+        "Content-Type": "Application/json",
+      },
+    });
+
+    return response.data;
+  };
+
   const {
     mutateAsync: addCommentMutate,
     isPending,
@@ -51,6 +49,9 @@ const AddComment = ({
       queryClient.invalidateQueries({ queryKey: [queryKeyComment, postId] });
     },
   });
+
+
+
   return (
     <Box padding={1}>
       <TextField

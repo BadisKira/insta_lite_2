@@ -1,10 +1,8 @@
 package fr.univrouen.instalite.services;
 
 import fr.univrouen.instalite.dtos.SupportedExtensions;
+import fr.univrouen.instalite.dtos.post.*;
 import fr.univrouen.instalite.exceptions.*;
-import fr.univrouen.instalite.dtos.post.CreatePostDto;
-import fr.univrouen.instalite.dtos.post.PostDto;
-import fr.univrouen.instalite.dtos.post.UpdatePostDto;
 import fr.univrouen.instalite.entities.*;
 import fr.univrouen.instalite.repositories.CommentRepository;
 import fr.univrouen.instalite.repositories.PostRepository;
@@ -23,8 +21,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Date;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -246,4 +246,36 @@ public class PostService {
         return modelMapper.map(post.get(),PostDto.class);
     }
 
+    public PostDashboardDto postDashboard(){
+        LocalDate minusWeek =  LocalDate.now().minusWeeks(1);
+        LocalDate minusMonth = LocalDate.now().minusMonths(1);
+        LocalDate minusDay = LocalDate.now().minusDays(1);
+
+        long monthPosts = postRepository.findAll().stream().filter(p -> minusMonth.isBefore(p.getCreatedAt().toLocalDate())).count();
+        long weekPosts = postRepository.findAll().stream().filter(p -> minusWeek.isBefore(p.getCreatedAt().toLocalDate())).count();
+        long dayPosts = postRepository.findAll().stream().filter(p -> minusDay.isBefore(p.getCreatedAt().toLocalDate())).count();
+        long allPosts = postRepository.count();
+
+        return new PostDashboardDto(
+                dayPosts,
+                weekPosts,
+                monthPosts,
+                allPosts
+        );
+    }
+
+    public LikeDashboardDto likeDashboard(){
+        long postCount = postRepository.count();
+        long likeCount = postRepository.findAll().stream().mapToInt(p -> p.getLikedUsers().size()).sum();
+
+        Optional<Integer> mostLike = postRepository.findAll().stream().map(p -> p.getLikedUsers().size()).max(Integer::compare);
+        long averageLike = postCount > 0 ? likeCount / postCount : 0;
+
+        return new LikeDashboardDto(
+                mostLike.isPresent() ?
+                        (long)mostLike.get()
+                        : 0,
+                averageLike,
+                likeCount);
+    }
 }

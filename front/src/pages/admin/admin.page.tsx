@@ -1,9 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 import PageContainer from "../../components/PageContainer/PageContainer"
-import instaliteApi from "../../utils/axios/axiosConnection"
 import { IUser } from "../../types/user.type"
-import { Button, Grid, Typography } from "@mui/material"
-import { Suspense, useState } from "react"
+import { Button, Grid, TextField, Typography } from "@mui/material"
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react"
 import DeleteModal from "../../components/DeleteModal/DeleteModal"
 import toast from "react-hot-toast"
 import { useAuthContext } from "../../hooks/useAuthContext.hook"
@@ -11,6 +10,8 @@ import EditUserModal from "../../components/EditUserModal/EditUserModal"
 import UserCard from "../../components/UserCard/UserCard"
 import { queryClient } from "../../main"
 import CreateUserModal from "../../components/CreateUserModal/CreateUserModal"
+import { debounce } from "lodash"
+import useAxios from "../../hooks/useAxios"
 
 const AdminPage = () => {
 	const { token } = useAuthContext()
@@ -22,14 +23,37 @@ const AdminPage = () => {
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 	const [editedUser, setEditedUser] = useState<IUser | undefined>(undefined)
 
-	const { data: users } = useQuery({
+	const [name, setName] = useState<string>("")
+
+	const debounceGetFilteredUsers = useMemo(
+		() =>
+			debounce((value: string) => {
+				setName(value)
+			}, 2000),
+		[]
+	)
+
+	const getFilteredUsers = useCallback(
+		(value: string) => {
+			debounceGetFilteredUsers(value)
+		},
+		[debounceGetFilteredUsers]
+	)
+
+	const instaliteApi = useAxios()
+
+	const { data: users, refetch } = useQuery({
 		queryKey: ["getAllNoneAdminUsers"],
 		queryFn: async () => {
 			instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
-			const { data } = await instaliteApi.get<IUser[]>("users/all")
+			const { data } = await instaliteApi.get<IUser[]>(`users/search?name=${name}`)
 			return data
 		},
 	})
+
+	useEffect(() => {
+		refetch()
+	}, [name])
 
 	const handleOpenDeleteModal = (deletingUserId: number) => {
 		setUserId(deletingUserId)
@@ -47,7 +71,6 @@ const AdminPage = () => {
 			// Refetching query to get new data
 			queryClient.refetchQueries({ queryKey: ["getAllNoneAdminUsers"] })
 		} catch (error) {
-
 			toast.success("Une erreur est survenue lors de la suppression")
 		}
 
@@ -65,7 +88,12 @@ const AdminPage = () => {
 
 		try {
 			instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
-			await instaliteApi.put(`users/${editedUser?.id}`, { firstname, lastname, email, role })
+			await instaliteApi.put(`users/${editedUser?.id}`, {
+				firstname,
+				lastname,
+				email,
+				role,
+			})
 			toast.success("Le compte à été bien modifié !")
 			// Refetching query to get new data
 			queryClient.refetchQueries({ queryKey: ["getAllNoneAdminUsers"] })
@@ -88,7 +116,13 @@ const AdminPage = () => {
 
 		try {
 			instaliteApi.defaults.headers.common.Authorization = "Bearer " + token
-			await instaliteApi.post(`users`, { firstname, lastname, email, password, role })
+			await instaliteApi.post(`users`, {
+				firstname,
+				lastname,
+				email,
+				password,
+				role,
+			})
 			toast.success("Le compte à été bien créé !")
 			// Refetching query to get new data
 			queryClient.refetchQueries({ queryKey: ["getAllNoneAdminUsers"] })
@@ -128,7 +162,7 @@ const AdminPage = () => {
 					/>
 				)}
 			</Suspense>
-			<Grid container style={{ padding: "50px 0px" }}>
+			<Grid container style={{ padding: "50px 0px", gap: 18 }}>
 				<Grid container justifyContent="space-between" alignItems="center" style={{ marginBottom: 20 }}>
 					<Typography variant="h5" fontWeight="bold" style={{ width: "fit-content" }}>
 						Gestion des utilisateurs
@@ -137,7 +171,20 @@ const AdminPage = () => {
 						Créer un utilisateur
 					</Button>
 				</Grid>
-
+				<Grid>
+					<TextField
+						label="Recherche par nom"
+						placeholder="Recherche par nom"
+						variant="outlined"
+						size="small"
+						value={name}
+						onChange={(e) => {
+							setName(e.target.value)
+							getFilteredUsers(e.target.value)
+						}}
+						style={{ margin: "10px 0px" }}
+					/>
+				</Grid>
 				<Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
 					{users &&
 						users.map((user) => (
