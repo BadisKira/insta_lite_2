@@ -5,6 +5,7 @@ import FeedPageSection, { IVisibilityPosteType } from "../../pageSections/feed/f
 import { useState } from "react"
 import { SelectVisibilityPostType } from "../../pageSections/feed/feed.pageSection"
 import useAxiosPrivate from "../../hooks/useAxios"
+import { ProtectedComponent } from "../../router/ProtectedComponent"
 
 const UserPortfolioSectionPage = ({ userId }: { userId: number }) => {
 	const instaliteApi = useAxiosPrivate()
@@ -15,7 +16,6 @@ const UserPortfolioSectionPage = ({ userId }: { userId: number }) => {
 	)
 
 	const getPostsForOneUser = async (page: number) => {
-		if (!userId) return
 		const { data } = await instaliteApi.get<IPost[]>(
 			`posts/user/${userId}?pageNumber=${page - 1}&pageLimit=2&visibilityType=${visibilityTypePost}`
 		)
@@ -24,7 +24,12 @@ const UserPortfolioSectionPage = ({ userId }: { userId: number }) => {
 
 	return (
 		<Grid container>
-			<SelectVisibilityPostType visibilityTypePost={visibilityTypePost} setVisibilityTypePost={setVisibilityTypePost} />
+			<ProtectedComponent allowedRoles={["ADMIN", "SUPERUSER"]}>
+				<SelectVisibilityPostType
+					visibilityTypePost={visibilityTypePost}
+					setVisibilityTypePost={setVisibilityTypePost}
+				/>
+			</ProtectedComponent>
 			<FeedPageSection
 				getFn={getPostsForOneUser}
 				queryKey="userAllPosts"

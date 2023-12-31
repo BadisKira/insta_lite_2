@@ -90,11 +90,7 @@ public class UserService {
     }
 
     public UserDto postOneUser(CreateUserDto newUser){
-        //ToDo : review this
-        if (newUser.getRole().equals("ADMIN"))
-            throw new CanNotCreateAdminUserException();
-
-        RoleEnum roleEnum = (newUser.getRole().equals("USER")) ? RoleEnum.USER : RoleEnum.SUPERUSER;
+        RoleEnum roleEnum = (newUser.getRole().equals("USER")) ? RoleEnum.USER : (newUser.getRole().equals("ADMIN")) ? RoleEnum.ADMIN : RoleEnum.SUPERUSER;
         Optional<Role> optionalRole = this.roleRepository.findByName(roleEnum);
 
         if (optionalRole.isEmpty()) throw new RoleDoesNotExistInDbException();
