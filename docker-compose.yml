@@ -43,8 +43,6 @@ services:
       - backend
     build:
       context: ./front/.
-    environment:
-      - REACT_APP_INSTALITE_API_BASE_URL="http://backend:8080"
     networks:
       - instalite
     ports:

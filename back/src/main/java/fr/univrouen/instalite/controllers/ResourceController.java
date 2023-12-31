@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 public class ResourceController {
     private final ResourceService resourceService;
 
+    //Get a file
     @GetMapping("/{id}")
     public ResponseEntity<Resource> get(@PathVariable("id") String id) {
         ResourceDto resourceDto = resourceService.getById(id);

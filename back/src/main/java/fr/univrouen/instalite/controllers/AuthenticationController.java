@@ -24,12 +24,14 @@ public class AuthenticationController {
     private final JWTService jwtService;
     private final AuthenticationService authenticationService;
 
+    //Register a user
     @PostMapping("/register")
     public  ResponseEntity<UserDto> register (@RequestBody RegisterUserDto registerUserDto){
         UserDto res = authenticationService.signup(registerUserDto);
         return new ResponseEntity<>(res,HttpStatus.CREATED);
     }
 
+    //Login a user
     @PostMapping("/login")
     public ResponseEntity<ResponseLogin> login(@RequestBody LoginUserDto loginUserDto){
         UserDto user = authenticationService.authenticate(loginUserDto);

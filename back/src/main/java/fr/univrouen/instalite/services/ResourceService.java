@@ -26,11 +26,14 @@ public class ResourceService {
         this.postRepository = postRepository;
     }
 
+    //Get a resource data (binary) by post id
     public ResourceDto getById(String id) {
+        //Check if the post exists
         Optional<Post> optPost = postRepository.findById(id);
         if(optPost.isEmpty())
             throw new ResourceNotFoundException();
 
+        //Get and return file
         Post post = optPost.get();
         File file = new File(resourcePath + id + "." + post.getExtension());
         Resource resource;

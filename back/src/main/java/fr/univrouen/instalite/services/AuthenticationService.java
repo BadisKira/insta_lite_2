@@ -28,16 +28,19 @@ public class AuthenticationService {
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
 
+    //Register a user
     public UserDto signup(RegisterUserDto input) {
+        //Check for the role
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
         if (optionalRole.isEmpty())
             throw new RoleDoesNotExistInDbException();
 
+        //Check for the user if it's already exists
         Optional<User> checkUser = userRepository.findByEmailIgnoreCase(input.getEmail());
-
         if(checkUser.isPresent())
             throw new UserAlreadyExistsException();
 
+        //Create the user
         User user = new User();
         user.setEmail(input.getEmail());
         user.setLastname(input.getLastname());
@@ -49,7 +52,9 @@ public class AuthenticationService {
         return modelMapper.map(user, UserDto.class);
     }
 
+    //Authenticate a user
     public UserDto authenticate(LoginUserDto input){
+        //Try to authenticate
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 input.getEmail(),
@@ -57,8 +62,8 @@ public class AuthenticationService {
             )
         );
 
+        //Check if it exists
         Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(input.getEmail());
-
         if (optionalUser.isEmpty())
             throw new UserNotFoundException();
 

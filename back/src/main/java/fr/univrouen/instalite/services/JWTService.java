@@ -23,14 +23,18 @@ public class JWTService {
     @Value("${JWT_EXPIRATION}")
     private long jwtExpiration;
 
+    //Extract userName from the token
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    //Extract claims
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
+
+    //Generate a token for the user
     public String generateToken(UserDto user) {
         return Jwts
                 .builder()
@@ -46,19 +50,23 @@ public class JWTService {
         return jwtExpiration;
     }
 
+    //Check if the token is valid
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
+    //Check if the token is expired
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
+    //Extract the expiration date
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    //Extract all claims
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
@@ -68,6 +76,7 @@ public class JWTService {
                 .getBody();
     }
 
+    //Get the sign in key
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);

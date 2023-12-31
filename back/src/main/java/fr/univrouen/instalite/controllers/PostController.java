@@ -18,6 +18,7 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
 
+    //Create a post
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostCreatedDto> create(CreatePostDto createPostDto) {
@@ -25,13 +26,14 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new PostCreatedDto(id));
     }
 
+    //Get a post
     @GetMapping("/{id}")
     public ResponseEntity<PostDto> get(@PathVariable("id") String id) {
         PostDto postDto = postService.getById(id);
         return ResponseEntity.ok().body(postDto);
     }
 
-    //delete post by id
+    //Delete a post by id
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -40,6 +42,7 @@ public class PostController {
 
     }
 
+    //Update a post
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostDto> update(Authentication authentication,
@@ -61,12 +64,7 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostsFromOneUser(id , pageNumber , pageLimit , visibilityType));
     }
 
-    /*@GetMapping("/me")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<PostDto>> getUsersPost(Authentication authentication){
-        return ResponseEntity.ok(postService.getUsersPosts(authentication.getName()));
-    }*/
-
+    //Get all posts
     @GetMapping("/all")
     @PreAuthorize("hasAnyRole('ADMIN','SUPERUSER')")
     public ResponseEntity<List<PostDto>> getAll(@RequestParam(defaultValue = "0") int pageNumber,
@@ -90,6 +88,7 @@ public class PostController {
     }
 
 
+    //Like a post
     @PutMapping("/{postId}/like")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostDto> toggleLike(Authentication authentication, @PathVariable String postId) {
@@ -97,12 +96,14 @@ public class PostController {
     }
 
 
+    //Get dashboard informations for posts
     @GetMapping("/dashboard")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PostDashboardDto> dashBoardPostsInfo() {
         return ResponseEntity.ok(postService.postDashboard());
     }
 
+    //Get dashboard informations for post likes
     @GetMapping("/likes/dashboard")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<LikeDashboardDto> dashBoardLikesInfo() {

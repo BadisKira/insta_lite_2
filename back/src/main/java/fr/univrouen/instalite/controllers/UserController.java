@@ -17,6 +17,7 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
+    //Delete a user
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteOneUser(@PathVariable("id") Long id) {
@@ -29,6 +30,7 @@ public class UserController {
         }
     }
 
+    //Create a user
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDto> postOneUser(@RequestBody CreateUserDto user) {
@@ -36,6 +38,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
+    //Update user
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDto> putOneUser(@PathVariable("id") Long id, @RequestBody UserDto user) {
@@ -43,6 +46,7 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    //Get all users
     @GetMapping( "/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserDto>> getAllUsers() {
@@ -50,6 +54,7 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    //Update user infos
     @PutMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDto> putUserInfos(Authentication authentication, @RequestBody RegisterUserDto user){
@@ -57,6 +62,7 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    //Reset user password
     @PutMapping("/reset-password")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> putUserPassword(Authentication authentication,
@@ -65,11 +71,13 @@ public class UserController {
         return ResponseEntity.ok("Password reset successfully");
     }
 
+    //Search users
     @GetMapping("/search")
     public ResponseEntity<List<UserDto>> searchByName(@RequestParam(defaultValue = "") String name ) {
-        return ResponseEntity.ok(userService.seachUserByName(name)) ;
+        return ResponseEntity.ok(userService.seachUserByName(name));
     }
 
+    //Dashboard informations for users
     @GetMapping("/dashboard")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDashBoardDto> userDashboardInfo() {
@@ -77,6 +85,7 @@ public class UserController {
         return ResponseEntity.ok(userDashBoardDto);
     }
 
+    //Get a user
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getOneUser(@PathVariable(value = "id") Long id) {
         UserDto user = userService.getOneUser(id);

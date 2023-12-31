@@ -33,22 +33,24 @@ public class CommentService {
     private CommentRepository commentRepository;
     private ModelMapper modelMapper;
 
+    //Create a comment for a post
     public CommentDto createComment(String email, CreateCommentDto createCommentDto){
+        //Check the user
         Optional<User> user = userRepository.findByEmailIgnoreCase(email);
-
         if(user.isEmpty())
             throw new UserNotFoundException();
 
+        //Check the post
         Optional<Post> post = postRepository.findById(createCommentDto.getPostId());
-
         if(post.isEmpty())
             throw new PostNotFoundException();
 
+        //Check if the comment has no content
         if(createCommentDto.getContent().replaceAll(" ","").equals(""))
             throw new CommentHasNoContentException();
 
+        //Create comment
         Date actualDate = Date.from(Instant.now());
-
         Comment comment = new Comment(
                 null,
                 user.get(),
@@ -57,44 +59,53 @@ public class CommentService {
                 actualDate
         );
         commentRepository.save(comment);
+
         return modelMapper.map(comment, CommentDto.class);
     }
 
+    //Get comments of a post
     public List<CommentDto> getPaginatedCommentFromPost(String postId , int pageNumber, int pageLimit) {
+        //Check the post
         Optional<Post> post = postRepository.findById(postId);
-
         if(post.isEmpty())
             throw new PostNotFoundException();
 
+        //Get comments, map and return in a list
         Page<Comment> page = commentRepository.findCommentsByPost_Id(postId,PageRequest.of(pageNumber,pageLimit));
         return page.get().map(comment -> modelMapper.map(comment, CommentDto.class)).toList();
     }
 
+    //Delete a comment
     public void delete(String commentId){
-        Optional<Comment> comment = this.commentRepository.findById(commentId);
-
-        if(comment.isEmpty())
-            throw new CommentNotFoundException();
-
-        commentRepository.deleteById(commentId);
-
-    }
-
-
-    public CommentDto update (String commentId ,CreateCommentDto createCommentDto) {
+        //Check the comment
         Optional<Comment> comment = commentRepository.findById(commentId);
         if(comment.isEmpty())
             throw new CommentNotFoundException();
 
+        //Delete
+        commentRepository.deleteById(commentId);
+    }
+
+
+    //Update a comment
+    public CommentDto update (String commentId ,CreateCommentDto createCommentDto) {
+        //Check the comment
+        Optional<Comment> comment = commentRepository.findById(commentId);
+        if(comment.isEmpty())
+            throw new CommentNotFoundException();
+
+        //Update
         comment.get().setContent(createCommentDto.getContent());
         commentRepository.save(comment.get());
         return  modelMapper.map(comment, CommentDto.class);
     }
 
+    //Get comment count of a post
     public CommentCountDto getCount(String postId) {
         return new CommentCountDto(commentRepository.countCommentsByPost_Id(postId));
     }
 
+    //Get dashboard info
     public CommentDashboardDto dashBoardCommentsInfo() {
         long commentCount  = commentRepository.count();
         long postCount = postRepository.count();
